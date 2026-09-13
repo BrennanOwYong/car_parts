@@ -1,0 +1,83 @@
+ The LiDAR implementation is ready for its first iPhone test on commit 0cb00fa. It is not merged into main, and it has not yet been compiled on a 
+  Mac or tested on a physical iPhone.
+
+  Important limitation: the current flow still requires a supported car part before it unlocks LiDAR. It cannot yet start with an arbitrary object.
+  A direct “Scan any object” mode still needs to be added.
+
+  ## Test the current car-part flow                                                                                                                
+                                                                                                                                                   
+  First, publish the independent branch from the computer that contains the worktree:                                                              
+                                                                                                                                                   
+  git -C /tmp/car_parts-ios-lidar push -u origin feature/ios-lidar-capture
+                                                                                                                                                   
+  On the MacBook:                                                                                                                                  
+                                                                                                                                                   
+  git clone https://github.com/BrennanOwYong/car_parts.git                                                                                         
+  cd car_parts                                                                                                                                     
+  git switch feature/ios-lidar-capture                                                                                                             
+  cp .env.example .env                                                                                                                             
+  open CarPartCAD.xcodeproj
+                                                                                                                                                   
+  Put your OpenAI key in .env.                                                                                                                     
+                                                                                                                                                   
+  Find the Mac Wi-Fi address:                                                                                                                      
+                                                                                                                                                   
+  ipconfig getifaddr en0                                                                                                                           
+
+  Start the relay. Replace the example address:                                                                                                    
+                                                                                                                                                   
+  ASTRA_RELAY_HOST=192.168.1.20 ./astra_relay.py
+                                                                                                                                                   
+  On the iPhone, open:                                                                                                                             
+                                                                                                                                                   
+  http://192.168.1.20:8787/health                                                                                                                  
+                                                                                                                                                   
+  Continue when it shows:                                                                                                                          
+                                                                                                                                                   
+  {"status":"ok"}                                                                                                                                  
+                                                                                                                                                   
+  In Xcode:                                                                                                                                        
+                                                                                                                                                   
+  1. Select the CarPartCAD target.                                                                                                                 
+  2. Open Signing & Capabilities.                                                                                                                  
+  3. Select your Apple Developer team.                                                                                                             
+  4. Set a unique bundle identifier if required.                                                                                                   
+  5. Connect the iPhone by cable.                                                                                                                  
+  6. Enable Settings → Privacy & Security → Developer Mode.                                                                                        
+  7. Select the physical iPhone as the run destination.                                                                                            
+  8. Select Product → Run.                                                                                                                         
+
+  Apple requires a physical device to test hardware-specific features such as LiDAR. The simulator cannot perform this test. See Apple’s           
+  physical-device instructions (https://developer.apple.com/documentation/xcode/building-and-running-an-app) and ARKit scene reconstruction        
+  (https://developer.apple.com/documentation/ARKit/ARWorldTrackingConfiguration/sceneReconstruction).                                              
+
+  In the app:                                                                                                                                      
+
+  1. Open Relay.                                                                                                                                   
+  2. Enter http://192.168.1.20:8787.                                                                                                               
+  3. Upload or take a car-part photo.                                                                                                              
+  4. Confirm Astra’s vehicle and part result.                                                                                                      
+  5. Wait for OEM and public-scan searches.                                                                                                        
+  6. If Astra returns needs_lidar, select Start final LiDAR scan.                                                                                  
+  7. Move around all accessible sides until the green mesh covers the object.                                                                      
+  8. Mark a screw hole, clip, tab, edge, and opening.                                                                                              
+  9. Select Use metric scan for CAD.                                                                                                               
+  10. Share the fitted and exploded .scad files.                                                                                                   
+                                                                                                                                                   
+  LiDAR can miss small holes and thin edges. Verify important distances with a ruler or caliper.                                                   
+                                                                                                                                                   
+  ## Consolidated questions and answers                                                                                                            
+                                                                                                                                                   
+  Can I test LiDAR now?                                                                                                                            
+
+  Yes, as a first unverified physical-device test. The feature branch has 10 of 11 gates complete. The remaining gate is your real-iPhone test.    
+                                                                                                                                                   
+  Can it scan any object?                                                                                                                          
+                                                                                                                                                   
+  Not through the complete workflow yet. The current app only unlocks LiDAR after the car-part source search fails.                                
+                                                                                                                                                   
+  What is needed for arbitrary objects?                                                                                                            
+                                                                                                                                                   
+  Add a direct Scan object mode. It must bypass vehicle identification and OEM research, capture the object from all accessible angles, and send   
+  the metric mesh directly to lidar_generate.                                                                                                      
+                                             
