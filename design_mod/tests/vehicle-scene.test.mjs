@@ -1,0 +1,30 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {vehicles} from '../catalog.mjs';
+import {createPartGroup} from '../geometry.mjs';
+import {prepareVehicle,updateExploded,modificationOffset,disposeObject} from '../vehicle-scene.mjs';
+import {loadTestVehicle} from './load-test-vehicle.mjs';
+
+for(const v of vehicles)test(`${v.make}: real mesh assemblies, selectable regions, reversible explosion`,async()=>{
+  const source=await loadTestVehicle(v),model=prepareVehicle(source,v);
+  assert.equal(model.vehicleId,v.id);
+  assert.ok(model.assemblies.length>=15,`Only ${model.assemblies.length} assemblies`);
+  if(v.adapter==='corolla')assert.equal(model.assemblies.length,43);
+  assert.equal(model.sourceTriangles,model.displayTriangles,'All retained source triangles survive grouping');
+  assert.ok(model.sourceTriangles>30000);
+  const box=new THREE.Box3().setFromObject(model.root,true);
+  assert.ok(Math.abs(box.getSize(new THREE.Vector3()).z-v.dimensions.length/1000)<.001);
+  for(const id of ['front','sides','rear'])assert.ok(model.overlays[id].length>0,`${id} must have a real selectable painted surface`);
+  const glass=[];model.root.traverse(o=>{if(o.isMesh&&/glass|windshield/i.test(o.userData.assembly))glass.push(o);});
+  assert.ok(glass.length);assert.ok(glass.every(o=>!o.userData.region),'Windows cannot select modifications');
+  const parts=new THREE.Group();parts.add(createPartGroup('sides','sport',undefined,v.id));
+  updateExploded(model,parts,1);
+  assert.ok(model.assemblies.some(g=>g.position.length()>1));
+  const skirt=parts.children[0].children[0];assert.deepEqual(skirt.position.toArray(),modificationOffset('sides',-1).toArray());
+  updateExploded(model,parts,0);
+  assert.ok(model.assemblies.every(g=>g.position.length()===0));
+  assert.equal(skirt.position.length(),0);
+  console.log(v.id,model.assemblies.length,'assemblies',model.sourceTriangles,'triangles');
+  disposeObject(source);disposeObject(model.overlayRoot);disposeObject(model.root);disposeObject(parts);
+});

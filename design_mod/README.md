@@ -1,6 +1,6 @@
 # FORMA — body kit design studio
 
-A local hackathon demo: choose the Ferrari 458, orbit the real GLB model, hover editable body regions, preview three styles of front lip / side skirts / rear spoiler, compare with stock, and export individual binary STL parts plus a ZIP manifest. The source calls its asset “458 Italia,” but it depicts an open-top vehicle; the UI identifies the series rather than claiming an exact year or trim.
+A local hackathon demo: choose Ferrari 458, Toyota Corolla 2020, or Porsche 911 Carrera 4S; orbit and explode the actual car meshes; select editable painted assemblies; configure front lips, side skirts and rear spoilers; inspect an exploded metal-fastener concept; and export individual STL parts, an illustrated assembly field guide, hardware BOM and manifest. Exact year/trim is unverified where stated in the catalog. Ferrari is the user's selected visualization-only attachment study.
 
 ## Run
 
@@ -25,18 +25,20 @@ The same commands work on macOS, Linux, and Windows.
 ## Implemented boundary
 
 - This directory is independent of the existing Python repair relay and native iOS flow. Those files are unchanged.
-- The landing mode cards show Fix part and Car accessory as coming soon. The exploded intro stays a placeholder.
-- Vehicle selection loads a prepared catalog entry, not a live web-scraped engineering model. Ferrari replaced the tentative Corolla because a direct-download GLB was available in the Three.js example repository.
-- The car asset is a visual mesh, not OEM CAD. Overall length is normalized to 4,527 mm; that does not establish attachment accuracy.
-- The nine kit designs are original procedural concept profiles. They have thickness and closed geometry, but no measured mounting features. Do not describe them as fitted or plug-and-play vehicle parts.
+- The landing experience is separate from the studio. Fix part and Car accessory remain coming soon.
+- Vehicle selection loads three prepared, locally stored assets, not live web-scraped engineering models. Make/model fields and collection cards stay synchronized. In-memory build selections and paint are preserved separately per car.
+- Ferrari, Corolla and Porsche expose 34, 43 and 36 visual assembly groups. Connected source islands move intact; unmapped windows and other non-mod surfaces do not select modifications. Explosion is reversible, and selected mod parts follow their corresponding assembly offsets.
+- The car assets are visualization meshes, not OEM CAD. Scaling to an overall-length reference does not establish attachment accuracy. See each catalog record for identity and scale caveats.
+- Three original styles per region per car (27 combinations) have thinner solid profiles and actual Ø6.6 mm concept through-holes. Hole positions are not measured OEM patterns. Do not describe these as fitted or plug-and-play vehicle parts.
+- The hardware close-up illustrates purchased metal bolts, washers, backing plates, locking nuts and pads. These are not printable structural fasteners. The seven-section guide covers the bench demonstration and lists missing engineering-release checks, not an on-car installation procedure. See `MOUNTING_RESEARCH.md`.
 - “Print” creates prototype STL files; it does not submit a print order. Skirts export separately for left and right. The manifest includes dimensions, mm units, Z-up orientation, and fit status.
 - Pure, Sport, and Aero are original demo styles, not verified popularity rankings or replicas of branded aftermarket kits.
 - Configurations live in browser memory. Generated downloads remain in server memory for one hour (up to 30 exports); a restart clears downloads. Re-export from the studio if a link expires.
 
 ## Integration contract
 
-- `GET /api/catalog`: `vehicles`, `regions`, `styles`. Vehicle records carry identity, asset URL, dimensions, attribution, and fit status.
-- `POST /api/exports`: `{ "vehicleId": "ferrari-458-demo", "selections": { "front": "sport", "sides": "subtle", "rear": "stock" } }`. At least one non-stock choice required. Returns export ID, selected parts, each STL URL, dimensions, and ZIP URL.
+- `GET /api/catalog`: `vehicles`, `regions`, `styles`, `mountingConcept`, `mountingReferences`. Vehicle records carry identity, asset URL, adapter, dimensions, attribution, license, per-region profile transforms and fit status.
+- `POST /api/exports`: `{ "vehicleId": "ferrari-458-demo", "selections": { "front": "sport", "sides": "subtle", "rear": "stock" } }`. At least one non-stock choice required. Returns selected vehicle ID/name, geometry revision, parts/STL URLs, part-local hole coordinates, hardware BOM, `guideUrl`, `bomUrl` and ZIP URL. Also accepts `toyota-corolla-2020` and `porsche-911-carrera-4s`.
 - `GET /api/exports/:id/:filename`: generated file; unknown or expired export returns 404.
 - Invalid input returns 400; requests over 8 KB return 413. Only predefined vehicle, region, and style IDs are accepted.
 
@@ -44,7 +46,9 @@ The same commands work on macOS, Linux, and Windows.
 
 ## Adding a vehicle
 
-See `CAR_LIBRARY.md` for researched candidates. Before enabling a car: obtain the authorized GLB, record attribution and reuse terms, inspect variant and geometry, normalize scale, map editable surfaces, and prepare matching modification shapes. The present region coordinates are Ferrari-specific. Adding a catalog record alone does not make another car compatible.
+See `CAR_LIBRARY.md` for researched candidates. Before enabling a car: obtain the authorized GLB, record attribution and reuse terms, inspect variant and geometry, normalize orientation and scale, map editable assemblies, and prepare its concept profile transforms. `vehicle-scene.mjs` handles source-preserving preparation and explosion. `mesh-components.mjs` groups connected islands; tests decode the actual assets using the glTF utilities in dev dependencies. Adding a catalog label alone is insufficient.
+
+Tests cover all 27 vehicle/style combinations, closed STL edges, finite coordinates, positive volume, circular through-hole clearances, export hole coordinate frames, hardware BOM quantities, truthful guide status, source triangle preservation, glass exclusion and reversible assembly offsets. `HMR_PORT` can select an independent Vite websocket port when multiple local preview servers run at once.
 
 For a future measured version, replace concept profiles with part templates built around verified attachment geometry; retain the same preview/export identity. Keep engineering validation separate from visual asset metadata.
 

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import {unzipSync} from 'fflate';
 import {buildExport,api} from '../server.mjs';
-import {styles,regions,vehicle} from '../catalog.mjs';
+import {styles,regions,vehicle,vehicles} from '../catalog.mjs';
 
 function inspectSTL(bytes){
   const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),count=view.getUint32(80,true);
@@ -25,12 +25,21 @@ function inspectSTL(bytes){
   assert.ok(Math.max(...maxs.map((n,i)=>n-mins[i]))>500,'Real-scale millimetre geometry');
 }
 test('All nine styles export closed finite geometry at mm scale',()=>{
-  for(const region of regions)for(const style of styles){const result=buildExport({vehicleId:vehicle.id,selections:{[region.id]:style.id}});const parts=Object.entries(result.files).filter(([name])=>name.endsWith('.stl'));assert.equal(parts.length,region.id==='sides'?2:1);for(const [,data]of parts)inspectSTL(data);}
+  for(const v of vehicles)for(const region of regions)for(const style of styles){const result=buildExport({vehicleId:v.id,selections:{[region.id]:style.id}});assert.equal(result.manifest.vehicleId,v.id);const parts=Object.entries(result.files).filter(([name])=>name.endsWith('.stl'));assert.equal(parts.length,region.id==='sides'?2:1);for(const [,data]of parts)inspectSTL(data);}
+});
+test('Each car exports its own kit geometry, not a renamed Ferrari kit',()=>{
+  const widths=vehicles.map(v=>buildExport({vehicleId:v.id,selections:{rear:'sport'}}).manifest.parts[0].dimensionsMm[0]);
+  assert.equal(new Set(widths).size,vehicles.length);
 });
 test('Kit contains only selected parts and truthful manifest',()=>{
   const result=buildExport({vehicleId:vehicle.id,selections:{front:'subtle',sides:'sport',rear:'stock'}});
   assert.equal(result.manifest.parts.length,3);assert.equal(result.manifest.fitVerified,false);assert.equal(result.manifest.mountsIncluded,false);assert.equal(result.manifest.units,'mm');
-  const files=unzipSync(result.zip);assert.equal(Object.keys(files).length,5);assert.ok(!Object.keys(files).some(f=>f.includes('rear')));
+  const files=unzipSync(result.zip);assert.equal(Object.keys(files).length,7);assert.ok(!Object.keys(files).some(f=>f.includes('rear')));
+  assert.equal(result.manifest.mountingFeaturesIncluded,true);assert.equal(result.manifest.roadUseApproved,false);
+  assert.equal(result.manifest.hardwareIncludedInSTL,false);
+  assert.ok(files['assembly-guide.html']);assert.ok(files['hardware-bom.csv']);
+  assert.equal(result.manifest.hardware.find(h=>h.id==='H1').quantity,12);
+  assert.ok(result.manifest.parts.every(p=>p.mounting.holes.length===4));
 });
 test('Rejects unsupported or empty configuration',()=>{
   for(const input of [{},{vehicleId:vehicle.id,selections:{}},{vehicleId:vehicle.id,selections:{front:'stock'}},{vehicleId:'corolla',selections:{front:'sport'}},{vehicleId:vehicle.id,selections:{window:'sport'}},{vehicleId:vehicle.id,selections:{front:'custom'}}])assert.throws(()=>buildExport(input));
@@ -39,10 +48,11 @@ test('HTTP catalog, export, individual file and invalid input',async()=>{
   const server=http.createServer(async(req,res)=>{if(!await api(req,res)){res.writeHead(404);res.end();}});
   await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}`;
   try{
-    assert.equal((await (await fetch(base+'/api/catalog')).json()).vehicles[0].id,vehicle.id);
+    assert.deepEqual((await (await fetch(base+'/api/catalog')).json()).vehicles.map(v=>v.id),vehicles.map(v=>v.id));
     const response=await fetch(base+'/api/exports',{method:'POST',body:JSON.stringify({vehicleId:vehicle.id,selections:{rear:'aggressive'}})});assert.equal(response.status,201);const result=await response.json();
     const part=await fetch(base+result.parts[0].url);assert.equal(part.status,200);inspectSTL(new Uint8Array(await part.arrayBuffer()));
     const zip=await fetch(base+result.downloadUrl);assert.equal(zip.headers.get('content-type'),'application/zip');
+    const guide=await fetch(base+result.guideUrl);assert.equal(guide.headers.get('content-type'),'text/html; charset=utf-8');assert.match(await guide.text(),/BENCH DEMO ONLY/);
     assert.equal((await fetch(base+'/api/exports',{method:'POST',body:'not json'})).status,400);
     assert.equal((await fetch(base+'/api/exports/missing/kit.zip')).status,404);
   }finally{await new Promise(r=>server.close(r));}
