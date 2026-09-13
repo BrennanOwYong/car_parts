@@ -22,21 +22,7 @@ This matters economically as well as technically. Better visual understanding tr
 
 ### How did you use Astra?
 
-We used Astra in Codex to build FORMA from concept to working prototype. Astra helped design the 3D interface, organize vehicle meshes into exploded assemblies, implement configurable body-kit geometry, export prototype STL files, create repair workflows, research references, debug the experience, and validate geometry/export behavior.
-
-The deeper Astra use case is agentic engineering. Astra is being used as a visual and research agent that can look at car images, inspect vehicle models, read OEM spec sheets or mechanic references, and run its own research loop to ground observations in as much truth as possible. Camera images alone have limits: a photo may show a dent or crack, but it may not reveal exact dimensions, hidden mounting points, or the full engineering context. FORMA strengthens the photo understanding with vehicle models and OEM references, so the platform can map visible damage to a specific schematic section instead of guessing from pixels alone.
-
-In the projected repair flow, Astra:
-
-1. Reads the user's damage photo and chat context.
-2. Identifies the vehicle and likely damaged assembly.
-3. Compares the photo against the prepared 3D vehicle model.
-4. Uses exploded-view segmentation to distinguish neighboring parts.
-5. Checks OEM or mechanic references for engineering constraints.
-6. Generates or retrieves a CAD/STL concept for the affected part.
-7. Renders the part, compares it back to the visual evidence, and iterates toward a closer match.
-
-This is why FORMA fits both Best example of Agentic Engineering and Best example of Visual Understanding. The agent is not only labeling an image. It is using vision, research, geometry, and engineering constraints to move from "this looks damaged" toward "this is the specific part, this is how it relates to the rest of the car, and this is the CAD artifact needed for repair or customization."
+We used Astra in Codex to build FORMA from concept to working prototype: 3D interface, exploded vehicle assemblies, configurable body-kit geometry, STL exports, repair chat, reference research, debugging, and geometry validation. The core Astra use case is agentic engineering plus visual understanding. Astra is used as a visual/research agent that reads car photos, inspects prepared 3D models, checks OEM spec sheets and mechanic references, then maps visible damage to the correct schematic section. Photos alone cannot prove hidden mounts, exact dimensions, or engineering constraints, so FORMA grounds visual observations in vehicle geometry and OEM truth. Projected flow: upload damage photo -> identify vehicle and damaged assembly -> compare against 3D model -> use exploded-view segmentation to separate neighboring parts -> check OEM constraints -> generate/retrieve CAD/STL -> render, compare back to the photo, and self-correct. This turns "this looks damaged" into "this exact part needs repair/customization," saving money, material, and effort by fixing only what is damaged.
 
 ### Best project tracks
 
