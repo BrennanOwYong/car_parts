@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.unlazy/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+CarPartCAD.xcodeproj/project.xcworkspace/xcuserdata/

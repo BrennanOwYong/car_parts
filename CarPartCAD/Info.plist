@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleDisplayName</key><string>CarPart CAD</string>
+<key>NSCameraUsageDescription</key><string>Capture the vehicle and part for reconstruction.</string>
+<key>NSWorldSensingUsageDescription</key><string>Scan the part and its mounting interface with LiDAR.</string>
+<key>NSPhotoLibraryUsageDescription</key><string>Select a vehicle or part photo for reconstruction.</string>
+<key>NSLocalNetworkUsageDescription</key><string>Connect to the local Astra relay during development.</string>
+<key>ASTRA_RELAY_URL</key><string>http://YOUR-LAPTOP-IP:8787/analyze</string>
+<key>NSAppTransportSecurity</key><dict><key>NSAllowsArbitraryLoads</key><true/></dict>
+</dict></plist>
