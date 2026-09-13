@@ -2,9 +2,8 @@
   "vehicle": {"vin": "1TESTVIN", "make_model_year": "Example 2020"},
   "part": {"name": "air duct", "mode": "replace"},
   "required_features": ["mounting_hole", "locating_pin"],
-  "capture_contract": {"scale_reference": "checkerboard-100mm", "scan_file": "part.usdz", "photos": ["front.jpg", "rear.jpg", "mounting-face.jpg"]},
   "constraints": [
-    {"feature": "mounting_hole", "source": "measured_scan", "value": {"diameter_mm": 6.0, "center": [10.0, 20.0, 0.0]}, "tolerance_mm": 0.2, "confidence": 0.98, "evidence_id": "scan-001"},
+    {"feature": "mounting_hole", "source": "oem", "value": {"diameter_mm": 6.0, "center": [10.0, 20.0, 0.0]}, "tolerance_mm": 0.2, "confidence": 0.98, "evidence_id": "oem-002"},
     {"feature": "locating_pin", "source": "oem", "value": {"center": [2.0, 3.0, 0.0]}, "tolerance_mm": 0.1, "confidence": 0.99, "evidence_id": "oem-001"}
   ]
 }

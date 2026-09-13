@@ -15,7 +15,7 @@ from typing import Any
 
 
 HARD_FEATURES = {"mounting_hole", "locating_pin", "sealing_face", "interface_plane", "clearance"}
-ALLOWED_SOURCES = {"oem", "measured_scan", "manual_measurement", "inferred", "unknown"}
+ALLOWED_SOURCES = {"oem", "inferred", "unknown"}
 
 
 @dataclass(frozen=True)
@@ -54,8 +54,6 @@ def assess(job: dict[str, Any]) -> dict[str, Any]:
             failures.append(f"{c.feature}: confidence {c.confidence:.2f} is below 0.95")
         if c.hard and not c.evidence_id:
             failures.append(f"{c.feature}: evidence_id is required")
-        if c.source == "measured_scan" and c.tolerance_mm is None:
-            failures.append(f"{c.feature}: measured scan constraint needs tolerance_mm")
 
     hard_features = {c.feature for c in constraints if c.hard}
     required_features = set(job.get("required_features", ["mounting_hole"]))
@@ -68,7 +66,7 @@ def assess(job: dict[str, Any]) -> dict[str, Any]:
         "part": job.get("part", {}),
         "constraints": [asdict(c) for c in constraints],
         "failures": failures,
-        "next_actions": (["capture a registered scan with scale and evidence IDs", "obtain OEM service/CAD data or a verified donor part", "review generated CAD before manufacture"] if failures else ["generate CAD from the constraint set", "run interference and tolerance checks", "require human sign-off before manufacture"]),
+        "next_actions": (["obtain an exact OEM dimension", "record its tolerance and evidence ID", "review generated CAD before manufacture"] if failures else ["generate CAD from the constraint set", "run interference and tolerance checks", "require human sign-off before manufacture"]),
     }
 
 

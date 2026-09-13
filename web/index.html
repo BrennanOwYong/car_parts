@@ -23,7 +23,7 @@
       <p class="hero-copy">Astra identifies the vehicle and part. Direct official documents provide dimensional constraints. The MVP accepts a photo and text only.</p>
       <p class="catalog-note">Dimension-bearing official documents pre-indexed.</p>
       <ol class="progress" aria-label="Reconstruction progress">
-        <li class="active" data-progress="1"><span>1</span> Photograph</li>
+        <li class="active" data-progress="1"><span>1</span> Upload</li>
         <li data-progress="2"><span>2</span> Confirm</li>
         <li data-progress="3"><span>3</span> Verify</li>
         <li data-progress="4"><span>4</span> CAD</li>
@@ -34,15 +34,15 @@
       <article class="panel" id="photo-panel">
         <div class="panel-heading">
           <span class="step-number">01</span>
-          <div><p class="eyebrow">Input</p><h2>Photograph the car part</h2></div>
+          <div><p class="eyebrow">Input</p><h2>Upload a car photo</h2></div>
         </div>
         <p>Show the damaged part and enough of the vehicle for make and model identification. Include the mounting area when possible.</p>
-        <label class="capture-box" for="part-photo">
+        <label class="upload-box" for="part-photo">
           <img id="photo-preview" alt="Selected car part" hidden>
-          <span id="capture-prompt"><b>Take car-part photo</b><small>This opens the phone camera. Use the rear lens.</small></span>
-          <input id="part-photo" type="file" accept="image/*" capture="environment">
+          <span id="upload-prompt"><b>Upload car photo</b><small>Choose an existing image from this computer.</small></span>
+          <input id="part-photo" type="file" accept="image/*">
         </label>
-        <p class="fine-print">The website uses one captured photo. It does not record video.</p>
+        <p class="fine-print">Upload one image. The website does not request a camera or accept video.</p>
         <label class="text-input" for="part-notes">Describe the part or damage (optional)
           <textarea id="part-notes" maxlength="2000" rows="4" placeholder="Example: Broken left-front bumper bracket. Two screw holes remain on the vehicle."></textarea>
         </label>
@@ -67,28 +67,25 @@
       <article class="panel" id="measure-panel" hidden>
         <div class="panel-heading">
           <span class="step-number">03</span>
-          <div><p class="eyebrow">Measurement required</p><h2>LiDAR is the next step</h2></div>
+          <div><p class="eyebrow">Evidence gap</p><h2>Exact dimensions are missing</h2></div>
         </div>
-        <p id="scan-instruction"></p>
-        <div class="device-check" id="device-check">
-          <span class="status-dot" aria-hidden="true"></span>
-          <div><b id="device-title">Checking this device</b><small id="device-detail">Checking browser depth access.</small></div>
-        </div>
+        <p id="missing-instruction"></p>
         <div class="notice">
-          <b>MVP limit</b>
-          <p>This website version accepts only a photo and text. It does not accept a mesh. Use the native iPhone scanner in the next development phase.</p>
+          <b>CAD was not generated</b>
+          <p>Astra could not verify every fit-critical dimension in an official document. The prototype does not infer hard limits from the photo.</p>
         </div>
-        <button class="secondary" id="lidar-restart-button" type="button">Start another part</button>
+        <button class="secondary" id="missing-restart-button" type="button">Start another part</button>
       </article>
 
       <article class="panel result-panel" id="cad-panel" hidden>
         <div class="panel-heading">
           <span class="step-number">04</span>
-          <div><p class="eyebrow">Validated output</p><h2>Your CAD model is ready</h2></div>
+          <div><p class="eyebrow">Validated output</p><h2>Your CAD model and exploded view are ready</h2></div>
         </div>
         <p>Astra matched every required dimension to a direct official dimension document.</p>
         <div class="cad-object" aria-hidden="true"><div class="cad-hole"></div></div>
         <button class="primary" id="download-button" type="button">Download OpenSCAD model</button>
+        <button class="secondary" id="exploded-download-button" type="button">Download exploded OpenSCAD view</button>
         <button class="secondary" id="restart-button" type="button">Start another part</button>
       </article>
 

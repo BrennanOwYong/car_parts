@@ -30,37 +30,38 @@ class WebApplicationChecks(unittest.TestCase):
         with urllib.request.urlopen(self.base + path) as response:
             return response, response.read().decode()
 
-    def test_relay_serves_mobile_website(self):
+    def test_relay_serves_desktop_upload_website(self):
         response, html = self.get("/")
         self.assertEqual(response.headers.get_content_type(), "text/html")
-        for value in ("part-photo", "part-notes", "vehicle-panel", "measure-panel", "cad-panel", "download-button"):
+        for value in ("part-photo", "part-notes", "vehicle-panel", "measure-panel", "cad-panel", "download-button", "exploded-download-button"):
             self.assertIn(f'id="{value}"', html)
-        self.assertIn('capture="environment"', html)
-        self.assertIn("Take car-part photo", html)
-        self.assertIn("It does not record video", html)
+        self.assertIn("Upload car photo", html)
+        self.assertIn("Choose an existing image from this computer", html)
         self.assertIn("Dimension-bearing official documents pre-indexed", html)
-        self.assertIn("accepts only a photo and text", html)
         self.assertIn("<textarea", html)
         self.assertEqual(html.count('type="file"'), 1)
-        self.assertNotIn("mesh-file", html)
-        self.assertNotIn("<video", html)
 
-    def test_scripts_use_same_origin_api_and_honest_lidar_check(self):
+    def test_website_has_no_mobile_capture_or_lidar_interface(self):
+        _, html = self.get("/")
+        _, script = self.get("/app.js")
+        combined = html + script
+        for value in ('capture="environment"', "getUserMedia", "<video", "LiDAR", "iPhone", "detectDepthCapability", "scan_obj_base64"):
+            self.assertNotIn(value, combined)
+
+    def test_script_uses_same_origin_api_and_optional_text(self):
         response, script = self.get("/app.js")
         self.assertEqual(response.headers.get_content_type(), "text/javascript")
         self.assertIn('fetch("/analyze"', script)
-        self.assertIn("detectDepthCapability", script)
-        self.assertIn("Safari does not identify the iPhone model or provide its raw ARKit mesh", script)
         self.assertIn('user_text: element("part-notes").value.trim()', script)
-        self.assertNotIn("scan_obj_base64", script)
-        self.assertNotIn("normalizeObjToMillimeters", script)
+        self.assertIn('result.outcome === "needs_dimensions"', script)
 
-    def test_camera_flow_is_photo_only(self):
+    def test_vehicle_confirmation_and_cad_downloads_exist(self):
+        _, html = self.get("/")
         _, script = self.get("/app.js")
-        self.assertIn('canvas.toBlob(resolve, "image/jpeg"', script)
-        self.assertIn("imageAsJpegBase64(file)", script)
-        self.assertNotIn("getUserMedia", script)
-        self.assertNotIn("cameraStream", script)
+        for value in ("vehicle-make", "vehicle-model", "vehicle-year"):
+            self.assertIn(f'id="{value}"', html)
+        self.assertIn('link.download = `${state.partName', script)
+        self.assertIn('-exploded.scad`', script)
 
     def test_static_routes_are_restricted(self):
         with self.assertRaises(urllib.error.HTTPError) as caught:

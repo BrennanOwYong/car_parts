@@ -15,7 +15,6 @@ Use this order:
 
 1. A free official service, collision, upfitter, or body-builder document that states a dimension.
 2. Another direct official document that states the required value and exact vehicle applicability.
-3. A measured 3D scan when no official source states the required value.
 
 An exploded parts diagram is not a scale drawing. It can prove part names, part numbers, adjacency, and fastener context. It cannot prove length, tolerance, hole centre, thickness, or curvature unless the official page or document explicitly states that value.
 
@@ -31,7 +30,7 @@ For every proposed hard constraint, record:
 
 Do not derive scale from a diagram image. Do not transfer a dimension across a model year, trim, body style, or market without explicit applicability. Do not treat a superseding part number as geometrically identical unless the official source says so.
 
-When official dimensional evidence is incomplete, return the exact missing features. Request a focused scan of those features and the mating vehicle interface. Keep CAD blocked until each fit-critical constraint has official or measured evidence.
+When official dimensional evidence is incomplete, return the exact missing features. Keep CAD blocked until an exact official document supports each fit-critical constraint. Do not tell the user to use a mobile device or a 3D scanner.
 
 ## Catalog maintenance
 

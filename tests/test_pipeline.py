@@ -17,9 +17,9 @@ class PipelineChecks(unittest.TestCase):
         self.assertEqual(result["status"], "blocked")
         self.assertTrue(any("mounting_hole" in failure for failure in result["failures"]))
 
-    def test_measured_interfaces_are_candidate_ready(self):
+    def test_official_interfaces_are_candidate_ready(self):
         job = {"vehicle": {"vin": "1TESTVIN"}, "part": {"name": "bracket"}, "constraints": [
-            {"feature": "mounting_hole", "source": "measured_scan", "value": {"diameter_mm": 6, "center": [10, 20, 0]}, "tolerance_mm": 0.2, "confidence": 0.98, "evidence_id": "scan-1"},
+            {"feature": "mounting_hole", "source": "oem", "value": {"diameter_mm": 6, "center": [10, 20, 0]}, "tolerance_mm": 0.2, "confidence": 0.98, "evidence_id": "oem-2"},
             {"feature": "locating_pin", "source": "oem", "value": {"center": [2, 3, 0]}, "tolerance_mm": 0.1, "confidence": 0.99, "evidence_id": "oem-1"},
         ]}
         self.assertEqual(assess(job)["status"], "candidate_ready")

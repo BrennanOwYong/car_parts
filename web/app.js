@@ -3,26 +3,15 @@ const state = {
   vehicle: null,
   partName: "car-part",
   cad: "",
+  explodedCad: "",
 };
 
 export function fittedFrameSize(width, height, maximum = 1800) {
-  if (!(width > 0 && height > 0 && maximum > 0)) throw new Error("Invalid camera frame size.");
+  if (!(width > 0 && height > 0 && maximum > 0)) throw new Error("Invalid image size.");
   const scale = Math.min(1, maximum / Math.max(width, height));
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
 }
 
-
-export async function detectDepthCapability(nav = navigator, scope = globalThis) {
-  const isIPhone = /iPhone/i.test(nav.userAgent || "");
-  const hasDepthInterface = "XRCPUDepthInformation" in scope || "XRWebGLDepthInformation" in scope;
-  let immersiveAR = false;
-  try {
-    immersiveAR = Boolean(nav.xr && await nav.xr.isSessionSupported("immersive-ar"));
-  } catch (_) {
-    immersiveAR = false;
-  }
-  return { isIPhone, immersiveAR, directMeshAccess: immersiveAR && hasDepthInterface };
-}
 
 function element(id) { return document.getElementById(id); }
 
@@ -86,34 +75,19 @@ function confirmedVehicle() {
   };
 }
 
-async function renderCapability() {
-  const capability = await detectDepthCapability();
-  const box = element("device-check");
-  if (capability.directMeshAccess) {
-    box.classList.add("supported");
-    element("device-title").textContent = "Depth-capable browser detected";
-    element("device-detail").textContent = "This browser reports immersive AR and a depth interface. Native capture is outside this photo-and-text MVP.";
-  } else if (capability.isIPhone) {
-    element("device-title").textContent = "iPhone detected; web LiDAR is not exposed";
-    element("device-detail").textContent = "Safari does not identify the iPhone model or provide its raw ARKit mesh to this website.";
-  } else {
-    element("device-title").textContent = "No browser LiDAR interface detected";
-    element("device-detail").textContent = "Use a LiDAR-capable iPhone with the native scanner in a later phase.";
-  }
-}
-
 function renderResult(result) {
-  if (result.outcome === "needs_lidar") {
-    element("scan-instruction").textContent = result.userMessage;
+  if (result.outcome === "needs_dimensions") {
+    const missing = result.missingDimensions.length ? ` Missing: ${result.missingDimensions.join(", ")}.` : "";
+    element("missing-instruction").textContent = `${result.userMessage}${missing}`;
     element("measure-panel").hidden = false;
     element("cad-panel").hidden = true;
     setProgress(3);
-    renderCapability();
     element("measure-panel").scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
   if (result.outcome === "cad_ready" && result.cadPayload) {
     state.cad = result.cadPayload;
+    state.explodedCad = result.explodedCadPayload;
     state.partName = result.partName || state.partName;
     element("measure-panel").hidden = true;
     element("cad-panel").hidden = false;
@@ -133,7 +107,7 @@ function init() {
       state.imageBase64 = await imageAsJpegBase64(file);
       element("photo-preview").src = URL.createObjectURL(file);
       element("photo-preview").hidden = false;
-      element("capture-prompt").hidden = true;
+      element("upload-prompt").hidden = true;
       element("identify-button").disabled = false;
     } catch (error) { showError(error); }
   });
@@ -141,7 +115,7 @@ function init() {
   element("identify-button").addEventListener("click", async () => {
     setWorking("Astra is identifying the vehicle and part");
     try {
-      const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, user_text: element("part-notes").value.trim(), scan_captured: false });
+      const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, user_text: element("part-notes").value.trim() });
       state.vehicle = result.vehicle;
       state.partName = result.partName;
       element("vehicle-make").value = result.vehicle.make;
@@ -161,7 +135,7 @@ function init() {
     if (!vehicle.make || !vehicle.model || !vehicle.year) { showError("Make, model, and year are required."); return; }
     setWorking("Astra is checking pre-indexed dimensional documents");
     try {
-      const result = await postAstra({ phase: "research_and_generate", image_base64: state.imageBase64, user_text: element("part-notes").value.trim(), confirmed_vehicle: vehicle, scan_captured: false });
+      const result = await postAstra({ phase: "research_and_generate", image_base64: state.imageBase64, user_text: element("part-notes").value.trim(), confirmed_vehicle: vehicle });
       state.vehicle = vehicle;
       renderResult(result);
     } catch (error) { showError(error); }
@@ -176,7 +150,15 @@ function init() {
     link.click();
     URL.revokeObjectURL(link.href);
   });
-  element("lidar-restart-button").addEventListener("click", () => location.reload());
+  element("exploded-download-button").addEventListener("click", () => {
+    const blob = new Blob([state.explodedCad], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${state.partName.replace(/[^A-Za-z0-9_-]/g, "-") || "car-part"}-exploded.scad`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
+  element("missing-restart-button").addEventListener("click", () => location.reload());
   element("restart-button").addEventListener("click", () => location.reload());
 }
 
