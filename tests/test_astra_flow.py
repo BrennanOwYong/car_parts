@@ -230,6 +230,10 @@ class AstraFlowChecks(unittest.TestCase):
         self.assertIn("2017–2023 Tesla Model 3", prompt)
         self.assertIn("Do not require a full make, model, year, or part", prompt)
 
+    def test_plain_text_follow_up_stays_in_the_conversation(self):
+        result = extract_result({"output_text": "Which side of the bumper is damaged?"}, "research_and_generate")
+        self.assertEqual(result["outcome"], "vehicle_candidate")
+
     def test_lidar_fallback_requires_instruction_and_null_cad(self):
         lidar = astra_result(
             outcome="needs_lidar",

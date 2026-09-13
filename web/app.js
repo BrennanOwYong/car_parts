@@ -263,8 +263,17 @@ async function sendMessage() {
         user_text: state.initialMessage,
         candidate_vehicle: state.candidate.vehicle,
         candidate_part: state.candidate.partType,
+        previous_reply: state.candidate.userMessage,
         confirmation_text: reply,
       });
+      if (result.outcome === "vehicle_candidate") {
+        state.candidate = result;
+        appendMessage("assistant", result.userMessage);
+        input.placeholder = "Reply naturally with any detail Astra asks for.";
+        element("send-button").textContent = "Continue with Astra";
+        setProgress(2);
+        return;
+      }
       renderResult(result);
     } catch (error) { showError(error); }
     finally { setWorking(); }

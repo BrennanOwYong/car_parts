@@ -70,7 +70,7 @@ class SourceCatalogChecks(unittest.TestCase):
         self.assertNotIn("parts.gmparts.com", prompt)
         indexed = prompt.index("First look for official")
         public_scan = prompt.index("If that is not enough, look for a public scan")
-        lidar = prompt.index("If the available information is not enough")
+        lidar = prompt.index("If all non-scan sources are exhausted")
         self.assertLess(indexed, public_scan)
         self.assertLess(public_scan, lidar)
         self.assertIn("public scan", prompt)

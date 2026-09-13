@@ -167,6 +167,7 @@ def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("user_text is longer than 2000 characters")
     vehicle = payload.get("candidate_vehicle") or {}
     part = str(payload.get("candidate_part", "")).strip()
+    previous_reply = str(payload.get("previous_reply", "")).strip()
     confirmation_text = str(payload.get("confirmation_text", "")).strip()
     if len(confirmation_text) > 2000:
         raise ValueError("confirmation_text is longer than 2000 characters")
@@ -183,13 +184,14 @@ The user said: {user_text}
 
 The earlier vehicle estimate was: {candidate_text}.
 The earlier part estimate was: {part or 'not certain'}.
+Your most recent reply was: {previous_reply or 'There is no earlier reply.'}
 The user first said: {user_text}
 The user now says: {confirmation_text}
 
 First look for official OEM dimension sheets, body-repair measurements, service diagrams, and OEM part diagrams. If that is not enough, look for a public scan of the same exterior part. These pre-indexed direct-dimension sources may help:
 {source_text}
 
-If the available information is not enough, reply only with a natural plain-English request for an iPhone LiDAR scan. Ask for the part, its attachment edges, screw holes, clips, tabs, openings, and one known scale reference.
+If you need another detail before you can continue, ask one natural plain-English question. If all non-scan sources are exhausted and the available information is not enough, reply only with a natural plain-English request for an iPhone LiDAR scan. Ask for the part, its attachment edges, screw holes, clips, tabs, openings, and one known scale reference.
 
 If enough information is available for a rough concept, reply only with a complete OpenSCAD script. Start the script with: // {CONCEPT_WARNING}. Include both a fitted model and an exploded-view model in the script. Do not add JSON, labels, tables, or explanatory text.
 """
@@ -227,7 +229,9 @@ def extract_result(response: dict[str, Any], phase: str | None = None) -> dict[s
             return {"outcome": "vehicle_candidate", "userMessage": text, "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "", "sourceChecks": {"officialOemChecked": False, "publicScansChecked": False, "geometrySufficient": False}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": None, "cadPayload": None, "explodedCadPayload": None}
         if text.startswith(f"// {CONCEPT_WARNING}") or "module" in text or "cube(" in text:
             return {"outcome": "rough_cad_ready", "userMessage": "", "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "Astra created a rough CAD concept.", "sourceChecks": {"officialOemChecked": True, "publicScansChecked": True, "geometrySufficient": True}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": "OpenSCAD", "cadPayload": text, "explodedCadPayload": text}
-        return {"outcome": "needs_lidar", "userMessage": text, "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "", "sourceChecks": {"officialOemChecked": True, "publicScansChecked": True, "geometrySufficient": False}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": None, "cadPayload": None, "explodedCadPayload": None}
+        if "lidar" in text.casefold():
+            return {"outcome": "needs_lidar", "userMessage": text, "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "", "sourceChecks": {"officialOemChecked": True, "publicScansChecked": True, "geometrySufficient": False}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": None, "cadPayload": None, "explodedCadPayload": None}
+        return {"outcome": "vehicle_candidate", "userMessage": text, "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "", "sourceChecks": {"officialOemChecked": False, "publicScansChecked": False, "geometrySufficient": False}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": None, "cadPayload": None, "explodedCadPayload": None}
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0]
     result = json.loads(text)
