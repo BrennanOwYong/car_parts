@@ -9,6 +9,7 @@ import {vehicles,getVehicle,regions,styles,validateConfiguration} from './catalo
 import {individualParts} from './geometry.mjs';
 import {mountingConcept,hardwareBOM} from './hardware.mjs';
 import {assemblyGuide,mountingReferences} from './assembly-guide.mjs';
+import {CATALOG_SCHEMA_VERSION} from './catalog-contract.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const exportsCache=new Map();
@@ -43,7 +44,7 @@ export async function api(req,res) {
   const url=new URL(req.url,'http://localhost');
   if(!url.pathname.startsWith('/api/')) return false;
   res.setHeader('X-Content-Type-Options','nosniff');
-  if(req.method==='GET' && url.pathname==='/api/catalog') {json(res,200,{vehicles,regions,styles,mountingConcept,mountingReferences});return true;}
+  if(req.method==='GET' && url.pathname==='/api/catalog') {json(res,200,{schemaVersion:CATALOG_SCHEMA_VERSION,vehicles,regions,styles,mountingConcept,mountingReferences});return true;}
   if(req.method==='POST' && url.pathname==='/api/exports') {
     try {
       let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>8192) {json(res,413,{error:'Request too large.'});return true;}}

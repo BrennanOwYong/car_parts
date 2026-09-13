@@ -22,6 +22,12 @@ npm start
 
 The same commands work on macOS, Linux, and Windows.
 
+### After pulling changes
+
+Run from `car_parts/design_mod`. Stop any older server already using the port, then run `npm ci` and `npm run dev`. Development mode now restarts the Node backend when its imported catalog, geometry or guide modules change; Vite continues to update the frontend. `npm start` rebuilds the frontend before serving production files.
+
+If car labels show `undefined`, check that the backend was restarted too: updating browser files alone can leave an old in-memory catalog running. The current `/api/catalog` has `schemaVersion: 1` and Ferrari, Toyota and Porsche records. The frontend now rejects an incompatible catalog with explicit restart instructions instead of rendering missing fields. Restarting clears temporary export downloads; re-export any kit whose link has expired.
+
 ## Implemented boundary
 
 - This directory is independent of the existing Python repair relay and native iOS flow. Those files are unchanged.

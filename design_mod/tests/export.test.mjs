@@ -4,6 +4,7 @@ import http from 'node:http';
 import {unzipSync} from 'fflate';
 import {buildExport,api} from '../server.mjs';
 import {styles,regions,vehicle,vehicles} from '../catalog.mjs';
+import {assertCatalog} from '../catalog-contract.mjs';
 
 function inspectSTL(bytes){
   const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),count=view.getUint32(80,true);
@@ -48,7 +49,10 @@ test('HTTP catalog, export, individual file and invalid input',async()=>{
   const server=http.createServer(async(req,res)=>{if(!await api(req,res)){res.writeHead(404);res.end();}});
   await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}`;
   try{
-    assert.deepEqual((await (await fetch(base+'/api/catalog')).json()).vehicles.map(v=>v.id),vehicles.map(v=>v.id));
+    const catalogResponse=await fetch(base+'/api/catalog');
+    assert.equal(catalogResponse.headers.get('cache-control'),'no-store');
+    const catalog=assertCatalog(await catalogResponse.json());
+    assert.deepEqual(catalog.vehicles.map(v=>v.id),vehicles.map(v=>v.id));
     const response=await fetch(base+'/api/exports',{method:'POST',body:JSON.stringify({vehicleId:vehicle.id,selections:{rear:'aggressive'}})});assert.equal(response.status,201);const result=await response.json();
     const part=await fetch(base+result.parts[0].url);assert.equal(part.status,200);inspectSTL(new Uint8Array(await part.arrayBuffer()));
     const zip=await fetch(base+result.downloadUrl);assert.equal(zip.headers.get('content-type'),'application/zip');

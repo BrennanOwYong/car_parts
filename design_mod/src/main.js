@@ -11,6 +11,7 @@ import {prepareVehicle,updateExploded,modificationOffset,disposeObject} from '..
 import {createCarLibrary,createExplodeControls} from './library.js';
 import {attachHardware} from '../hardware.mjs';
 import {createMountInspector,createMountingCard} from './mount-inspector.js';
+import {assertCatalog} from '../catalog-contract.mjs';
 
 const $=id=>document.getElementById(id);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -221,8 +222,8 @@ async function exportKit(){
   finally{state.exporting=false;button.innerHTML='Confirm and print <span>↗</span>';button.disabled=!state.loaded||!Object.values(state.selections).some(s=>s!=='stock');}
 }
 async function boot(){
-  try{const response=await fetch('/api/catalog');if(!response.ok)throw new Error('Catalog unavailable. Start the studio with npm run dev.');catalog=await response.json();}
-  catch(error){$('design-mode').disabled=true;$('nav-studio').disabled=true;const message=document.createElement('p');message.className='error';message.setAttribute('role','alert');message.textContent=error.message;$('modes').append(message);return;}
+  try{const response=await fetch('/api/catalog',{cache:'no-store'});if(!response.ok)throw new Error('Catalog unavailable. Start the studio with npm run dev.');catalog=assertCatalog(await response.json());}
+  catch(error){$('design-mode').disabled=true;$('nav-studio').disabled=true;const message=$('mode-error');message.className='error';message.setAttribute('role','alert');message.textContent=error.message;message.hidden=false;$('nav-studio').title=error.message;return;}
   library=createCarLibrary(catalog.vehicles,'ferrari-458-demo');
   exploder=createExplodeControls(value=>{state.explodeTarget=value;hoverRegion=null;$('tooltip').hidden=true;updateHighlights();});
   mountInspector=createMountInspector();
