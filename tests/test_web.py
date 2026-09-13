@@ -36,6 +36,9 @@ class WebApplicationChecks(unittest.TestCase):
         for value in ("part-photo", "vehicle-panel", "measure-panel", "cad-panel", "download-button"):
             self.assertIn(f'id="{value}"', html)
         self.assertIn('capture="environment"', html)
+        self.assertIn("Take car-part photo", html)
+        self.assertIn("It does not record video", html)
+        self.assertNotIn("<video", html)
 
     def test_scripts_use_same_origin_api_and_honest_lidar_check(self):
         response, script = self.get("/app.js")
@@ -44,6 +47,13 @@ class WebApplicationChecks(unittest.TestCase):
         self.assertIn("detectDepthCapability", script)
         self.assertIn("Safari does not identify the iPhone model or provide its raw ARKit mesh", script)
         self.assertIn("scan_obj_base64", script)
+
+    def test_camera_flow_is_photo_only(self):
+        _, script = self.get("/app.js")
+        self.assertIn('canvas.toBlob(resolve, "image/jpeg"', script)
+        self.assertIn("imageAsJpegBase64(file)", script)
+        self.assertNotIn("getUserMedia", script)
+        self.assertNotIn("cameraStream", script)
 
     def test_static_routes_are_restricted(self):
         with self.assertRaises(urllib.error.HTTPError) as caught:

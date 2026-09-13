@@ -42,7 +42,7 @@ h1 em { color: var(--acid); font-family: Georgia, serif; font-weight: 400; }
 .step-number { color: var(--muted); font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; padding-top: 3px; }
 .panel > p { color: var(--muted); line-height: 1.55; }
 
-.capture-box { min-height: 250px; margin: 24px 0 16px; border: 1px dashed #5e6658; background: #141712; display: grid; place-items: center; text-align: center; overflow: hidden; position: relative; cursor: pointer; }
+.capture-box { min-height: 250px; margin: 24px 0 12px; border: 1px dashed #5e6658; background: #141712; display: grid; place-items: center; text-align: center; overflow: hidden; position: relative; cursor: pointer; }
 .capture-box:hover { border-color: var(--acid); }
 .capture-box input, .file-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .capture-box b, .capture-box small { display: block; }

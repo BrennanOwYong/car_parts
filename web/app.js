@@ -7,6 +7,13 @@ const state = {
   cad: "",
 };
 
+export function fittedFrameSize(width, height, maximum = 1800) {
+  if (!(width > 0 && height > 0 && maximum > 0)) throw new Error("Invalid camera frame size.");
+  const scale = Math.min(1, maximum / Math.max(width, height));
+  return { width: Math.round(width * scale), height: Math.round(height * scale) };
+}
+
+
 export function normalizeObjToMillimeters(text, unit = "m", correction = 1) {
   const unitScale = { m: 1000, cm: 10, mm: 1 }[unit];
   if (!unitScale || !Number.isFinite(correction) || correction <= 0) throw new Error("Invalid mesh scale.");
@@ -83,10 +90,10 @@ async function postAstra(body) {
 
 async function imageAsJpegBase64(file) {
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
+  const size = fittedFrameSize(bitmap.width, bitmap.height);
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
+  canvas.width = size.width;
+  canvas.height = size.height;
   canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", .84));
   if (!blob) throw new Error("The browser could not prepare this photo.");

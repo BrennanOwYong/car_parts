@@ -67,14 +67,17 @@ Open `http://localhost:8787` on the computer. To run it on an iPhone, connect th
 
 Website flow:
 
-1. Select **Take or choose a photo**. On iPhone, this opens the camera or photo library.
-2. Select **Identify vehicle and part**.
-3. Correct the detected make, model, or year when required. Select **Confirm and find constraints**.
-4. Astra searches official sources. If the evidence is sufficient, download the `.scad` model.
-5. If Astra requests measurements, import an OBJ mesh from a LiDAR scanner.
-6. Select the OBJ coordinate unit. The page converts the mesh to millimetres and shows its X, Y, and Z bounds.
-7. For scale calibration, enter a known physical reference length and the same reference length in the mesh. The website applies the correction ratio before submission.
-8. Select **Use measured mesh for CAD**. Astra returns CAD or asks for a focused rescan.
+1. Select **Take car-part photo**. This opens the iPhone camera through the native browser control.
+2. Take one photo with the rear camera. The website does not record video.
+3. Select **Identify vehicle and part**.
+4. Correct the detected make, model, or year when required. Select **Confirm and find constraints**.
+5. Astra searches official sources. If the evidence is sufficient, download the `.scad` model.
+6. If Astra requests measurements, import an OBJ mesh from a LiDAR scanner.
+7. Select the OBJ coordinate unit. The page converts the mesh to millimetres and shows its X, Y, and Z bounds.
+8. For scale calibration, enter a known physical reference length and the same reference length in the mesh. The website applies the correction ratio before submission.
+9. Select **Use measured mesh for CAD**. Astra returns CAD or asks for a focused rescan.
+
+The photo input uses `accept="image/*"` and `capture="environment"`. On iPhone, this requests the rear camera for one photo. It does not attach or stream video. It also works from the local HTTP development address.
 
 Use `sample/demo-bracket.obj` to test the upload and scale display without a scanner. Select **metres** as its coordinate unit. Its expected bounds are 120 × 50 × 10 mm. These are axis-aligned bounds. They are hard part dimensions only when the scan axes align with the part datums.
 
