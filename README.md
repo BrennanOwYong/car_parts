@@ -20,7 +20,7 @@ The website accepts one image file and optional text. It does not request a came
 
 ## Run on a desktop computer
 
-The Python relay serves the website at `http://localhost:8787`. It also keeps the OpenAI API key out of browser code.
+The Python relay serves the website at `http://localhost:8787`. It binds only to `localhost`. Other computers and phones cannot connect to it. The relay also keeps the OpenAI API key out of browser code.
 
 On macOS or Linux:
 

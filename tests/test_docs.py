@@ -17,6 +17,11 @@ class DesktopDocumentationChecks(unittest.TestCase):
         self.assertIn(".env", gitignore)
         self.assertTrue((ROOT / ".env.example").is_file())
 
+    def test_server_is_documented_as_localhost_only(self):
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn("binds only to `localhost`", readme)
+        self.assertNotIn("0.0.0.0", readme)
+
     def test_mobile_and_camera_setup_are_removed(self):
         readme = (ROOT / "README.md").read_text()
         for value in ("Cloudflare Quick Tunnel", "share_mobile.py", "Developer Mode", "Devices and Simulators", "ASTRA_RELAY_URL", "LiDAR", "iPhone"):

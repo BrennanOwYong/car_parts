@@ -18,6 +18,7 @@ from urllib.parse import urlsplit
 
 WEB_ROOT = Path(__file__).with_name("web").resolve()
 SOURCE_CATALOG_PATH = Path(__file__).with_name("skills") / "vehicle-schematic-sourcing" / "references" / "official_sources.json"
+SERVER_HOST = "localhost"
 WEB_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
@@ -312,8 +313,8 @@ if __name__ == "__main__":
         self_test()
     else:
         port = int(os.environ.get("ASTRA_RELAY_PORT", "8787"))
-        print(f"CarPart CAD web app and Astra relay listening on http://0.0.0.0:{port}")
-        server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
+        print(f"CarPart CAD web app and Astra relay listening on http://{SERVER_HOST}:{port}")
+        server = ThreadingHTTPServer((SERVER_HOST, port), Handler)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

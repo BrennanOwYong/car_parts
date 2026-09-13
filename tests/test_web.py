@@ -9,16 +9,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from astra_relay import Handler  # noqa: E402
+from astra_relay import Handler, SERVER_HOST  # noqa: E402
 
 
 class WebApplicationChecks(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        cls.server = ThreadingHTTPServer((SERVER_HOST, 0), Handler)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
-        cls.base = f"http://127.0.0.1:{cls.server.server_port}"
+        cls.base = f"http://{SERVER_HOST}:{cls.server.server_port}"
 
     @classmethod
     def tearDownClass(cls):
@@ -31,6 +31,7 @@ class WebApplicationChecks(unittest.TestCase):
             return response, response.read().decode()
 
     def test_relay_serves_desktop_upload_website(self):
+        self.assertEqual(SERVER_HOST, "localhost")
         response, html = self.get("/")
         self.assertEqual(response.headers.get_content_type(), "text/html")
         for value in ("part-photo", "part-notes", "vehicle-panel", "measure-panel", "cad-panel", "download-button", "exploded-download-button"):
