@@ -28,10 +28,10 @@ On macOS or Linux:
 git clone https://github.com/BrennanOwYong/car_parts.git
 cd car_parts
 cp .env.example .env
-python3 astra_relay.py
+./astra_relay.py
 ```
 
-Open `.env` in a text editor. Put the key after `OPENAI_API_KEY=` before you start the relay.
+Open `.env` in a text editor. Put the key after `OPENAI_API_KEY=` before you start the relay. The executable uses Python 3 directly. It does not require a `python` command.
 
 On Windows PowerShell:
 
