@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 import base64
 import json
+import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from astra_relay import ASTRA_RESULT_SCHEMA, build_openai_request, extract_result  # noqa: E402
+from astra_relay import ASTRA_RESULT_SCHEMA, build_openai_request, extract_result, load_env_file  # noqa: E402
 
 
 def astra_result(**changes):
@@ -45,6 +47,24 @@ class AstraFlowChecks(unittest.TestCase):
     def test_user_text_length_is_limited(self):
         with self.assertRaises(ValueError):
             build_openai_request({"phase": "identify", "image_base64": self.image, "user_text": "x" * 2001})
+
+    def test_env_file_loads_key_without_overriding_process_environment(self):
+        previous = os.environ.get("TEST_CARPART_KEY")
+        try:
+            os.environ.pop("TEST_CARPART_KEY", None)
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / ".env"
+                path.write_text('TEST_CARPART_KEY="from-file"\n')
+                load_env_file(path)
+                self.assertEqual(os.environ["TEST_CARPART_KEY"], "from-file")
+                os.environ["TEST_CARPART_KEY"] = "from-process"
+                load_env_file(path)
+                self.assertEqual(os.environ["TEST_CARPART_KEY"], "from-process")
+        finally:
+            if previous is None:
+                os.environ.pop("TEST_CARPART_KEY", None)
+            else:
+                os.environ["TEST_CARPART_KEY"] = previous
 
     def test_research_uses_web_search_and_requires_exact_evidence(self):
         request = build_openai_request({"phase": "research_and_generate", "image_base64": self.image, "confirmed_vehicle": {"make": "A", "model": "B", "year": "2020"}})

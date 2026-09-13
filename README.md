@@ -27,22 +27,24 @@ On macOS or Linux:
 ```sh
 git clone https://github.com/BrennanOwYong/car_parts.git
 cd car_parts
-export OPENAI_API_KEY="your-key"
+cp .env.example .env
 python3 astra_relay.py
 ```
+
+Open `.env` in a text editor. Put the key after `OPENAI_API_KEY=` before you start the relay.
 
 On Windows PowerShell:
 
 ```powershell
 git clone https://github.com/BrennanOwYong/car_parts.git
 cd car_parts
-$env:OPENAI_API_KEY="your-key"
+Copy-Item .env.example .env
 python astra_relay.py
 ```
 
 Open `http://localhost:8787` in a desktop browser. Select **Upload car photo**. Choose an existing JPEG, PNG, HEIC, or other browser-supported image. Add an optional description. Then select **Identify vehicle and part**.
 
-Keep the terminal open while you use the website. Press `Ctrl+C` to stop the server. Do not put the API key in `web/app.js` or another browser file.
+Keep the terminal open while you use the website. Press `Ctrl+C` to stop the server. The `.env` file is ignored by Git. Do not put the API key in `.env.example`, `web/app.js`, or another tracked file.
 
 ## Pre-indexed official sources
 

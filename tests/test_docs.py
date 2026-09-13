@@ -9,8 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 class DesktopDocumentationChecks(unittest.TestCase):
     def test_desktop_run_steps_are_documented(self):
         readme = (ROOT / "README.md").read_text()
-        for value in ("Run on a desktop computer", "macOS or Linux", "Windows PowerShell", "OPENAI_API_KEY", "python3 astra_relay.py", "http://localhost:8787", "Upload car photo"):
+        for value in ("Run on a desktop computer", "macOS or Linux", "Windows PowerShell", "OPENAI_API_KEY", ".env.example", "python3 astra_relay.py", "http://localhost:8787", "Upload car photo"):
             self.assertIn(value, readme)
+
+    def test_private_env_file_is_ignored(self):
+        gitignore = (ROOT / ".gitignore").read_text().splitlines()
+        self.assertIn(".env", gitignore)
+        self.assertTrue((ROOT / ".env.example").is_file())
 
     def test_mobile_and_camera_setup_are_removed(self):
         readme = (ROOT / "README.md").read_text()

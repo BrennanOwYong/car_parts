@@ -25,6 +25,25 @@ WEB_FILES = {
 }
 
 
+def load_env_file(path: Path | None = None) -> None:
+    path = path or Path(__file__).with_name(".env")
+    if not path.is_file():
+        return
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = (part.strip() for part in line.split("=", 1))
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            continue
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        os.environ.setdefault(name, value)
+
+
+load_env_file()
+
+
 def load_source_catalog(path: Path = SOURCE_CATALOG_PATH) -> dict[str, Any]:
     catalog = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(catalog.get("sources"), list) or not catalog["sources"]:
