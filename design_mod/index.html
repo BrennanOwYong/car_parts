@@ -1,16 +1,45 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#070809"><title>FORMA — Make it yours.</title><meta name="description" content="Explore, configure and export your own car body kit. A 3D design studio."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2308090b'/%3E%3Cpath d='M9 25V8h16M9 16h12' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E"></head>
-<body>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#070809"><title>FORMA — Make it yours.</title><meta name="description" content="FORMA. Your vision, given form."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2308090b'/%3E%3Cpath d='M9 25V8h16M9 16h12' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E"></head>
+<body data-screen="home">
   <div id="stars" aria-hidden="true"></div>
-  <header class="header"><a class="wordmark" href="#" id="home-link">FORMA<span>®</span></a><span class="nav-caption">A new form of self-expression.</span><button class="text-button" id="nav-studio">Design studio <span>↗</span></button></header>
+  <header class="header"><a class="wordmark" href="#" id="home-link">FORMA</a><button class="text-button" id="nav-studio">Studio <span>↗</span></button></header>
   <main>
     <section id="home" class="screen home">
-      <div class="hero"><p class="eyebrow">YOUR CAR. YOUR SIGNATURE.</p><h1>Make it<br><em>yours.</em></h1><p class="hero-copy">From a familiar silhouette<br>to something unmistakably you.</p><a class="scroll-link" href="#modes">Explore the possibilities <span>↓</span></a><div class="hero-index"><span>01 / ∞</span><span>FORM WITHOUT LIMITS</span></div></div>
-      <section class="modes" id="modes"><div class="section-heading"><h2>What will you create?</h2><p>One car. A world of possibilities.</p></div><div class="mode-grid">
-        <button class="mode-card" disabled><span class="mode-number">01</span><span class="mode-symbol">↺</span><h3>Fix part</h3><p>A second life for the parts you love.</p><span class="badge">Coming soon</span></button>
-        <button class="mode-card available" id="design-mode"><span class="mode-number">02</span><span class="mode-symbol">✳</span><h3>Design mod</h3><p>Reimagine your car, piece by piece.</p><span class="mode-action">Enter the studio <span>↗</span></span></button>
-        <button class="mode-card" disabled><span class="mode-number">03</span><span class="mode-symbol">⊕</span><h3>Car accessory</h3><p>The little things that make it yours.</p><span class="badge">Coming soon</span></button>
-      </div><p class="placeholder-note">Exploded vehicle experience — coming later.</p></section>
+      <div class="landing-scroll" id="landing-scroll">
+        <div class="landing-stage">
+          <div class="landing-visual" id="landing-visual" aria-hidden="true"><div id="landing-canvas"></div></div>
+          <div class="landing-vignette" aria-hidden="true"></div>
+          <div class="landing-opening" id="landing-opening">
+            <p class="landing-kicker">A NEW PERSPECTIVE ON YOUR CAR</p>
+            <h1 class="landing-title"><span>Make it</span><span>yours.</span></h1>
+            <p class="landing-intro">FORMA. Your vision, given form.</p>
+          </div>
+          <div class="landing-chapter" id="landing-chapter" aria-hidden="true"><h2>Every part.<br>Reimagined.</h2></div>
+          <div class="landing-meta" id="landing-meta" aria-hidden="true"></div>
+          <a class="landing-scroll-cue" id="landing-scroll-cue" href="#modes"><span>Explore</span><span class="scroll-cue-line" aria-hidden="true"></span></a>
+          <div class="landing-load" id="landing-load" role="status"><span></span>Loading</div>
+          <section class="modes" id="modes" aria-labelledby="modes-title">
+            <div class="section-heading"><h2 id="modes-title" tabindex="-1">Make your mark.</h2></div>
+            <div class="mode-grid">
+              <button class="mode-card" disabled>
+                <span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M35 15a15 15 0 1 1-11-5"/><path d="M35 6v10H25"/></svg></span>
+                <span class="mode-label"><span class="mode-name">Fix part</span><span class="badge">Soon</span></span>
+              </button>
+              <button class="mode-card available" id="design-mode">
+                <span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="m24 6 17 10-17 10L7 16 24 6Z"/><path d="m7 24 17 10 17-10M7 32l17 10 17-10"/></svg></span>
+                <span class="mode-label"><span class="mode-name">Design mod</span><span class="mode-arrow" aria-hidden="true">↗</span></span>
+              </button>
+              <button class="mode-card" disabled>
+                <span class="mode-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="9" y="9" width="30" height="30" rx="8"/><path d="M24 16v16M16 24h16"/></svg></span>
+                <span class="mode-label"><span class="mode-name">Car accessory</span><span class="badge">Soon</span></span>
+              </button>
+            </div>
+            <p class="mode-error" id="mode-error" role="status" hidden></p>
+            <button class="landing-replay text-button" id="landing-replay">↑ Replay</button>
+          </section>
+          <div class="landing-progress" aria-hidden="true"><span id="landing-progress-fill"></span></div>
+        </div>
+      </div>
     </section>
     <section id="setup" class="screen setup" hidden><button class="text-button back-home">← Back</button><div class="setup-content"><p class="eyebrow">DESIGN MOD / 01</p><h1>Every build starts<br>with a car.</h1><p class="muted">Choose your canvas. We’ll take care of the perspective.</p><form id="vehicle-form"><div class="form-grid"><label>Make<select id="make"><option>Ferrari</option></select></label><label>Model<select id="model"><option>458 Italia</option></select></label><label>Model year<select id="year"><option>2010</option></select></label><label>Body style<select id="body-style"><option>Coupé</option></select></label></div><div class="available-note"><span class="tiny-orbit"></span><span>458 Italia is ready to explore.<br><small>More cars are joining the library.</small></span><span class="badge">DEMO CAR</span></div><button class="primary" type="submit">Enter design studio <span>↗</span></button></form></div><span class="setup-watermark" aria-hidden="true">458</span></section>
     <section id="studio" class="screen studio" hidden>
@@ -19,6 +48,6 @@
       <aside class="config-panel"><div class="panel-top"><p class="eyebrow">THE DETAILS MAKE THE DIFFERENCE</p><h2>Your signature.</h2><p class="muted">Select a part on the car, or start below.</p></div><div id="region-tabs" class="region-tabs" aria-label="Modification regions"></div><div class="design-heading"><div><h3 id="region-name">Front lip</h3><p id="region-subtitle">A sharper first impression.</p></div><span id="option-count">3 designs</span></div><div id="style-options" class="style-options"></div><div class="finish-section"><span>Body finish <small id="finish-name">Liquid silver</small></span><div class="swatches" aria-label="Body finish"><button class="swatch selected" data-color="#b7bec7" data-name="Liquid silver" style="--swatch:#b7bec7" aria-label="Liquid silver" aria-pressed="true"></button><button class="swatch" data-color="#9f1825" data-name="Rosso" style="--swatch:#9f1825" aria-label="Rosso" aria-pressed="false"></button><button class="swatch" data-color="#20252b" data-name="Graphite" style="--swatch:#20252b" aria-label="Graphite" aria-pressed="false"></button><button class="swatch" data-color="#e6e1d6" data-name="Bianco" style="--swatch:#e6e1d6" aria-label="Bianco" aria-pressed="false"></button></div></div><div class="panel-footer"><div class="selection-summary"><span>Your build</span><span id="selected-count">0 modifications</span></div><button class="primary" id="export-button" disabled>Confirm and print <span>↗</span></button><small>Exports individual prototype STL files.<br>Vehicle fit and mounting are unverified.</small><p class="error" id="export-error" role="alert" hidden></p></div></aside></div>
     </section>
     <section id="result" class="screen result" hidden><div class="result-heading"><button class="text-button" id="back-studio">← Back to your build</button><p class="eyebrow">DESIGN MOD / YOUR KIT</p><h1>From vision<br>to form.</h1><p class="muted">Your design, part by part. Ready to explore beyond the screen.</p><a class="primary" id="download-kit" download>Download kit <span>↓</span></a><p class="result-note">STL · Millimetres · Visual prototypes, fit unverified</p></div><div id="parts-layout" class="parts-layout"></div><div class="result-footer"><p>Made for your imagination.<br><span>Mounting and manufacturing validation come next.</span></p><button class="text-button" id="edit-build">Keep creating ↗</button></div></section>
-  </main><footer class="site-footer"><span>FORMA © 2026</span><span>AN EXPERIMENT IN POSSIBILITY</span><a href="/ASSETS.md" target="_blank">Asset credits ↗</a></footer>
+  </main><footer class="site-footer"><span>FORMA © 2026</span><a href="/ASSETS.md" target="_blank">Asset credits ↗</a></footer>
   <div id="transition" aria-hidden="true"></div><script type="module" src="/src/main.js"></script>
 </body></html>

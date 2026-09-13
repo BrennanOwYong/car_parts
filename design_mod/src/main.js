@@ -1,4 +1,6 @@
 import './style.css';
+import './landing.css';
+import {createLanding} from './landing.js';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -16,14 +18,16 @@ const homeCamera=new THREE.Vector3(5.1,2.45,-5.8),homeTarget=new THREE.Vector3(0
 const metal=new THREE.MeshPhysicalMaterial({color:0x303945,metalness:.65,roughness:.29,clearcoat:1});
 let loadingPromise,resizeObserver;
 
-// Subtle star field; the opening exploded-car animation remains a placeholder.
+const landing=createLanding();
+
+// Ambient backdrop for the studio screens.
 for(let i=0;i<100;i++){const star=document.createElement('i');star.style.left=`${(i*37.719)%100}%`;star.style.top=`${(i*61.331)%100}%`;star.style.opacity=String(.12+(i%5)*.09);$('stars').append(star);}
 
 async function screen(name){
   if(state.screen===name)return;
   if(!reduced){document.body.classList.add('transitioning');await new Promise(r=>setTimeout(r,250));}
   for(const el of document.querySelectorAll('.screen'))el.hidden=el.id!==name;
-  state.screen=name;window.scrollTo({top:0,behavior:'instant'});
+  state.screen=name;document.body.dataset.screen=name;landing.setActive(name==='home');window.scrollTo({top:0,behavior:'instant'});
   document.querySelector('.site-footer').hidden=name==='studio';
   if(name==='studio'){requestAnimationFrame(resize);if(state.loaded)flyTo(homeCamera,homeTarget);}
   document.body.classList.remove('transitioning');
@@ -190,7 +194,7 @@ async function exportKit(){
 }
 async function boot(){
   try{const response=await fetch('/api/catalog');if(!response.ok)throw new Error('Catalog unavailable. Start the studio with npm run dev.');catalog=await response.json();}
-  catch(error){$('design-mode').disabled=true;$('design-mode').querySelector('p').textContent=error.message;return;}
+  catch(error){$('design-mode').disabled=true;$('mode-error').textContent=error.message;$('mode-error').hidden=false;return;}
   const v=catalog.vehicles[0];
   for(const [id,value]of [['make',v.make],['model',v.model],['year',v.year],['body-style',v.bodyStyle]]){$(id).replaceChildren(new Option(value,value));}
   $('year').parentElement.firstChild.textContent='Generation';
@@ -199,7 +203,7 @@ async function boot(){
   document.querySelector('.vehicle-title h1').innerHTML='458<span>Make your mark.</span>';
   $('viewport').setAttribute('aria-label','Interactive Ferrari 458. Drag to orbit, scroll to zoom. Use the adjacent part buttons to select modifications.');
   const setup=()=>screen('setup');$('design-mode').onclick=setup;$('nav-studio').onclick=setup;
-  $('home-link').onclick=e=>{e.preventDefault();screen('home');};document.querySelector('.back-home').onclick=()=>screen('home');$('change-car').onclick=setup;
+  $('home-link').onclick=e=>{e.preventDefault();if(state.screen==='home')landing.replay();else screen('home');};document.querySelector('.back-home').onclick=()=>screen('home');$('change-car').onclick=setup;
   $('vehicle-form').onsubmit=async e=>{e.preventDefault();await screen('studio');await loadCar();};
   $('reset-camera').onclick=()=>flyTo(homeCamera,homeTarget);$('compare').onclick=()=>{state.compare=!state.compare;updateCompare();};
   $('export-button').onclick=exportKit;$('back-studio').onclick=$('edit-build').onclick=()=>screen('studio');

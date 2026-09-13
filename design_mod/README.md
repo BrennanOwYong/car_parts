@@ -47,3 +47,11 @@ The same commands work on macOS, Linux, and Windows.
 See `CAR_LIBRARY.md` for researched candidates. Before enabling a car: obtain the authorized GLB, record attribution and reuse terms, inspect variant and geometry, normalize scale, map editable surfaces, and prepare matching modification shapes. The present region coordinates are Ferrari-specific. Adding a catalog record alone does not make another car compatible.
 
 For a future measured version, replace concept profiles with part templates built around verified attachment geometry; retain the same preview/export identity. Keep engineering validation separate from visual asset metadata.
+
+## FORMA landing experience
+
+The homepage includes a full-screen Corolla scene tied to native page scrolling. It starts in an assembled side profile, rotates to a raised three-quarter view while the 43 assemblies separate, holds the exploded formation, then blurs behind the original Fix part / Design mod / Car accessory cards. The sequence reverses on upward scroll. Design mod retains the existing setup, configuration, and export flow; the other two cards retain their original disabled state.
+
+The homepage scene is isolated in `src/landing.js`, with its reversible phase timing in `src/landing-motion.mjs` and scoped presentation in `src/landing.css`. It reads the animation embedded in `public/assets/corolla-exploded.glb`. It releases the render loop when leaving the homepage or hiding the tab, and renders only when the scroll pose changes. Reduced-motion settings keep the car assembled and the mode cards accessible.
+
+Start the complete app with `npm run dev` (default port 8788); the plain Vite server does not provide the studio API.
