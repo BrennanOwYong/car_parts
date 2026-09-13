@@ -1,9 +1,20 @@
 const state = {
+  phase: "identify",
   imageBase64: "",
-  vehicle: null,
-  partName: "car-part",
+  initialMessage: "",
+  candidate: null,
+  partName: "car-part-concept",
   cad: "",
   explodedCad: "",
+  previewUrl: "",
+};
+
+const PART_LABELS = {
+  hood: "hood",
+  front_bumper_cover: "front bumper cover",
+  front_fender: "front fender",
+  wheel_arch_trim: "wheel-arch trim",
+  side_mirror_housing: "side-mirror housing",
 };
 
 export function fittedFrameSize(width, height, maximum = 1800) {
@@ -22,6 +33,12 @@ export function imageFileFromClipboard(clipboardData) {
   return Array.from(clipboardData?.files || []).find((file) => file.type.startsWith("image/")) || null;
 }
 
+export function usableResultOutcome(result) {
+  if (!result?.vehicle) return "invalid";
+  if (result.outcome === "needs_lidar" && !result.cadPayload && !result.explodedCadPayload && result.userMessage) return "lidar";
+  if (result.outcome === "rough_cad_ready" && result.cadPayload && result.explodedCadPayload) return "cad";
+  return "invalid";
+}
 
 function element(id) { return document.getElementById(id); }
 
@@ -33,10 +50,8 @@ function setWorking(message = "") {
   element("status-bar").hidden = !message;
   element("status-text").textContent = message;
   for (const button of document.querySelectorAll("button")) button.disabled = Boolean(message);
-  if (!message) {
-    element("identify-button").disabled = !state.imageBase64;
-    element("confirm-button").disabled = false;
-  }
+  element("part-photo").disabled = Boolean(message);
+  if (!message && state.phase !== "done") element("send-button").disabled = state.phase === "identify" && !state.imageBase64;
 }
 
 function showError(error) {
@@ -45,6 +60,19 @@ function showError(error) {
 }
 
 function clearError() { element("error-box").hidden = true; }
+
+function appendMessage(role, text) {
+  const message = document.createElement("article");
+  message.className = `message ${role}-message`;
+  const label = document.createElement("p");
+  label.className = "message-label";
+  label.textContent = role === "assistant" ? "Astra" : "You";
+  const body = document.createElement("p");
+  body.textContent = text;
+  message.append(label, body);
+  element("chat-log").append(message);
+  message.scrollIntoView({ behavior: "smooth", block: "end" });
+}
 
 async function postAstra(body) {
   clearError();
@@ -71,13 +99,23 @@ async function imageAsJpegBase64(file) {
 }
 
 async function useImage(file) {
-  if (!file.type.startsWith("image/")) throw new Error("Select or paste an image file.");
+  const acceptedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
+  if (!acceptedTypes.has(file.type.toLowerCase())) throw new Error("Select or paste a JPG, PNG, WebP, or HEIC still image.");
   clearError();
   state.imageBase64 = await imageAsJpegBase64(file);
-  element("photo-preview").src = URL.createObjectURL(file);
+  if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
+  state.previewUrl = URL.createObjectURL(file);
+  element("photo-preview").src = state.previewUrl;
   element("photo-preview").hidden = false;
   element("upload-prompt").hidden = true;
-  element("identify-button").disabled = false;
+  element("cad-panel").hidden = true;
+  element("composer").hidden = false;
+  state.phase = "identify";
+  state.candidate = null;
+  state.cad = "";
+  state.explodedCad = "";
+  setProgress(1);
+  await identifyPhoto();
 }
 
 function bytesToBase64(bytes) {
@@ -87,35 +125,152 @@ function bytesToBase64(bytes) {
   return btoa(binary);
 }
 
-function confirmedVehicle() {
-  return {
-    make: element("vehicle-make").value.trim(),
-    model: element("vehicle-model").value.trim(),
-    year: element("vehicle-year").value.trim(),
-  };
+function renderItems(id, items, format, emptyText) {
+  const list = element(id);
+  list.replaceChildren();
+  if (!items.length) {
+    const row = document.createElement("li");
+    row.textContent = emptyText;
+    list.append(row);
+    return;
+  }
+  for (const item of items) {
+    const row = document.createElement("li");
+    row.textContent = format(item);
+    list.append(row);
+  }
+}
+
+function renderSources(sources) {
+  const list = element("sources-list");
+  list.replaceChildren();
+  if (!sources.length) {
+    const row = document.createElement("li");
+    row.textContent = "No usable OEM document or public scan was found.";
+    list.append(row);
+    return;
+  }
+  for (const source of sources) {
+    const row = document.createElement("li");
+    const link = document.createElement("a");
+    let safeUrl = "";
+    try {
+      const url = new URL(source.url);
+      if (["http:", "https:"].includes(url.protocol)) safeUrl = url.href;
+    } catch {}
+    link.textContent = source.title || "Untitled source";
+    if (safeUrl) {
+      link.href = safeUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+    const tag = document.createElement("span");
+    tag.className = "source-tag";
+    const sourceType = source.sourceType || source.type || (source.official ? "official_document" : "other_reference");
+    tag.textContent = ({ official_document: "OEM", public_scan: "public scan", other_reference: "web" })[sourceType] || sourceType.replaceAll("_", " ");
+    row.append(link, tag);
+    list.append(row);
+  }
+}
+
+function renderEvidence(result) {
+  renderItems("dimensions-list", result.dimensionEvidence || [], (item) => `${item.name}: ${item.value} ${item.unit} · ${item.method.replaceAll("_", " ")} · ${item.tolerance}`, "No dimensions are available yet.");
+  renderItems("assumptions-list", result.assumptions || [], (item) => item, "No model assumptions are available yet.");
+  renderSources(result.sources || []);
 }
 
 function renderResult(result) {
-  if (result.outcome === "needs_dimensions") {
-    const missing = result.missingDimensions.length ? ` Missing: ${result.missingDimensions.join(", ")}.` : "";
-    element("missing-instruction").textContent = `${result.userMessage}${missing}`;
-    element("measure-panel").hidden = false;
-    element("cad-panel").hidden = true;
-    setProgress(3);
-    element("measure-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
-  if (result.outcome === "cad_ready" && result.cadPayload) {
+  const outcome = usableResultOutcome(result);
+  if (outcome === "invalid") throw new Error("Astra returned an unsupported result.");
+  state.phase = "done";
+  state.partName = result.partName || state.partName;
+  const vehicle = `${result.vehicle.year} ${result.vehicle.make} ${result.vehicle.model}`.trim();
+  const part = PART_LABELS[result.partType] || result.partName;
+  element("cad-summary").textContent = `${vehicle} · ${part}`;
+  renderEvidence(result);
+
+  if (outcome === "lidar") {
+    state.cad = "";
+    state.explodedCad = "";
+    appendMessage("assistant", `${result.userMessage} A LiDAR scan is the next input before I create the CAD concept.`);
+    element("output-title").textContent = "LiDAR scan needed before CAD";
+    element("warning-detail").textContent = "No CAD file was generated. Capture the requested dimensions with a LiDAR-capable device before modelling continues.";
+    element("download-actions").hidden = true;
+  } else {
     state.cad = result.cadPayload;
     state.explodedCad = result.explodedCadPayload;
-    state.partName = result.partName || state.partName;
-    element("measure-panel").hidden = true;
-    element("cad-panel").hidden = false;
-    setProgress(4);
-    element("cad-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    appendMessage("assistant", `${result.summary} I created fitted and exploded rough CAD concepts.`);
+    element("output-title").textContent = "Rough CAD concept ready";
+    element("warning-detail").textContent = "This concept does not guarantee fit or safe vehicle installation.";
+    element("download-actions").hidden = false;
+  }
+
+  element("composer").hidden = true;
+  element("cad-panel").hidden = false;
+  setProgress(4);
+  element("cad-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function identifyPhoto() {
+  const input = element("message-input");
+  state.initialMessage = input.value.trim();
+  appendMessage("user", state.initialMessage || "I uploaded this car photo. Identify the vehicle and visible exterior part.");
+  input.value = "";
+  setWorking("Astra is identifying the vehicle and exterior part");
+  try {
+    const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, user_text: state.initialMessage });
+    state.candidate = result;
+    const vehicle = `${result.vehicle.year} ${result.vehicle.make} ${result.vehicle.model}`.trim();
+    const part = PART_LABELS[result.partType] || result.partName;
+    appendMessage("assistant", `I identified a ${vehicle}. The target part appears to be the ${part}. ${result.userMessage} Reply with a correction, or send a blank message to use this estimate.`);
+    state.phase = "confirm";
+    input.placeholder = "Optional correction: This is a 2020 Mazda 3 and I want the front bumper cover.";
+    element("send-button").textContent = "Confirm and generate CAD";
+    setProgress(2);
+  } catch (error) {
+    showError(error);
+    element("send-button").textContent = "Retry identification";
+  } finally {
+    setWorking();
+  }
+}
+
+async function sendMessage() {
+  const input = element("message-input");
+  const reply = input.value.trim();
+  if (state.phase === "identify") {
+    if (!state.imageBase64) return showError("Upload or paste a car photo first.");
+    await identifyPhoto();
     return;
   }
-  throw new Error("Astra returned an unsupported result.");
+
+  if (state.phase === "confirm") {
+    appendMessage("user", reply || "Use Astra's vehicle and part estimate.");
+    input.value = "";
+    setProgress(3);
+    setWorking("Astra is checking OEM sources, public scans, and CAD options");
+    try {
+      const result = await postAstra({
+        phase: "research_and_generate",
+        image_base64: state.imageBase64,
+        user_text: state.initialMessage,
+        candidate_vehicle: state.candidate.vehicle,
+        candidate_part: state.candidate.partType,
+        confirmation_text: reply,
+      });
+      renderResult(result);
+    } catch (error) { showError(error); }
+    finally { setWorking(); }
+  }
+}
+
+function downloadCad(content, suffix = "") {
+  const blob = new Blob([content], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${state.partName.replace(/[^A-Za-z0-9_-]/g, "-") || "car-part-concept"}${suffix}.scad`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 function init() {
@@ -124,6 +279,7 @@ function init() {
     if (!file) return;
     try { await useImage(file); }
     catch (error) { showError(error); }
+    finally { event.target.value = ""; }
   });
 
   document.addEventListener("paste", async (event) => {
@@ -134,53 +290,15 @@ function init() {
     catch (error) { showError(error); }
   });
 
-  element("identify-button").addEventListener("click", async () => {
-    setWorking("Astra is identifying the vehicle and part");
-    try {
-      const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, user_text: element("part-notes").value.trim() });
-      state.vehicle = result.vehicle;
-      state.partName = result.partName;
-      element("vehicle-make").value = result.vehicle.make;
-      element("vehicle-model").value = result.vehicle.model;
-      element("vehicle-year").value = result.vehicle.year;
-      element("part-result").textContent = `Detected part: ${result.partName}`;
-      element("confidence").textContent = `Photo confidence: ${Math.round(result.vehicle.confidence * 100)}%. Correct any field before research.`;
-      element("vehicle-panel").hidden = false;
-      setProgress(2);
-      element("vehicle-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    } catch (error) { showError(error); }
-    finally { setWorking(); }
+  element("send-button").addEventListener("click", sendMessage);
+  element("message-input").addEventListener("keydown", (event) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+    }
   });
-
-  element("confirm-button").addEventListener("click", async () => {
-    const vehicle = confirmedVehicle();
-    if (!vehicle.make || !vehicle.model || !vehicle.year) { showError("Make, model, and year are required."); return; }
-    setWorking("Astra is checking pre-indexed dimensional documents");
-    try {
-      const result = await postAstra({ phase: "research_and_generate", image_base64: state.imageBase64, user_text: element("part-notes").value.trim(), confirmed_vehicle: vehicle });
-      state.vehicle = vehicle;
-      renderResult(result);
-    } catch (error) { showError(error); }
-    finally { setWorking(); }
-  });
-
-  element("download-button").addEventListener("click", () => {
-    const blob = new Blob([state.cad], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${state.partName.replace(/[^A-Za-z0-9_-]/g, "-") || "car-part"}.scad`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
-  element("exploded-download-button").addEventListener("click", () => {
-    const blob = new Blob([state.explodedCad], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${state.partName.replace(/[^A-Za-z0-9_-]/g, "-") || "car-part"}-exploded.scad`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
-  element("missing-restart-button").addEventListener("click", () => location.reload());
+  element("download-button").addEventListener("click", () => downloadCad(state.cad));
+  element("exploded-download-button").addEventListener("click", () => downloadCad(state.explodedCad, "-exploded"));
   element("restart-button").addEventListener("click", () => location.reload());
 }
 

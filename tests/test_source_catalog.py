@@ -11,6 +11,20 @@ from astra_relay import SOURCE_CATALOG_PATH, build_openai_request, sources_for_v
 
 
 class SourceCatalogChecks(unittest.TestCase):
+    def test_skill_supports_ordered_exterior_concept_sources(self):
+        skill = (ROOT / "skills" / "vehicle-schematic-sourcing" / "SKILL.md").read_text()
+        for value in (
+            "front bumper cover", "wheel-arch trim", "public_scan_estimate",
+            "sourceType=public_scan", "creator and platform", "LiDAR request",
+            "Public access does not grant reuse rights", "not suitable for fabrication",
+        ):
+            self.assertIn(value, skill)
+        indexed = skill.index("Check matching pre-indexed official documents")
+        public_scan = skill.index("search the web for a public 3D scan")
+        lidar = skill.index("return a LiDAR request")
+        self.assertLess(indexed, public_scan)
+        self.assertLess(public_scan, lidar)
+
     def test_catalog_contains_only_direct_dimension_documents(self):
         catalog = json.loads(SOURCE_CATALOG_PATH.read_text())
         self.assertGreaterEqual(len(catalog["sources"]), 6)
@@ -43,18 +57,23 @@ class SourceCatalogChecks(unittest.TestCase):
         self.assertEqual({source["id"] for source in tesla_2024}, {"tesla-model-3-2024-dimensional-specifications"})
         self.assertEqual(sources_for_vehicle({"make": "Toyota", "model": "Camry", "year": "2021"}), [])
 
-    def test_astra_prompt_uses_exact_documents_before_general_search(self):
+    def test_astra_prompt_uses_oem_then_public_scan_then_lidar(self):
         request = build_openai_request({
             "phase": "research_and_generate",
             "image_base64": "Zml4dHVyZQ==",
             "user_text": "Broken bracket beside the left headlamp.",
-            "confirmed_vehicle": {"make": "Chevrolet", "model": "City Express", "year": "2017"},
+            "candidate_vehicle": {"make": "Chevrolet", "model": "City Express", "year": "2017"},
+            "candidate_part": "front_bumper_cover",
         })
         prompt = request["input"][0]["content"][0]["text"]
         self.assertIn("2015-18-CHEVROLET-CITY-EXPRESS-CARGO-VAN_BBM_V1.pdf", prompt)
         self.assertNotIn("parts.gmparts.com", prompt)
-        self.assertIn("Search the pre-indexed dimensional documents before general web search", prompt)
-        self.assertIn("Never infer dimensions, hole positions, tolerances, or scale", prompt)
+        indexed = prompt.index("1. Search the supplied pre-indexed documents")
+        public_scan = prompt.index("2. If those official sources")
+        lidar = prompt.index("3. If neither official sources nor a public scan")
+        self.assertLess(indexed, public_scan)
+        self.assertLess(public_scan, lidar)
+        self.assertIn("public_scan", prompt)
         self.assertIn("Broken bracket beside the left headlamp.", prompt)
 
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Vehicle Schematic Sourcing"
-  short_description: "Find direct official vehicle documents with dimensions"
-  default_prompt: "Find direct free official dimensional documents for this vehicle and part. Exclude documents that do not state measurements."
+  short_description: "Find OEM geometry, then public scans"
+  default_prompt: "Use $vehicle-schematic-sourcing to check OEM geometry, then public 3D scans, and request LiDAR only if both are insufficient."

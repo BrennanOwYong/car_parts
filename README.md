@@ -1,28 +1,40 @@
-# Car-part CAD desktop prototype
+# CarPart CAD hackathon demo
 
-This repository contains a desktop website for an evidence-first car-part CAD flow. Upload one photo of a car or visible car part. Astra identifies the vehicle and part. You confirm the make, model, and year. Astra then checks pre-indexed official dimensional documents and performs a targeted web search. The website releases fitted and exploded-view OpenSCAD files only when exact official evidence covers every required hard dimension.
+This repository contains a conversational desktop website. Upload or paste a car photo. Tell Astra which visible exterior part you want. Astra identifies the vehicle and part. You confirm or correct the result in the conversation. Astra then searches for usable geometry and returns fitted and exploded-view OpenSCAD files when the evidence is sufficient.
 
-## Source-of-truth hierarchy
+## Hackathon scope
 
-Use this order for each geometric feature:
+The demo supports five exterior parts:
 
-1. An OEM engineering or service document that applies to the exact vehicle and part.
-2. Image or model inference. This can identify a likely shape. It cannot authorize a hard dimension.
-3. Unknown. The pipeline blocks CAD release.
+- hood;
+- front bumper cover;
+- front fender;
+- wheel-arch trim or fender flare;
+- side-mirror housing.
 
-A hard dimension controls fit or safe installation. Examples include mounting-hole centers, locating pins, sealing faces, interface planes, and clearance boundaries. An exploded diagram without stated dimensions is not dimensional evidence.
+The app creates a rough visual concept. It is not suitable for fabrication or vehicle installation. It does not guarantee fit. Every result distinguishes sourced dimensions from estimated dimensions and lists the assumptions used.
 
-## Website flow
+## Conversational flow
 
-`upload photo -> Astra identifies vehicle and part -> user confirms vehicle -> Astra checks official dimensional documents -> fitted CAD and exploded-view downloads or missing-dimensions report`
+`upload or paste photo -> describe target part -> Astra identifies vehicle and part -> confirm or correct in plain text -> OEM documents -> public 3D scans -> LiDAR request only if needed -> rough fitted and exploded CAD`
 
-The website accepts one image file and optional text. It does not request a camera. It does not accept video or 3D scan input. If exact official dimensions are unavailable, Astra lists the missing measurements and does not generate unsupported CAD.
+There are no vehicle or part forms. Astra states its estimate in the conversation. Reply with a correction such as `This is a 2020 Mazda 3 and I want the front bumper cover.` Send a blank message to accept Astra's estimate.
+
+After confirmation, Astra uses this source order:
+
+1. It checks the pre-indexed official dimension documents. It then searches official OEM body-repair pages, service diagrams, parts diagrams, and stated dimensions for the exact vehicle and part.
+2. If the OEM material cannot supply enough geometry, it searches the web for a public 3D scan of the exact vehicle and part.
+3. If OEM material and a usable public scan are both insufficient, it asks the user to make a LiDAR scan. It does not return CAD in this response.
+
+The photo can support the silhouette and proportional estimates. An official diagram can support part identity, boundaries, adjacency, and mounting context. It does not prove a dimension unless the source states that value.
+
+A public scan is an independent reference. It is not an OEM or certified source. For each public scan, the result must keep the title, URL, creator and platform when available, `sourceType=public_scan`, and the stated license or rights status. Public access does not grant permission to copy, change, or redistribute a scan. Review its license before use. If the rights are unknown or restricted, treat the scan as a visual reference only.
 
 ## Run on a desktop computer
 
-The Python relay serves the website at `http://localhost:8787`. It binds only to `localhost`. Other computers and phones cannot connect to it. The relay also keeps the OpenAI API key out of browser code.
+The Python relay serves the website at `http://localhost:8787`. It binds only to `localhost`. Other computers and phones cannot connect to it. The relay keeps the OpenAI API key out of browser code.
 
-On macOS or Linux:
+On macOS, Linux, or WSL:
 
 ```sh
 git clone https://github.com/BrennanOwYong/car_parts.git
@@ -31,7 +43,7 @@ cp .env.example .env
 ./astra_relay.py
 ```
 
-Open `.env` in a text editor. Put the key after `OPENAI_API_KEY=` before you start the relay. The executable uses Python 3 directly. It does not require a `python` command.
+Open `.env` in a text editor. Put the key after `OPENAI_API_KEY=` before starting the relay. You can also run `python3 astra_relay.py` if the executable command is not available.
 
 On Windows PowerShell:
 
@@ -39,48 +51,44 @@ On Windows PowerShell:
 git clone https://github.com/BrennanOwYong/car_parts.git
 cd car_parts
 Copy-Item .env.example .env
-python astra_relay.py
+py astra_relay.py
 ```
 
-Open `http://localhost:8787` in a desktop browser. Select **Upload or paste a car photo**. Choose an existing JPEG, PNG, HEIC, or other browser-supported image. You can also copy an image, focus the website, and press `Ctrl+V`. Add an optional description. Then select **Identify vehicle and part**.
+Open `http://localhost:8787` in a desktop browser. Choose an image or copy an image, focus the website, and press `Ctrl+V`. Add a normal text message that identifies the desired part. Select **Identify vehicle and part**.
 
-Keep the terminal open while you use the website. Press `Ctrl+C` to stop the server. The `.env` file is ignored by Git. Do not put the API key in `.env.example`, `web/app.js`, or another tracked file.
+Keep the terminal open. Press `Ctrl+C` to stop the server. The `.env` file is ignored by Git. Do not put the API key in `.env.example` or browser code.
+
+## Generated result
+
+When the geometry is sufficient, the result screen shows:
+
+- Astra's final vehicle and part identification;
+- dimensions and their source method;
+- broad estimated tolerances;
+- modeling assumptions;
+- reference links found during research;
+- one fitted OpenSCAD model;
+- one exploded-view OpenSCAD model.
+
+Both scripts start with `ROUGH VISUAL CONCEPT - NOT FOR FABRICATION`.
+
+If the source checks fail, Astra returns a LiDAR request instead of a CAD file. This desktop MVP accepts only images and text. It does not ingest a LiDAR mesh. The request explains which part and mounting areas need a later scan.
 
 ## Pre-indexed official sources
 
-The repository includes the `skills/vehicle-schematic-sourcing` skill. Its catalog contains direct, free, official documents with explicit measurements. It excludes parts catalogs, VIN tools, general landing pages, and diagrams that do not state dimensions. The Astra relay loads this catalog before each confirmed-vehicle request.
+The runtime catalog is `skills/vehicle-schematic-sourcing/references/official_sources.json`. It currently contains nine free official dimensional documents for selected Tesla, Chevrolet City Express, and Ram 1500 SSV configurations.
 
-The runtime catalog is `skills/vehicle-schematic-sourcing/references/official_sources.json`. It contains verified dimensional documents for selected Tesla, Chevrolet City Express, and Ram 1500 SSV configurations. The relay uses an indexed document only when the make, model, and year match.
+The catalog is a starting point. For a Mazda or another vehicle without an indexed entry, Astra first uses live web search for official OEM material. If the OEM material is insufficient, it searches for a public scan of the exact vehicle and part. It requests a LiDAR scan only after those searches fail. Dimensions inferred from a diagram, scan image, vehicle proportion, or uploaded photo remain estimates.
 
-For an example, open the [GM 2015-2018 Chevrolet City Express Body Builder Manual](https://www.gmupfitter.com/wp-content/uploads/2021/05/2015-18-CHEVROLET-CITY-EXPRESS-CARGO-VAN_BBM_V1.pdf). Page 59 contains a seat mounting-hole drawing with dimensions A=380 mm, B=375 mm, C=560 mm, and D=550 mm.
-
-The catalog is a starting index. It is not a complete source for every vehicle and part. If the catalog has no exact match, Astra performs a targeted search for another official dimensional document. If the search fails, the website lists the missing dimensions. It does not treat a photograph or an unmeasured diagram as dimensional proof.
-
-To install the source skill in Codex on another computer:
-
-```sh
-cp -R skills/vehicle-schematic-sourcing ~/.codex/skills/
-```
+The repository also includes the `skills/vehicle-schematic-sourcing` skill. The skill applies the same distinction between stated dimensions and visual estimates.
 
 ## Local checks
-
-Run all checks from the repository root:
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'
 node tests/test_photo.mjs
-python3 astra_relay.py --self-test
+./astra_relay.py --self-test
 python3 /home/unix/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/vehicle-schematic-sourcing
 ```
 
-Windows can run the Python and Node.js checks with `python` and `node`. The Codex skill validator path is specific to a Codex Linux or WSL installation.
-
-## Development roadmap
-
-1. Collect representative photos and exact vehicle labels for ten part families.
-2. Expand the official dimensional-source catalog and record document applicability.
-3. Add controlled CAD templates for common non-safety-critical part families.
-4. Add deterministic geometry and interference checks for generated OpenSCAD.
-5. Compare generated models with caliper or metrology measurements before fabrication.
-
-Do not use prototype output for brake, steering, restraint, suspension, or crash structures. A qualified person must inspect all dimensions and tolerances before fabrication.
+The application is a hackathon demonstration. Do not install its generated geometry on a vehicle.

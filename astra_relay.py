@@ -54,6 +54,17 @@ def load_source_catalog(path: Path = SOURCE_CATALOG_PATH) -> dict[str, Any]:
 
 OFFICIAL_SOURCE_CATALOG = load_source_catalog()
 
+SUPPORTED_PARTS = (
+    "hood",
+    "front_bumper_cover",
+    "front_fender",
+    "wheel_arch_trim",
+    "side_mirror_housing",
+)
+CONCEPT_WARNING = "ROUGH VISUAL CONCEPT - NOT FOR FABRICATION"
+EVIDENCE_METHODS = ("official_dimension", "public_scan_estimate", "photo_estimate", "proportional_estimate")
+SOURCE_TYPES = ("official_document", "public_scan", "other_reference")
+
 
 def sources_for_vehicle(vehicle: dict[str, Any]) -> list[dict[str, Any]]:
     make = str(vehicle.get("make", "")).strip().casefold()
@@ -82,7 +93,7 @@ ASTRA_RESULT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
     "properties": {
-        "outcome": {"type": "string", "enum": ["vehicle_candidate", "needs_dimensions", "cad_ready"]},
+        "outcome": {"type": "string", "enum": ["vehicle_candidate", "rough_cad_ready", "needs_lidar"]},
         "userMessage": {"type": "string"},
         "vehicle": {
             "type": "object", "additionalProperties": False,
@@ -93,36 +104,51 @@ ASTRA_RESULT_SCHEMA = {
             "required": ["make", "model", "year", "confidence"],
         },
         "partName": {"type": "string"},
+        "partType": {"type": "string", "enum": list(SUPPORTED_PARTS)},
         "summary": {"type": "string"},
-        "dimensionsSufficient": {"type": "boolean"},
-        "validatedAgainstEvidence": {"type": "boolean"},
-        "requiredDimensions": {"type": "array", "items": {"type": "string"}},
+        "sourceChecks": {
+            "type": "object", "additionalProperties": False,
+            "properties": {
+                "officialOemChecked": {"type": "boolean"},
+                "publicScansChecked": {"type": "boolean"},
+                "geometrySufficient": {"type": "boolean"},
+            },
+            "required": ["officialOemChecked", "publicScansChecked", "geometrySufficient"],
+        },
         "dimensionEvidence": {
             "type": "array",
             "items": {
                 "type": "object", "additionalProperties": False,
                 "properties": {
                     "name": {"type": "string"}, "value": {"type": "string"}, "unit": {"type": "string"},
-                    "tolerance": {"type": "string"}, "method": {"type": "string", "enum": ["oem"]},
-                    "sourceRef": {"type": "string"}, "exact": {"type": "boolean"},
+                    "tolerance": {"type": "string"},
+                    "method": {"type": "string", "enum": list(EVIDENCE_METHODS)},
+                    "sourceRef": {"type": "string"},
+                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
                 },
-                "required": ["name", "value", "unit", "tolerance", "method", "sourceRef", "exact"],
+                "required": ["name", "value", "unit", "tolerance", "method", "sourceRef", "confidence"],
             },
         },
-        "missingDimensions": {"type": "array", "items": {"type": "string"}},
+        "assumptions": {"type": "array", "items": {"type": "string"}},
         "sources": {
             "type": "array",
             "items": {
                 "type": "object", "additionalProperties": False,
-                "properties": {"title": {"type": "string"}, "url": {"type": "string"}, "official": {"type": "boolean"}},
-                "required": ["title", "url", "official"],
+                "properties": {
+                    "title": {"type": "string"},
+                    "url": {"type": "string"},
+                    "official": {"type": "boolean"},
+                    "sourceType": {"type": "string", "enum": list(SOURCE_TYPES)},
+                    "provenance": {"type": "string"},
+                },
+                "required": ["title", "url", "official", "sourceType", "provenance"],
             },
         },
         "cadFormat": {"type": ["string", "null"], "enum": ["OpenSCAD", None]},
         "cadPayload": {"type": ["string", "null"]},
         "explodedCadPayload": {"type": ["string", "null"]},
     },
-    "required": ["outcome", "userMessage", "vehicle", "partName", "summary", "dimensionsSufficient", "validatedAgainstEvidence", "requiredDimensions", "dimensionEvidence", "missingDimensions", "sources", "cadFormat", "cadPayload", "explodedCadPayload"],
+    "required": ["outcome", "userMessage", "vehicle", "partName", "partType", "summary", "sourceChecks", "dimensionEvidence", "assumptions", "sources", "cadFormat", "cadPayload", "explodedCadPayload"],
 }
 
 
@@ -131,30 +157,47 @@ def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
     if phase not in {"identify", "research_and_generate"}:
         raise ValueError("invalid phase")
     image = payload.get("image_base64", "")
+    if not image:
+        raise ValueError("image_base64 is required")
     base64.b64decode(image, validate=True)
     user_text = str(payload.get("user_text", "")).strip()
     if len(user_text) > 2000:
         raise ValueError("user_text is longer than 2000 characters")
-    vehicle = payload.get("confirmed_vehicle") or {}
-    if phase != "identify" and any(not str(vehicle.get(field, "")).strip() for field in ("make", "model", "year")):
-        raise ValueError("confirmed vehicle make, model, and year are required")
+    vehicle = payload.get("candidate_vehicle") or {}
+    part = str(payload.get("candidate_part", "")).strip()
+    confirmation_text = str(payload.get("confirmation_text", "")).strip()
+    if len(confirmation_text) > 2000:
+        raise ValueError("confirmation_text is longer than 2000 characters")
+    if phase != "identify":
+        if any(not str(vehicle.get(field, "")).strip() for field in ("make", "model", "year")):
+            raise ValueError("candidate vehicle make, model, and year are required")
+        if part not in SUPPORTED_PARTS:
+            raise ValueError("candidate part is not supported")
     indexed_sources = sources_for_vehicle(vehicle) if phase != "identify" else []
     task = (
-        "Identify the vehicle make, model, approximate year, and visible damaged or selected part."
+        "Identify the vehicle make, model, approximate year, and the requested visible exterior part."
         if phase == "identify" else
-        "Use the confirmed vehicle and visible part. Search direct official documents for the exact part, interfaces, dimensions, and mounting constraints. Generate OpenSCAD only when the cited evidence is sufficient."
+        "Resolve the user's correction. Follow the required source fallback. Return rough CAD only when the available geometry is sufficient. Otherwise ask for a LiDAR scan."
     )
     prompt = f"""You are the reconstruction agent for a desktop car-part website.
 Task: {task}
-Confirmed vehicle: {json.dumps(vehicle)}
-User description: {json.dumps(user_text)}
+Supported part types: {json.dumps(SUPPORTED_PARTS)}
+The wheel_arch_trim is the external trim or fender flare around the wheel opening. The front_fender is the painted body panel around the front wheel.
+Initial user message: {json.dumps(user_text)}
+Astra candidate vehicle: {json.dumps(vehicle)}
+Astra candidate part: {json.dumps(part)}
+User confirmation or correction: {json.dumps(confirmation_text)}
 Pre-indexed free official dimension-bearing documents for this exact vehicle: {json.dumps(indexed_sources, separators=(',', ':'))}
-Search the pre-indexed dimensional documents before general web search. The catalog was researched before this job, but each document and vehicle applicability must still be verified.
-Use an official source as dimensional evidence only when the direct page or file states the value. Never infer dimensions, hole positions, tolerances, or scale from an exploded diagram, photograph, or prose description.
-Never invent an OEM drawing, source URL, dimension, screw-hole center, tolerance, or part number.
-For identify, use outcome=vehicle_candidate. After confirmation, use only outcome=needs_dimensions or outcome=cad_ready.
-Use needs_dimensions when any required fit-critical dimension lacks an exact OEM evidence record. Explain that official dimensional evidence was insufficient. List the absent values in missingDimensions. Do not return partial or unsupported CAD.
-Use cad_ready only when every item in requiredDimensions has a matching exact dimensionEvidence record, validatedAgainstEvidence=true, and both generated scripts use those values. Set userMessage to an empty string. Set cadFormat to OpenSCAD. Return the fitted model in cadPayload. Return a second complete OpenSCAD script in explodedCadPayload. The exploded script must separate only modeled components and mounting elements supported by the evidence. Do not invent hidden components or dimensions.
+For identify, return outcome=vehicle_candidate. Select exactly one supported partType. Use the initial message to decide which visible part the user wants. Set every sourceChecks value to false. Return null CAD fields, empty dimensionEvidence, empty assumptions, and empty sources. Ask the user to confirm or correct the vehicle and part in userMessage.
+For research_and_generate, treat an empty correction as acceptance of the candidate. Resolve a written correction into a final vehicle and one supported partType.
+Use this fallback order. Do not skip a step:
+1. Search the supplied pre-indexed documents and the web for official OEM dimension sheets, body-repair measurements, service diagrams, and OEM parts diagrams for the exact make, model, year, and part. Then set sourceChecks.officialOemChecked=true.
+2. If those official sources do not provide enough geometry, search the web for a public 3D scan of that exact vehicle part. Then set sourceChecks.publicScansChecked=true. Record its direct page URL, creator or repository provenance, and sourceType=public_scan. Do not call a community scan OEM, official, certified, or dimensionally exact. Use a public scan only as a geometry reference and only when its page is publicly accessible.
+3. If neither official sources nor a public scan provide enough geometry for a recognizable concept, set sourceChecks.geometrySufficient=false and return outcome=needs_lidar. In userMessage, ask the user to scan the part and its attachment area with iPhone LiDAR. State that the scan must include edges, screw holes, clips, tabs, openings, and one known scale reference. Return null cadFormat, cadPayload, and explodedCadPayload. Do not return placeholder CAD.
+Official dimension callouts can set scale. Exploded diagrams can guide silhouette, component boundaries, adjacency, and likely mounting locations. The uploaded photo can guide visible curvature and styling. When supported source geometry exists but exact values are absent, estimate dimensions and broad tolerances from visible proportions and known overall vehicle dimensions.
+Label every value as official_dimension, public_scan_estimate, photo_estimate, or proportional_estimate. For official_dimension, use the matching official_document URL as sourceRef. For public_scan_estimate, use the matching public_scan URL. Use uploaded_photo or vehicle_proportions as sourceRef for other estimates. Give every estimate a conservative tolerance and confidence. List all material assumptions. Never present an estimate or public scan as an OEM specification.
+When geometry is sufficient, set sourceChecks.geometrySufficient=true, return outcome=rough_cad_ready, and set cadFormat=OpenSCAD. Return a complete, recognizable, simplified exterior replacement-part concept in cadPayload. Return a second complete exploded-view script in explodedCadPayload. Use smooth OpenSCAD primitives, hulls, and modules where useful. Model the external shell, visible openings, and simplified attachment tabs. Do not model safety systems or claim exact fit.
+Begin both scripts with this exact comment: // {CONCEPT_WARNING}
 """
     content: list[dict[str, Any]] = [
             {"type": "input_text", "text": prompt},
@@ -188,54 +231,89 @@ def extract_result(response: dict[str, Any], phase: str | None = None) -> dict[s
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0]
     result = json.loads(text)
-    required = {"outcome", "userMessage", "vehicle", "partName", "summary", "dimensionsSufficient", "validatedAgainstEvidence", "requiredDimensions", "dimensionEvidence", "missingDimensions", "sources", "cadFormat", "cadPayload", "explodedCadPayload"}
-    if not required.issubset(result):
+    required = {"outcome", "userMessage", "vehicle", "partName", "partType", "summary", "sourceChecks", "dimensionEvidence", "assumptions", "sources", "cadFormat", "cadPayload", "explodedCadPayload"}
+    if not isinstance(result, dict) or not required.issubset(result):
         raise ValueError("Astra response is missing required fields")
     vehicle = result.get("vehicle")
     if not isinstance(vehicle, dict) or not {"make", "model", "year", "confidence"}.issubset(vehicle):
         raise ValueError("Astra response has an invalid vehicle")
-    if not isinstance(result["dimensionsSufficient"], bool):
-        raise ValueError("Astra response has an invalid dimensionsSufficient value")
+    if result["partType"] not in SUPPORTED_PARTS:
+        raise ValueError("Astra response has an unsupported part type")
+    source_checks = result["sourceChecks"]
+    check_fields = {"officialOemChecked", "publicScansChecked", "geometrySufficient"}
+    if not isinstance(source_checks, dict) or set(source_checks) != check_fields or not all(isinstance(source_checks[field], bool) for field in check_fields):
+        raise ValueError("Astra response has invalid source checks")
+    if not all(isinstance(result[field], list) for field in ("dimensionEvidence", "assumptions", "sources")):
+        raise ValueError("Astra response has invalid evidence collections")
     for source in result["sources"]:
-        if not isinstance(source, dict) or not source.get("url", "").startswith(("https://", "http://")):
+        required_source = {"title", "url", "official", "sourceType", "provenance"}
+        if not isinstance(source, dict) or not required_source.issubset(source):
+            raise ValueError("Astra response has incomplete source provenance")
+        if not source.get("url", "").startswith(("https://", "http://")):
             raise ValueError("Astra response has an invalid source URL")
+        if not str(source.get("provenance", "")).strip():
+            raise ValueError("Astra response has empty source provenance")
+        if source["sourceType"] not in SOURCE_TYPES or not isinstance(source["official"], bool):
+            raise ValueError("Astra response has an invalid source type")
+        if source["sourceType"] == "official_document" and not source["official"]:
+            raise ValueError("official documents must be marked official")
+        if source["sourceType"] == "public_scan" and source["official"]:
+            raise ValueError("public scans cannot be marked official")
     if phase == "identify":
         if result["outcome"] != "vehicle_candidate":
             raise ValueError("identify phase requires vehicle_candidate")
-        result["cadFormat"] = None
-        result["cadPayload"] = None
-        result["explodedCadPayload"] = None
+        if not str(result["userMessage"]).strip():
+            raise ValueError("vehicle_candidate requires a confirmation question")
+        if any(source_checks.values()):
+            raise ValueError("vehicle_candidate cannot contain completed source checks")
+        if any(value is not None for value in (result["cadFormat"], result["cadPayload"], result["explodedCadPayload"])) or any(
+            (result["dimensionEvidence"], result["assumptions"], result["sources"])
+        ):
+            raise ValueError("vehicle_candidate cannot contain research or CAD results")
         return result
-    if result["outcome"] == "needs_dimensions":
-        if not result["userMessage"].strip() or not result["missingDimensions"]:
-            raise ValueError("needs_dimensions requires a user message and missing dimensions")
-        result["dimensionsSufficient"] = False
-        result["validatedAgainstEvidence"] = False
-        result["cadFormat"] = None
-        result["cadPayload"] = None
-        result["explodedCadPayload"] = None
+    if result["outcome"] == "needs_lidar":
+        if not str(result["userMessage"]).strip() or "lidar" not in result["userMessage"].casefold():
+            raise ValueError("needs_lidar requires a clear LiDAR instruction")
+        if any(value is not None for value in (result["cadFormat"], result["cadPayload"], result["explodedCadPayload"])):
+            raise ValueError("needs_lidar cannot contain CAD payloads")
+        if source_checks != {"officialOemChecked": True, "publicScansChecked": True, "geometrySufficient": False}:
+            raise ValueError("needs_lidar requires completed OEM and public scan checks")
         return result
-    if result["outcome"] != "cad_ready":
-        raise ValueError("post-confirmation outcome must be needs_dimensions or cad_ready")
-    if not result["dimensionsSufficient"] or not result["validatedAgainstEvidence"]:
-        raise ValueError("cad_ready requires confirmed dimensional validation")
-    if result["userMessage"] or result["missingDimensions"]:
-        raise ValueError("cad_ready cannot include a user message or missing dimensions")
+    if result["outcome"] != "rough_cad_ready":
+        raise ValueError("post-confirmation outcome must be rough_cad_ready or needs_lidar")
+    if str(result["userMessage"]).strip():
+        raise ValueError("rough_cad_ready cannot contain a LiDAR instruction")
+    if not source_checks["officialOemChecked"] or not source_checks["geometrySufficient"]:
+        raise ValueError("rough_cad_ready requires completed OEM research and sufficient geometry")
     if result["cadFormat"] != "OpenSCAD" or not result["cadPayload"] or not result["explodedCadPayload"]:
-        raise ValueError("cad_ready requires fitted and exploded OpenSCAD payloads")
-    required_dimensions = set(result["requiredDimensions"])
-    evidence = {item.get("name"): item for item in result["dimensionEvidence"]}
-    if not required_dimensions or not required_dimensions.issubset(evidence):
-        raise ValueError("cad_ready lacks evidence for required dimensions")
-    official_urls = {source["url"] for source in result["sources"] if source.get("official")}
-    for name in required_dimensions:
-        item = evidence[name]
-        if not item.get("exact") or not item.get("value") or not item.get("unit") or not item.get("tolerance"):
-            raise ValueError(f"cad_ready has incomplete evidence for {name}")
-        if item.get("method") == "oem" and item.get("sourceRef") not in official_urls:
-            raise ValueError(f"cad_ready has unverified OEM evidence for {name}")
-        if item.get("method") != "oem":
-            raise ValueError(f"cad_ready has unsupported evidence for {name}")
+        raise ValueError("rough_cad_ready requires fitted and exploded OpenSCAD payloads")
+    if not result["dimensionEvidence"] or not result["assumptions"]:
+        raise ValueError("rough_cad_ready requires dimension estimates and assumptions")
+    if not result["cadPayload"].startswith(f"// {CONCEPT_WARNING}") or not result["explodedCadPayload"].startswith(f"// {CONCEPT_WARNING}"):
+        raise ValueError("rough CAD payloads require the concept warning")
+    if not result["sources"]:
+        raise ValueError("rough_cad_ready requires a supporting official document or public scan")
+    official_urls = {
+        source["url"] for source in result["sources"]
+        if source["sourceType"] == "official_document" and source["official"]
+    }
+    public_scan_urls = {
+        source["url"] for source in result["sources"]
+        if source["sourceType"] == "public_scan" and not source["official"]
+    }
+    if not (official_urls or public_scan_urls):
+        raise ValueError("rough_cad_ready requires a supporting official document or public scan")
+    if public_scan_urls and not source_checks["publicScansChecked"]:
+        raise ValueError("public scan sources require a completed public scan check")
+    for item in result["dimensionEvidence"]:
+        if not isinstance(item, dict) or item.get("method") not in EVIDENCE_METHODS:
+            raise ValueError("rough_cad_ready has an invalid evidence method")
+        if not all(str(item.get(field, "")).strip() for field in ("name", "value", "unit", "tolerance", "method", "sourceRef")):
+            raise ValueError("rough_cad_ready has incomplete dimension evidence")
+        if item["method"] == "official_dimension" and item["sourceRef"] not in official_urls:
+            raise ValueError("rough_cad_ready has unverified official evidence")
+        if item["method"] == "public_scan_estimate" and item["sourceRef"] not in public_scan_urls:
+            raise ValueError("rough_cad_ready has unverified public scan evidence")
     return result
 
 
@@ -268,7 +346,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_bytes(data, content_type)
 
     def do_POST(self) -> None:
-        if self.path != "/analyze":
+        if urlsplit(self.path).path not in {"/analyze", "/api/astra"}:
             self.send_error(404)
             return
         try:
@@ -302,7 +380,7 @@ class Handler(BaseHTTPRequestHandler):
 def self_test() -> None:
     image = base64.b64encode(b"test image").decode()
     identify = build_openai_request({"phase": "identify", "image_base64": image})
-    research = build_openai_request({"phase": "research_and_generate", "image_base64": image, "confirmed_vehicle": {"make": "Test", "model": "Model", "year": "2020"}})
+    research = build_openai_request({"phase": "research_and_generate", "image_base64": image, "candidate_vehicle": {"make": "Test", "model": "Model", "year": "2020"}, "candidate_part": "hood"})
     assert identify["model"] == "gpt-6-astra" and "tools" not in identify
     assert research["tools"] == [{"type": "web_search"}]
     print("Astra relay self-test passed")

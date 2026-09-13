@@ -30,40 +30,80 @@ class WebApplicationChecks(unittest.TestCase):
         with urllib.request.urlopen(self.base + path) as response:
             return response, response.read().decode()
 
-    def test_relay_serves_desktop_upload_website(self):
+    def test_relay_serves_conversational_website(self):
         self.assertEqual(SERVER_HOST, "localhost")
         response, html = self.get("/")
         self.assertEqual(response.headers.get_content_type(), "text/html")
-        for value in ("part-photo", "part-notes", "vehicle-panel", "measure-panel", "cad-panel", "download-button", "exploded-download-button"):
+        for value in (
+            "chat-log", "part-photo", "photo-preview", "message-input", "send-button",
+            "page-title", "cad-panel", "output-title", "cad-summary", "dimensions-list",
+            "assumptions-list", "sources-list", "download-actions", "download-button",
+            "exploded-download-button",
+        ):
             self.assertIn(f'id="{value}"', html)
+        self.assertIn('role="log"', html)
         self.assertIn("Upload or paste a car photo", html)
-        self.assertIn("press Ctrl+V to paste one", html)
-        self.assertIn("Dimension-bearing official documents pre-indexed", html)
-        self.assertIn("<textarea", html)
-        self.assertEqual(html.count('type="file"'), 1)
+        self.assertIn("Show the car. Choose the part.", html)
+        self.assertIn("ROUGH VISUAL CONCEPT - NOT FOR FABRICATION", html)
 
-    def test_website_has_no_mobile_capture_or_lidar_interface(self):
+    def test_layout_matches_supplied_sketch_structure(self):
         _, html = self.get("/")
-        _, script = self.get("/app.js")
-        combined = html + script
-        for value in ('capture="environment"', "getUserMedia", "<video", "LiDAR", "iPhone", "detectDepthCapability", "scan_obj_base64"):
-            self.assertNotIn(value, combined)
+        for value in ('class="workbench"', 'class="photo-pane"', 'class="conversation-pane"', 'class="composer"'):
+            self.assertIn(value, html)
+        self.assertLess(html.index('class="photo-pane"'), html.index('class="conversation-pane"'))
+        self.assertLess(html.index('class="conversation-pane"'), html.index('class="composer"'))
+        _, css = self.get("/styles.css")
+        self.assertIn("grid-template-columns: minmax(0, 1.55fr) minmax(360px, 1fr)", css)
+        self.assertIn(".composer { grid-column: 1 / -1", css)
+        self.assertIn(".photo-pane { display: flex", css)
 
-    def test_script_uses_same_origin_api_and_optional_text(self):
+    def test_website_has_no_vehicle_or_part_form(self):
+        _, html = self.get("/")
+        for value in ("vehicle-make", "vehicle-model", "vehicle-year", "target-part", "<form", "<select"):
+            self.assertNotIn(value, html)
+        self.assertEqual(html.count("<textarea"), 1)
+        self.assertEqual(html.count('type="file"'), 1)
+        self.assertNotIn('accept="video/', html)
+
+    def test_script_runs_identify_then_conversational_confirmation(self):
         response, script = self.get("/app.js")
         self.assertEqual(response.headers.get_content_type(), "text/javascript")
-        self.assertIn('fetch("/analyze"', script)
-        self.assertIn('user_text: element("part-notes").value.trim()', script)
-        self.assertIn('result.outcome === "needs_dimensions"', script)
-        self.assertIn('document.addEventListener("paste"', script)
+        for value in (
+            'fetch("/analyze"', 'phase: "identify"', 'phase: "research_and_generate"',
+            "candidate_vehicle: state.candidate.vehicle", "candidate_part: state.candidate.partType",
+            "confirmation_text: reply", 'appendMessage("assistant"',
+        ):
+            self.assertIn(value, script)
 
-    def test_vehicle_confirmation_and_cad_downloads_exist(self):
-        _, html = self.get("/")
+    def test_script_renders_sources_estimates_and_assumptions(self):
         _, script = self.get("/app.js")
-        for value in ("vehicle-make", "vehicle-model", "vehicle-year"):
-            self.assertIn(f'id="{value}"', html)
-        self.assertIn('link.download = `${state.partName', script)
-        self.assertIn('-exploded.scad`', script)
+        for value in ("dimensionEvidence", "assumptions", "sources", "sourceType", "public scan", "cad-summary", "rough_cad_ready"):
+            self.assertIn(value, script)
+
+    def test_script_handles_lidar_without_false_cad_downloads(self):
+        _, script = self.get("/app.js")
+        for value in (
+            'result.outcome === "needs_lidar"', "result.userMessage",
+            "A LiDAR scan is the next input before I create the CAD concept.",
+            'element("download-actions").hidden = true',
+            "No CAD file was generated",
+        ):
+            self.assertIn(value, script)
+        self.assertIn('result.outcome === "needs_lidar" && !result.cadPayload && !result.explodedCadPayload', script)
+
+    def test_selected_and_pasted_images_share_one_processing_path(self):
+        _, script = self.get("/app.js")
+        self.assertGreaterEqual(script.count("await useImage(file)"), 2)
+        self.assertIn('document.addEventListener("paste"', script)
+        self.assertNotIn("getUserMedia", script)
+        self.assertNotIn("<video", script)
+        self.assertIn("await identifyPhoto()", script)
+        self.assertIn('new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"])', script)
+
+    def test_cad_downloads_include_exploded_file(self):
+        _, script = self.get("/app.js")
+        self.assertIn('${suffix}.scad`', script)
+        self.assertIn('downloadCad(state.explodedCad, "-exploded")', script)
 
     def test_static_routes_are_restricted(self):
         with self.assertRaises(urllib.error.HTTPError) as caught:

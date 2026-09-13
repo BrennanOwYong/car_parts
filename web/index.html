@@ -2,103 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111410">
-  <title>CarPart CAD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f1e9">
+  <title>CarPart CAD Concept Lab</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="/" aria-label="CarPart CAD home">
-      <span class="brand-mark" aria-hidden="true">C</span>
+      <span class="brand-mark" aria-hidden="true">CP</span>
       <span>CarPart CAD</span>
     </a>
-    <span class="prototype-label">Engineering prototype</span>
+    <p class="prototype-label">Exterior shell concept lab</p>
   </header>
 
-  <main>
-    <section class="hero">
-      <p class="eyebrow">Photo to fitted geometry</p>
-      <h1>Rebuild the part.<br><em>Keep the hard limits.</em></h1>
-      <p class="hero-copy">Astra identifies the vehicle and part. Direct official documents provide dimensional constraints. The MVP accepts a photo and text only.</p>
-      <p class="catalog-note">Dimension-bearing official documents pre-indexed.</p>
-      <ol class="progress" aria-label="Reconstruction progress">
-        <li class="active" data-progress="1"><span>1</span> Upload</li>
-        <li data-progress="2"><span>2</span> Confirm</li>
-        <li data-progress="3"><span>3</span> Verify</li>
-        <li data-progress="4"><span>4</span> CAD</li>
-      </ol>
+  <main class="app-shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Photo to rough CAD</p>
+        <h1 id="page-title">Show the car. Choose the part.</h1>
+      </div>
+      <p>Astra identifies the vehicle and part. It checks OEM references, then public 3D scans. It asks for a LiDAR scan only when those sources are not sufficient.</p>
     </section>
 
-    <section class="workspace" aria-live="polite">
-      <article class="panel" id="photo-panel">
-        <div class="panel-heading">
-          <span class="step-number">01</span>
-          <div><p class="eyebrow">Input</p><h2>Upload a car photo</h2></div>
+    <section class="workbench" aria-label="Car part conversation workspace">
+      <section class="photo-pane" aria-labelledby="photo-title">
+        <div class="pane-heading">
+          <div>
+            <p class="pane-kicker">01 · Image</p>
+            <h2 id="photo-title">Car photo</h2>
+          </div>
+          <span class="input-note">Still image only</span>
         </div>
-        <p>Show the damaged part and enough of the vehicle for make and model identification. Include the mounting area when possible.</p>
         <label class="upload-box" for="part-photo">
-          <img id="photo-preview" alt="Selected car part" hidden>
-          <span id="upload-prompt"><b>Upload or paste a car photo</b><small>Choose an existing image or press Ctrl+V to paste one.</small></span>
-          <input id="part-photo" type="file" accept="image/*">
+          <img id="photo-preview" alt="Selected car" hidden>
+          <span id="upload-prompt">
+            <span class="upload-icon" aria-hidden="true">＋</span>
+            <b>Upload or paste a car photo</b>
+            <small>Choose a JPG, PNG, WebP, HEIC, or press Ctrl+V.</small>
+          </span>
+          <input id="part-photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif">
         </label>
-        <p class="fine-print">Upload one image or paste a copied image with Ctrl+V. The website does not request a camera or accept video.</p>
-        <label class="text-input" for="part-notes">Describe the part or damage (optional)
-          <textarea id="part-notes" maxlength="2000" rows="4" placeholder="Example: Broken left-front bumper bracket. Two screw holes remain on the vehicle."></textarea>
-        </label>
-        <button class="primary" id="identify-button" type="button" disabled>Identify vehicle and part</button>
-      </article>
+        <p class="supported-parts">Hood · front bumper · front fender · wheel-arch trim · mirror housing</p>
+      </section>
 
-      <article class="panel" id="vehicle-panel" hidden>
-        <div class="panel-heading">
-          <span class="step-number">02</span>
-          <div><p class="eyebrow">Astra result</p><h2>Confirm the vehicle</h2></div>
+      <section class="conversation-pane" aria-labelledby="conversation-title">
+        <div class="pane-heading">
+          <div>
+            <p class="pane-kicker">02 · Conversation</p>
+            <h2 id="conversation-title">Astra</h2>
+          </div>
+          <ol class="progress" aria-label="Concept generation progress">
+            <li class="active" data-progress="1">Photo</li>
+            <li data-progress="2">Confirm</li>
+            <li data-progress="3">Source</li>
+            <li data-progress="4">CAD</li>
+          </ol>
         </div>
-        <p id="part-result"></p>
-        <div class="form-grid">
-          <label>Make<input id="vehicle-make" autocomplete="organization"></label>
-          <label>Model<input id="vehicle-model"></label>
-          <label>Year<input id="vehicle-year" inputmode="numeric"></label>
-        </div>
-        <p class="fine-print" id="confidence"></p>
-        <button class="primary" id="confirm-button" type="button">Confirm and check dimensional documents</button>
-      </article>
 
-      <article class="panel" id="measure-panel" hidden>
-        <div class="panel-heading">
-          <span class="step-number">03</span>
-          <div><p class="eyebrow">Evidence gap</p><h2>Exact dimensions are missing</h2></div>
+        <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Conversation with Astra">
+          <article class="message assistant-message">
+            <p class="message-label">Astra</p>
+            <p>Upload or paste one car photo. I will identify the vehicle and ask which visible exterior part you want to replace.</p>
+          </article>
         </div>
-        <p id="missing-instruction"></p>
-        <div class="notice">
-          <b>CAD was not generated</b>
-          <p>Astra could not verify every fit-critical dimension in an official document. The prototype does not infer hard limits from the photo.</p>
-        </div>
-        <button class="secondary" id="missing-restart-button" type="button">Start another part</button>
-      </article>
 
-      <article class="panel result-panel" id="cad-panel" hidden>
-        <div class="panel-heading">
-          <span class="step-number">04</span>
-          <div><p class="eyebrow">Validated output</p><h2>Your CAD model and exploded view are ready</h2></div>
-        </div>
-        <p>Astra matched every required dimension to a direct official dimension document.</p>
-        <div class="cad-object" aria-hidden="true"><div class="cad-hole"></div></div>
-        <button class="primary" id="download-button" type="button">Download OpenSCAD model</button>
-        <button class="secondary" id="exploded-download-button" type="button">Download exploded OpenSCAD view</button>
-        <button class="secondary" id="restart-button" type="button">Start another part</button>
-      </article>
+        <article class="result-panel" id="cad-panel" hidden>
+          <div class="result-heading">
+            <p class="pane-kicker">Astra output</p>
+            <h2 id="output-title">Rough CAD concept ready</h2>
+            <p id="cad-summary"></p>
+          </div>
 
-      <div class="status-bar" id="status-bar" hidden>
-        <span class="spinner" aria-hidden="true"></span><span id="status-text">Working</span>
+          <section class="result-section">
+            <h3>Dimension evidence</h3>
+            <ul id="dimensions-list"></ul>
+          </section>
+          <section class="result-section">
+            <h3>Sources</h3>
+            <ul id="sources-list"></ul>
+          </section>
+          <section class="result-section">
+            <h3>Assumptions</h3>
+            <ul id="assumptions-list"></ul>
+          </section>
+
+          <div class="notice warning-notice">
+            <b>ROUGH VISUAL CONCEPT - NOT FOR FABRICATION</b>
+            <p id="warning-detail">This concept does not guarantee fit or safe vehicle installation.</p>
+          </div>
+          <div class="download-actions" id="download-actions">
+            <button class="primary" id="download-button" type="button">Download fitted OpenSCAD</button>
+            <button class="secondary" id="exploded-download-button" type="button">Download exploded OpenSCAD</button>
+          </div>
+          <button class="text-button" id="restart-button" type="button">Start another conversation</button>
+        </article>
+
+        <div class="status-bar" id="status-bar" role="status" hidden>
+          <span class="spinner" aria-hidden="true"></span><span id="status-text">Working</span>
+        </div>
+        <div class="error" id="error-box" role="alert" hidden></div>
+      </section>
+
+      <div class="composer" id="composer">
+        <label for="message-input">Message Astra</label>
+        <div class="composer-row">
+          <textarea id="message-input" maxlength="2000" rows="2" placeholder="You can type the target part before you upload. Example: Replace the damaged left front fender."></textarea>
+          <button class="primary send-button" id="send-button" type="button" disabled>Upload photo to start</button>
+        </div>
+        <p class="fine-print">Photo upload starts identification. After Astra replies, send a correction or leave the message blank to accept its estimate. Press Ctrl+Enter to send.</p>
       </div>
-      <div class="error" id="error-box" role="alert" hidden></div>
     </section>
   </main>
 
-  <footer>
-    <p>Prototype output requires dimensional inspection before fabrication. Do not use it for brake, steering, restraint, suspension, or crash structures.</p>
-  </footer>
+  <footer>Hackathon demonstration. Generated geometry is approximate and must not be installed on a vehicle.</footer>
   <script type="module" src="/app.js"></script>
 </body>
 </html>

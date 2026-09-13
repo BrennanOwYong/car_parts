@@ -1,39 +1,37 @@
 ---
 name: vehicle-schematic-sourcing
-description: Find free official vehicle documents that state dimensions for a confirmed vehicle and part. Use when a task needs mounting constraints, hole locations, body dimensions, or dimensional evidence before CAD generation. Exclude parts catalogs, general landing pages, and diagrams with no explicit measurements.
+description: Find official vehicle geometry and public 3D scans for a rough exterior-part CAD concept. Use for hood, front bumper cover, front fender, wheel-arch trim, or side-mirror housing research when the workflow must request LiDAR only after source searches fail.
 ---
 
 # Vehicle Schematic Sourcing
 
-Use this skill to produce an evidence record for fit-critical geometry. A fit-critical feature is a hole, pin, clip, mating face, seal, datum, or boundary that controls whether the part fits the vehicle.
+Use this skill to collect reference evidence for a rough exterior-part CAD concept. Supported parts are the hood, front bumper cover, front fender, wheel-arch trim or fender flare, and side-mirror housing.
 
 ## Source route
 
-Read [references/official_sources.json](references/official_sources.json) before web research. Filter it to the confirmed make, model, and year. Search those exact documents first. Use broader web search only after the indexed documents do not answer the question.
+Read [references/official_sources.json](references/official_sources.json) first. Filter it to the confirmed make, model, and year. Keep this source order. Do not skip a stage.
 
-Use this order:
+Use sources in this order:
 
-1. A free official service, collision, upfitter, or body-builder document that states a dimension.
-2. Another direct official document that states the required value and exact vehicle applicability.
+1. Check matching pre-indexed official documents. Then search official OEM body-repair pages, service diagrams, parts diagrams, and stated dimensions for the exact vehicle and part.
+2. If OEM evidence cannot supply enough geometry, search the web for a public 3D scan of the exact vehicle and part.
+3. If OEM evidence and a usable public scan are both insufficient, return a LiDAR request. State which surfaces, boundaries, and mounting areas the user must scan. Do not return CAD in that response.
 
-An exploded parts diagram is not a scale drawing. It can prove part names, part numbers, adjacency, and fastener context. It cannot prove length, tolerance, hole centre, thickness, or curvature unless the official page or document explicitly states that value.
+Use the uploaded photo and known vehicle proportions as supporting evidence. They do not replace the ordered source checks. An exploded diagram is not a scale drawing. Use it as shape context only unless it states a value. Never label an inferred value as an OEM specification.
 
-## Evidence rules
+## Concept evidence
 
-For every proposed hard constraint, record:
+For each useful dimension, record its name, value, unit, broad tolerance, source URL or estimate basis, and confidence. Label it as one of:
 
-- vehicle make, model, year, trim, body style, side, and market applicability;
-- part name and official part number when available;
-- dimension name, value, unit, tolerance, and datum definition;
-- official URL, document title, revision or publication date, and page or section;
-- whether the source states the value directly or only identifies the part.
+- `official_dimension`: the source states the value directly;
+- `public_scan_estimate`: estimated from a public 3D scan or its published views;
+- `photo_estimate`: estimated from the uploaded image;
+- `proportional_estimate`: estimated from a stated vehicle dimension or diagram relationship.
 
-Do not derive scale from a diagram image. Do not transfer a dimension across a model year, trim, body style, or market without explicit applicability. Do not treat a superseding part number as geometrically identical unless the official source says so.
+For each public scan, keep its title, URL, creator and platform when available, `sourceType=public_scan`, and the stated license or rights status. Public access does not grant reuse rights. Do not download, copy, modify, or redistribute a scan unless its license permits that use. If rights are unknown or restricted, use only the public page and images as visual references. Never describe a public scan as OEM, certified, exact, or dimensionally verified.
 
-When official dimensional evidence is incomplete, return the exact missing features. Keep CAD blocked until an exact official document supports each fit-critical constraint. Do not tell the user to use a mobile device or a 3D scanner.
+List material assumptions. Continue to rough CAD when official documents or a permitted public scan supply enough geometry for a recognizable concept. Use conservative tolerances. State that the result is a rough visual concept that is not suitable for fabrication or vehicle installation and does not guarantee fit. If the geometry remains insufficient after both search stages, return the LiDAR request instead.
 
 ## Catalog maintenance
 
-Add a source only when its domain belongs to the government or manufacturer and the direct page or file contains explicit dimensions. Do not add a search page, portal, parts catalog, or general manual index. Every catalog entry must set `can_prove_dimensions` to `true`. Verify the exact document and vehicle applicability each time.
-
-Update `verified_on` when links are checked. Preserve access notes when a public site blocks automated clients or requires a free account.
+Keep the existing catalog limited to free official documents with explicit dimensions. Runtime web search can use additional official exploded diagrams and public-scan pages without adding them to the dimension catalog. Update `verified_on` when catalog links are checked.

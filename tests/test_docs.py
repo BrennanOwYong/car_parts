@@ -7,9 +7,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DesktopDocumentationChecks(unittest.TestCase):
+    def test_hackathon_scope_and_flow_are_documented(self):
+        readme = (ROOT / "README.md").read_text()
+        for value in (
+            "Hackathon scope", "hood", "front bumper cover", "front fender",
+            "wheel-arch trim", "side-mirror housing", "rough visual concept",
+            "fitted and exploded-view OpenSCAD files", "Ctrl+V",
+        ):
+            self.assertIn(value, readme)
+
     def test_desktop_run_steps_are_documented(self):
         readme = (ROOT / "README.md").read_text()
-        for value in ("Run on a desktop computer", "macOS or Linux", "Windows PowerShell", "OPENAI_API_KEY", ".env.example", "python3 astra_relay.py", "http://localhost:8787", "Upload or paste a car photo"):
+        for value in ("Run on a desktop computer", "macOS, Linux, or WSL", "Windows PowerShell", "OPENAI_API_KEY", ".env.example", "http://localhost:8787"):
             self.assertIn(value, readme)
 
     def test_private_env_file_is_ignored(self):
@@ -22,17 +31,31 @@ class DesktopDocumentationChecks(unittest.TestCase):
         self.assertIn("binds only to `localhost`", readme)
         self.assertNotIn("0.0.0.0", readme)
 
-    def test_mobile_and_camera_setup_are_removed(self):
+    def test_concept_limit_is_clear(self):
         readme = (ROOT / "README.md").read_text()
-        for value in ("Cloudflare Quick Tunnel", "share_mobile.py", "Developer Mode", "Devices and Simulators", "ASTRA_RELAY_URL", "LiDAR", "iPhone"):
-            self.assertNotIn(value, readme)
-        self.assertIn("It does not request a camera", readme)
+        for value in ("not suitable for fabrication", "does not guarantee fit", "sourced", "estimated"):
+            self.assertIn(value, readme)
 
-    def test_evidence_limit_and_both_outputs_are_documented(self):
+    def test_oem_public_scan_lidar_order_is_documented(self):
         readme = (ROOT / "README.md").read_text()
-        self.assertIn("fitted and exploded-view OpenSCAD files", readme)
-        self.assertIn("lists the missing dimensions", readme)
-        self.assertIn("does not treat a photograph", readme)
+        oem = readme.index("checks the pre-indexed official dimension documents")
+        public_scan = readme.index("searches the web for a public 3D scan")
+        lidar = readme.index("asks the user to make a LiDAR scan")
+        self.assertLess(oem, public_scan)
+        self.assertLess(public_scan, lidar)
+
+    def test_public_scan_provenance_and_rights_are_documented(self):
+        readme = (ROOT / "README.md").read_text()
+        for value in (
+            "title, URL, creator and platform", "sourceType=public_scan",
+            "Public access does not grant permission", "not an OEM or certified source",
+        ):
+            self.assertIn(value, readme)
+
+    def test_current_lidar_boundary_is_documented(self):
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn("This desktop MVP accepts only images and text", readme)
+        self.assertIn("does not ingest a LiDAR mesh", readme)
 
 
 if __name__ == "__main__":
