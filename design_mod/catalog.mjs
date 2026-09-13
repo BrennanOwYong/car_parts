@@ -50,6 +50,7 @@ export const vehicles = [vehicle, {
   },
 }];
 export function getVehicle(id) {return vehicles.find(v=>v.id===id);}
+
 export const regions = [
   {id:'front',name:'Front lip',subtitle:'A sharper first impression.',label:'01', anchor:[0,.35,-2.1]},
   {id:'sides',name:'Side skirts',subtitle:'A new line from front to rear.',label:'02',anchor:[.99,.26,0]},

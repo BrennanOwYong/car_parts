@@ -133,6 +133,7 @@ async function loadCar(vehicleId){
       state.loaded=true;$('loader').hidden=true;resize();buildThumbnails();renderOptions();rebuildParts();syncPaint();
       exploder.ready(model.assemblies.length);$('compare').disabled=$('reset-camera').disabled=false;
       camera.position.set(7.7,3.5,-8.5);controls.target.copy(homeTarget);flyTo(homeCamera,homeTarget,1600);
+
       for(const el of Object.values(hotspots))el.hidden=false;
     }catch(error){if(sequence!==loadSequence)return;console.error(error);state.loaded=false;clearCar();renderOptions();$('loader').innerHTML='<p>The car couldn’t load.</p><small>Check the local asset files and try again.</small><button class="primary" id="retry-model">Try again ↻</button>';$('retry-model').onclick=()=>loadCar(vehicleId);}
     finally{draco?.dispose();if(sequence===loadSequence)loadingPromise=null;}

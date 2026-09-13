@@ -1,0 +1,665 @@
+{
+  "vehicleId": "corolla-prepared-demo",
+  "localDemo": true,
+  "licenseReviewed": false,
+  "downloadedAt": null,
+  "sourceCredit": "Bundled user-supplied Corolla visual model; source binary creator and reuse license remain unverified. Existing named visual assemblies retained for local demonstration. See COROLLA.md.",
+  "lengthMeters": 4.63,
+  "scaleNote": "Display length normalized to 4.63 metres as an approximate sedan proportion; no sourced physical measurement, mounting geometry, or vehicle fit is asserted.",
+  "sourceHash": "6241f012eddb56546145879b4663b69110ba1749b21623be0db094ecbb8d15f9",
+  "rotationDegrees": [
+    0,
+    0,
+    0
+  ],
+  "frontAxis": "+Z",
+  "parts": [
+    {
+      "id": "front-grille",
+      "label": "Front grille",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        0.2,
+        2.55
+      ],
+      "pieces": [
+        "n0.p0.c0",
+        "n0.p1.c0"
+      ]
+    },
+    {
+      "id": "rear-bumper",
+      "label": "Rear bumper",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        0.1,
+        -2.1
+      ],
+      "pieces": [
+        "n1.p0.c0",
+        "n1.p1.c0",
+        "n1.p2.c0"
+      ]
+    },
+    {
+      "id": "rear-lamps",
+      "label": "Rear lamps",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        0.8,
+        -2.2
+      ],
+      "pieces": [
+        "n2.p0.c0",
+        "n2.p1.c0",
+        "n2.p2.c0",
+        "n2.p3.c0"
+      ]
+    },
+    {
+      "id": "rear-windshield",
+      "label": "Rear windshield",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        1.65,
+        -0.9
+      ],
+      "pieces": [
+        "n3.p0.c0",
+        "n3.p1.c0"
+      ]
+    },
+    {
+      "id": "right-mirror",
+      "label": "Right mirror",
+      "family": "side_mirror_housing",
+      "side": "right",
+      "offsetMeters": [
+        1.8,
+        0.65,
+        0.2
+      ],
+      "pieces": [
+        "n4.p0.c0",
+        "n4.p1.c0",
+        "n4.p2.c0",
+        "n4.p3.c0",
+        "n4.p4.c0"
+      ]
+    },
+    {
+      "id": "left-mirror",
+      "label": "Left mirror",
+      "family": "side_mirror_housing",
+      "side": "left",
+      "offsetMeters": [
+        -1.8,
+        0.65,
+        0.2
+      ],
+      "pieces": [
+        "n5.p0.c0",
+        "n5.p1.c0",
+        "n5.p2.c0",
+        "n5.p3.c0",
+        "n5.p4.c0"
+      ]
+    },
+    {
+      "id": "left-headlamp",
+      "label": "Left headlamp",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -0.5,
+        0.9,
+        1.8
+      ],
+      "pieces": [
+        "n6.p0.c0",
+        "n6.p1.c0",
+        "n6.p2.c0",
+        "n6.p3.c0"
+      ]
+    },
+    {
+      "id": "right-headlamp",
+      "label": "Right headlamp",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        0.5,
+        0.9,
+        1.8
+      ],
+      "pieces": [
+        "n7.p0.c0",
+        "n7.p1.c0",
+        "n7.p2.c0",
+        "n7.p3.c0"
+      ]
+    },
+    {
+      "id": "right-rear-tire",
+      "label": "Right rear tire",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        2.15,
+        0.15,
+        -0.3
+      ],
+      "pieces": [
+        "n8.p0.c0"
+      ]
+    },
+    {
+      "id": "left-rear-tire",
+      "label": "Left rear tire",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -2.15,
+        0.15,
+        -0.3
+      ],
+      "pieces": [
+        "n9.p0.c0"
+      ]
+    },
+    {
+      "id": "right-front-tire",
+      "label": "Right front tire",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        2.15,
+        0.15,
+        0.3
+      ],
+      "pieces": [
+        "n10.p0.c0"
+      ]
+    },
+    {
+      "id": "left-front-tire",
+      "label": "Left front tire",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -2.15,
+        0.15,
+        0.3
+      ],
+      "pieces": [
+        "n11.p0.c0"
+      ]
+    },
+    {
+      "id": "right-rear-wheel",
+      "label": "Right rear wheel",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.52,
+        0.15,
+        -0.3
+      ],
+      "pieces": [
+        "n12.p0.c0",
+        "n12.p1.c0",
+        "n12.p2.c0"
+      ]
+    },
+    {
+      "id": "left-rear-wheel",
+      "label": "Left rear wheel",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.52,
+        0.15,
+        -0.3
+      ],
+      "pieces": [
+        "n13.p0.c0",
+        "n13.p1.c0",
+        "n13.p2.c0"
+      ]
+    },
+    {
+      "id": "right-front-wheel",
+      "label": "Right front wheel",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.52,
+        0.15,
+        0.3
+      ],
+      "pieces": [
+        "n14.p0.c0",
+        "n14.p1.c0",
+        "n14.p2.c0"
+      ]
+    },
+    {
+      "id": "left-front-wheel",
+      "label": "Left front wheel",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.52,
+        0.15,
+        0.3
+      ],
+      "pieces": [
+        "n15.p0.c0",
+        "n15.p1.c0",
+        "n15.p2.c0"
+      ]
+    },
+    {
+      "id": "right-front-brake",
+      "label": "Right front brake",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        0.9,
+        0.15,
+        0.3
+      ],
+      "pieces": [
+        "n16.p0.c0",
+        "n16.p1.c0"
+      ]
+    },
+    {
+      "id": "left-front-brake",
+      "label": "Left front brake",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -0.9,
+        0.15,
+        0.3
+      ],
+      "pieces": [
+        "n17.p0.c0",
+        "n17.p1.c0"
+      ]
+    },
+    {
+      "id": "right-rear-brake",
+      "label": "Right rear brake",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        0.9,
+        0.15,
+        -0.3
+      ],
+      "pieces": [
+        "n18.p0.c0",
+        "n18.p1.c0",
+        "n18.p2.c0"
+      ]
+    },
+    {
+      "id": "left-rear-brake",
+      "label": "Left rear brake",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -0.9,
+        0.15,
+        -0.3
+      ],
+      "pieces": [
+        "n19.p0.c0",
+        "n19.p1.c0",
+        "n19.p2.c0"
+      ]
+    },
+    {
+      "id": "windshield",
+      "label": "Windshield",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        1.65,
+        0.6
+      ],
+      "pieces": [
+        "n20.p0.c0",
+        "n20.p1.c0"
+      ]
+    },
+    {
+      "id": "sunroof",
+      "label": "Sunroof",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        2.2,
+        0
+      ],
+      "pieces": [
+        "n21.p0.c0"
+      ]
+    },
+    {
+      "id": "right-front-glass",
+      "label": "Right front glass",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.4,
+        1.35,
+        0.25
+      ],
+      "pieces": [
+        "n22.p0.c0"
+      ]
+    },
+    {
+      "id": "left-rear-glass",
+      "label": "Left rear glass",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.4,
+        1.35,
+        -0.25
+      ],
+      "pieces": [
+        "n23.p0.c0"
+      ]
+    },
+    {
+      "id": "left-front-glass",
+      "label": "Left front glass",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.4,
+        1.35,
+        0.25
+      ],
+      "pieces": [
+        "n24.p0.c0"
+      ]
+    },
+    {
+      "id": "right-rear-glass",
+      "label": "Right rear glass",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.4,
+        1.35,
+        -0.25
+      ],
+      "pieces": [
+        "n25.p0.c0"
+      ]
+    },
+    {
+      "id": "trunk-lid",
+      "label": "Trunk lid",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        1.15,
+        -0.85
+      ],
+      "pieces": [
+        "n26.p0.c0",
+        "n26.p1.c0"
+      ]
+    },
+    {
+      "id": "cabin-interior",
+      "label": "Cabin interior",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        0.9,
+        -0.15
+      ],
+      "pieces": [
+        "n27.p0.c0"
+      ]
+    },
+    {
+      "id": "chassis-and-underbody",
+      "label": "Chassis & underbody",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        -1.25,
+        0
+      ],
+      "pieces": [
+        "n28.p0.c0"
+      ]
+    },
+    {
+      "id": "front-bumper",
+      "label": "Front bumper",
+      "family": "front_bumper_cover",
+      "side": null,
+      "offsetMeters": [
+        0,
+        0.1,
+        2.1
+      ],
+      "pieces": [
+        "n29.p0.c0",
+        "n29.p1.c0",
+        "n29.p2.c0"
+      ]
+    },
+    {
+      "id": "right-front-door",
+      "label": "Right front door",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.8,
+        0.05,
+        0.4
+      ],
+      "pieces": [
+        "n30.p0.c0",
+        "n30.p1.c0"
+      ]
+    },
+    {
+      "id": "left-front-fender",
+      "label": "Left front fender",
+      "family": "front_fender",
+      "side": "left",
+      "offsetMeters": [
+        -0.8,
+        0.6,
+        0.85
+      ],
+      "pieces": [
+        "n31.p0.c0",
+        "n31.p1.c0"
+      ]
+    },
+    {
+      "id": "right-front-fender",
+      "label": "Right front fender",
+      "family": "front_fender",
+      "side": "right",
+      "offsetMeters": [
+        0.8,
+        0.6,
+        0.85
+      ],
+      "pieces": [
+        "n32.p0.c0",
+        "n32.p1.c0"
+      ]
+    },
+    {
+      "id": "right-rear-door",
+      "label": "Right rear door",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.8,
+        0.05,
+        -0.4
+      ],
+      "pieces": [
+        "n33.p0.c0",
+        "n33.p1.c0"
+      ]
+    },
+    {
+      "id": "left-front-door",
+      "label": "Left front door",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.8,
+        0.05,
+        0.4
+      ],
+      "pieces": [
+        "n34.p0.c0",
+        "n34.p1.c0"
+      ]
+    },
+    {
+      "id": "left-rear-door",
+      "label": "Left rear door",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.8,
+        0.05,
+        -0.4
+      ],
+      "pieces": [
+        "n35.p0.c0",
+        "n35.p1.c0"
+      ]
+    },
+    {
+      "id": "body-structure",
+      "label": "Body structure",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        0.35,
+        0
+      ],
+      "pieces": [
+        "n36.p0.c0"
+      ]
+    },
+    {
+      "id": "right-rocker",
+      "label": "Right rocker",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        1.15,
+        0.1,
+        0
+      ],
+      "pieces": [
+        "n37.p0.c0"
+      ]
+    },
+    {
+      "id": "roof-panel",
+      "label": "Roof panel",
+      "family": null,
+      "side": null,
+      "offsetMeters": [
+        0,
+        1.7,
+        0
+      ],
+      "pieces": [
+        "n38.p0.c0"
+      ]
+    },
+    {
+      "id": "hood",
+      "label": "Hood",
+      "family": "hood",
+      "side": null,
+      "offsetMeters": [
+        0,
+        1.15,
+        0.85
+      ],
+      "pieces": [
+        "n39.p0.c0"
+      ]
+    },
+    {
+      "id": "left-rocker",
+      "label": "Left rocker",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -1.15,
+        0.1,
+        0
+      ],
+      "pieces": [
+        "n40.p0.c0"
+      ]
+    },
+    {
+      "id": "left-rear-quarter",
+      "label": "Left rear quarter",
+      "family": null,
+      "side": "left",
+      "offsetMeters": [
+        -0.85,
+        0.5,
+        -0.8
+      ],
+      "pieces": [
+        "n41.p0.c0"
+      ]
+    },
+    {
+      "id": "right-rear-quarter",
+      "label": "Right rear quarter",
+      "family": null,
+      "side": "right",
+      "offsetMeters": [
+        0.85,
+        0.5,
+        -0.8
+      ],
+      "pieces": [
+        "n42.p0.c0"
+      ]
+    }
+  ]
+}

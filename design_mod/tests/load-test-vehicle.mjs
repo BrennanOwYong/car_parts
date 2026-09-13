@@ -2,12 +2,13 @@ import {NodeIO} from '@gltf-transform/core';
 import {ALL_EXTENSIONS} from '@gltf-transform/extensions';
 import draco from 'draco3dgltf';
 import * as THREE from 'three';
+import {fileURLToPath} from 'node:url';
 
 // Decode the actual shipped assets for headless geometry tests. No browser or
 // fake replacement car is needed; texture pixels are irrelevant to these tests.
 export async function loadTestVehicle(vehicle){
   const io=new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({'draco3d.decoder':await draco.createDecoderModule()});
-  const doc=await io.read(new URL('../public'+vehicle.asset,import.meta.url).pathname);
+  const doc=await io.read(fileURLToPath(new URL('../public'+vehicle.asset,import.meta.url)));
   function node(n){
     const group=new THREE.Group();group.name=n.getName();group.matrix.fromArray(n.getMatrix());group.matrixAutoUpdate=false;
     for(const p of n.getMesh()?.listPrimitives()||[]){

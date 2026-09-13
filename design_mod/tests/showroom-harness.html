@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Actual showroom test harness</title><style>html,body{margin:0;width:100%;height:100%;background:#101820}#world{width:100%;height:100%}canvas{display:block}</style></head>
+<body><div id="world" tabindex="0"></div><script type="module">
+import {Showroom} from '/src/fix-viewer.js';
+const catalog=await (await fetch('/api/repair/catalog')).json();
+const showroom=new Showroom(document.getElementById('world'),id=>{window.selectedVehicle=id;},vehicle=>{window.focusedVehicle=vehicle.id;});
+await showroom.open(catalog.vehicles.filter(vehicle=>vehicle.prepared));
+window.showroomHarness=showroom;
+</script></body></html>

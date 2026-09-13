@@ -25,10 +25,10 @@ class PipelineChecks(unittest.TestCase):
         self.assertEqual(assess(job)["status"], "candidate_ready")
 
     def test_cli_returns_json_and_nonzero_for_blocked_job(self):
-        with tempfile.NamedTemporaryFile("w", suffix=".json") as f:
-            json.dump({"vehicle": {"make_model_year": "Example 2020"}, "constraints": []}, f)
-            f.flush()
-            run = subprocess.run([sys.executable, str(ROOT / "pipeline.py"), f.name], capture_output=True, text=True)
+        with tempfile.TemporaryDirectory() as directory:
+            job_path = Path(directory) / "job.json"
+            job_path.write_text(json.dumps({"vehicle": {"make_model_year": "Example 2020"}, "constraints": []}))
+            run = subprocess.run([sys.executable, str(ROOT / "pipeline.py"), str(job_path)], capture_output=True, text=True)
         self.assertEqual(run.returncode, 1)
         self.assertEqual(json.loads(run.stdout)["status"], "blocked")
 

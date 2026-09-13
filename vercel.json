@@ -1,0 +1,30 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci --prefix design_mod",
+  "buildCommand": "npm run build",
+  "outputDirectory": "design_mod/dist",
+  "fluid": true,
+  "functions": {
+    "api/studio.mjs": {
+      "includeFiles": "design_mod/public/repair-assets/**",
+      "maxDuration": 30
+    },
+    "api/repair.py": {
+      "includeFiles": "{vehicle_model_catalog.json,repair-runtime-assets/**,skills/vehicle-schematic-sourcing/references/official_sources.json}",
+      "excludeFiles": "{design_mod/node_modules/**,design_mod/dist/**,design_mod/public/assets/**,design_mod/public/draco/**,tests/**,design_mod/tests/**,.git/**,.env*}",
+      "maxDuration": 240
+    }
+  },
+  "rewrites": [
+    {"source": "/api/repair/status", "destination": "/api/repair?action=status"},
+    {"source": "/api/repair/chat", "destination": "/api/repair?action=chat"},
+    {"source": "/api/repair/catalog", "destination": "/api/studio?endpoint=repair/catalog"},
+    {"source": "/api/catalog", "destination": "/api/studio?endpoint=catalog"},
+    {"source": "/api/exports", "destination": "/api/studio?endpoint=exports"},
+    {"source": "/api/exports/:id/:filename", "destination": "/api/studio?endpoint=exports/:id/:filename"}
+  ],
+  "headers": [
+    {"source": "/(.*)", "headers": [{"key": "X-Content-Type-Options", "value": "nosniff"}]}
+  ]
+}

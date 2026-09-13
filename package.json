@@ -1,0 +1,9 @@
+{
+  "name": "forma-deployment",
+  "private": true,
+  "type": "module",
+  "engines": {"node": "22.x"},
+  "scripts": {
+    "build": "npm --prefix design_mod run build && node scripts/prepare-vercel.mjs"
+  }
+}

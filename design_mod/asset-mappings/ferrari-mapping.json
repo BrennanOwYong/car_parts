@@ -1,0 +1,2745 @@
+{
+  "vehicleId": "ferrari-458-demo",
+  "localDemo": true,
+  "sourceHash": "43564baf3dcf4963adb287d3eeb86729ef966bd5aebf557cdd72117f4f050908",
+  "separateComponents": "position",
+  "sourceCredit": "Ferrari 458 Italia by vicent091036, via existing Three.js asset.",
+  "lengthMeters": 4.527,
+  "scaleNote": "Existing registry display length; visual reference only.",
+  "frontAxis": "-Z",
+  "parts": [
+    {
+      "id": "surface-n2-p0-c22",
+      "label": "trim 23",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n2.p0.c22",
+        "n2.p0.c0",
+        "n2.p0.c1",
+        "n2.p0.c2",
+        "n2.p0.c3",
+        "n2.p0.c4",
+        "n2.p0.c5",
+        "n2.p0.c6",
+        "n2.p0.c7",
+        "n2.p0.c8",
+        "n2.p0.c9",
+        "n2.p0.c10",
+        "n2.p0.c11",
+        "n2.p0.c12",
+        "n2.p0.c13",
+        "n2.p0.c14",
+        "n2.p0.c15",
+        "n2.p0.c16",
+        "n2.p0.c17",
+        "n2.p0.c18",
+        "n2.p0.c19",
+        "n2.p0.c20",
+        "n2.p0.c21",
+        "n2.p0.c23",
+        "n2.p0.c24"
+      ],
+      "offsetMeters": [
+        0.889,
+        0.269,
+        0
+      ]
+    },
+    {
+      "id": "surface-n3-p0-c5",
+      "label": "lights red 6",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n3.p0.c5",
+        "n3.p0.c0",
+        "n3.p0.c2",
+        "n3.p0.c7",
+        "n3.p0.c8",
+        "n3.p0.c10"
+      ],
+      "offsetMeters": [
+        -1.193,
+        0.746,
+        1.516
+      ]
+    },
+    {
+      "id": "surface-n3-p0-c6",
+      "label": "lights red 7",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n3.p0.c6",
+        "n3.p0.c1",
+        "n3.p0.c3",
+        "n3.p0.c4",
+        "n3.p0.c9",
+        "n3.p0.c11"
+      ],
+      "offsetMeters": [
+        1.188,
+        0.746,
+        1.516
+      ]
+    },
+    {
+      "id": "surface-n4-p0-c10",
+      "label": "plastic gray 11",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n4.p0.c10",
+        "n4.p0.c9"
+      ],
+      "offsetMeters": [
+        -1.153,
+        0.304,
+        -1.411
+      ]
+    },
+    {
+      "id": "surface-n4-p0-c12",
+      "label": "plastic gray 13",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n4.p0.c12",
+        "n4.p0.c11"
+      ],
+      "offsetMeters": [
+        1.152,
+        0.304,
+        -1.411
+      ]
+    },
+    {
+      "id": "surface-n4-p0-c14",
+      "label": "plastic gray 15",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n4.p0.c14",
+        "n4.p0.c0",
+        "n4.p0.c1",
+        "n4.p0.c2",
+        "n4.p0.c3",
+        "n4.p0.c4",
+        "n4.p0.c5",
+        "n4.p0.c6",
+        "n4.p0.c7",
+        "n4.p0.c8",
+        "n4.p0.c13",
+        "n4.p0.c15",
+        "n4.p0.c16",
+        "n4.p0.c17",
+        "n4.p0.c18",
+        "n4.p0.c19"
+      ],
+      "offsetMeters": [
+        -0.891,
+        1.321,
+        -0.808
+      ]
+    },
+    {
+      "id": "surface-n5-p0-c0",
+      "label": "metal 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n5.p0.c0",
+        "n5.p0.c1",
+        "n5.p0.c2",
+        "n5.p0.c3",
+        "n5.p0.c4",
+        "n5.p0.c5",
+        "n5.p0.c6",
+        "n5.p0.c7",
+        "n5.p0.c8",
+        "n5.p0.c9",
+        "n5.p0.c10",
+        "n5.p0.c11",
+        "n5.p0.c12",
+        "n5.p0.c13",
+        "n5.p0.c14",
+        "n5.p0.c15",
+        "n5.p0.c16",
+        "n5.p0.c17",
+        "n5.p0.c18",
+        "n5.p0.c19",
+        "n5.p0.c20",
+        "n5.p0.c21",
+        "n5.p0.c22",
+        "n5.p0.c23",
+        "n5.p0.c24",
+        "n5.p0.c25",
+        "n5.p0.c26",
+        "n5.p0.c27",
+        "n5.p0.c28",
+        "n5.p0.c29",
+        "n5.p0.c30",
+        "n5.p0.c31",
+        "n5.p0.c32",
+        "n5.p0.c33",
+        "n5.p0.c34",
+        "n5.p0.c35",
+        "n5.p0.c36",
+        "n5.p0.c37",
+        "n5.p0.c38",
+        "n5.p0.c39",
+        "n5.p0.c40",
+        "n5.p0.c41",
+        "n5.p0.c42",
+        "n5.p0.c43"
+      ],
+      "offsetMeters": [
+        0,
+        -0.075,
+        1.147
+      ]
+    },
+    {
+      "id": "surface-n6-p0-c1",
+      "label": "lights 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n6.p0.c1",
+        "n6.p0.c0"
+      ],
+      "offsetMeters": [
+        1.122,
+        0.186,
+        -1.465
+      ]
+    },
+    {
+      "id": "surface-n7-p0-c25",
+      "label": "leds 26",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n7.p0.c25",
+        "n7.p0.c0",
+        "n7.p0.c1",
+        "n7.p0.c2",
+        "n7.p0.c3",
+        "n7.p0.c4",
+        "n7.p0.c5",
+        "n7.p0.c6",
+        "n7.p0.c7",
+        "n7.p0.c8",
+        "n7.p0.c9",
+        "n7.p0.c10",
+        "n7.p0.c11",
+        "n7.p0.c12",
+        "n7.p0.c13",
+        "n7.p0.c14",
+        "n7.p0.c15",
+        "n7.p0.c16",
+        "n7.p0.c17",
+        "n7.p0.c18",
+        "n7.p0.c19",
+        "n7.p0.c20",
+        "n7.p0.c21",
+        "n7.p0.c22",
+        "n7.p0.c23",
+        "n7.p0.c24"
+      ],
+      "offsetMeters": [
+        1.319,
+        0.241,
+        -0.876
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c2",
+      "label": "leather 3",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c2",
+        "n8.p0.c3"
+      ],
+      "offsetMeters": [
+        -0.894,
+        0.951,
+        0
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c4",
+      "label": "leather 5",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c4",
+        "n8.p0.c5",
+        "n8.p0.c6",
+        "n8.p0.c7"
+      ],
+      "offsetMeters": [
+        -0.896,
+        -0.447,
+        0
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c8",
+      "label": "leather 9",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c8",
+        "n8.p0.c9"
+      ],
+      "offsetMeters": [
+        0.889,
+        0.951,
+        0
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c10",
+      "label": "leather 11",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c10",
+        "n8.p0.c0",
+        "n8.p0.c11",
+        "n8.p0.c12",
+        "n8.p0.c13"
+      ],
+      "offsetMeters": [
+        0.889,
+        0.203,
+        0
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c14",
+      "label": "leather 15",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c14",
+        "n8.p0.c1"
+      ],
+      "offsetMeters": [
+        0,
+        1.052,
+        -0.846
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c15",
+      "label": "leather 16",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c15"
+      ],
+      "offsetMeters": [
+        -1.157,
+        -0.014,
+        0
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c17",
+      "label": "leather 18",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c17",
+        "n8.p0.c16"
+      ],
+      "offsetMeters": [
+        -1.152,
+        0.029,
+        0
+      ]
+    },
+    {
+      "id": "surface-n8-p0-c18",
+      "label": "leather 19",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n8.p0.c18",
+        "n8.p0.c19",
+        "n8.p0.c20",
+        "n8.p0.c21"
+      ],
+      "offsetMeters": [
+        1.151,
+        -0.014,
+        0
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c11",
+      "label": "interior light 12",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c11",
+        "n9.p0.c65",
+        "n9.p0.c187",
+        "n9.p0.c190",
+        "n9.p0.c192",
+        "n9.p0.c194",
+        "n9.p0.c211",
+        "n9.p0.c212",
+        "n9.p0.c239",
+        "n9.p0.c240",
+        "n9.p0.c241",
+        "n9.p0.c242",
+        "n9.p0.c243",
+        "n9.p0.c255"
+      ],
+      "offsetMeters": [
+        0,
+        1.588,
+        -0.783
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c19",
+      "label": "interior light 20",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c19",
+        "n9.p0.c7",
+        "n9.p0.c50",
+        "n9.p0.c67",
+        "n9.p0.c71",
+        "n9.p0.c181",
+        "n9.p0.c248",
+        "n9.p0.c271",
+        "n9.p0.c288",
+        "n9.p0.c289"
+      ],
+      "offsetMeters": [
+        -0.894,
+        0.995,
+        -0.753
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c20",
+      "label": "interior light 21",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c20",
+        "n9.p0.c1",
+        "n9.p0.c121",
+        "n9.p0.c266"
+      ],
+      "offsetMeters": [
+        0,
+        1.106,
+        0.696
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c25",
+      "label": "interior light 26",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c25",
+        "n9.p0.c29",
+        "n9.p0.c36",
+        "n9.p0.c39",
+        "n9.p0.c43",
+        "n9.p0.c47",
+        "n9.p0.c49",
+        "n9.p0.c62",
+        "n9.p0.c156",
+        "n9.p0.c157",
+        "n9.p0.c158",
+        "n9.p0.c159",
+        "n9.p0.c160",
+        "n9.p0.c161",
+        "n9.p0.c162",
+        "n9.p0.c163",
+        "n9.p0.c164",
+        "n9.p0.c165",
+        "n9.p0.c166",
+        "n9.p0.c167",
+        "n9.p0.c168",
+        "n9.p0.c169",
+        "n9.p0.c170",
+        "n9.p0.c265"
+      ],
+      "offsetMeters": [
+        -1.033,
+        0.162,
+        -1.08
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c26",
+      "label": "interior light 27",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c26",
+        "n9.p0.c30",
+        "n9.p0.c34",
+        "n9.p0.c42",
+        "n9.p0.c45"
+      ],
+      "offsetMeters": [
+        -1.025,
+        0.256,
+        1.278
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c27",
+      "label": "interior light 28",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c27",
+        "n9.p0.c15",
+        "n9.p0.c16",
+        "n9.p0.c31",
+        "n9.p0.c37",
+        "n9.p0.c38",
+        "n9.p0.c40",
+        "n9.p0.c44",
+        "n9.p0.c48",
+        "n9.p0.c59",
+        "n9.p0.c60",
+        "n9.p0.c61",
+        "n9.p0.c78",
+        "n9.p0.c79",
+        "n9.p0.c80",
+        "n9.p0.c81",
+        "n9.p0.c82",
+        "n9.p0.c83",
+        "n9.p0.c84",
+        "n9.p0.c86",
+        "n9.p0.c134",
+        "n9.p0.c135",
+        "n9.p0.c136",
+        "n9.p0.c137",
+        "n9.p0.c138",
+        "n9.p0.c139",
+        "n9.p0.c140",
+        "n9.p0.c141",
+        "n9.p0.c142",
+        "n9.p0.c143",
+        "n9.p0.c144",
+        "n9.p0.c145",
+        "n9.p0.c146",
+        "n9.p0.c147",
+        "n9.p0.c148",
+        "n9.p0.c178",
+        "n9.p0.c191",
+        "n9.p0.c195",
+        "n9.p0.c199",
+        "n9.p0.c200",
+        "n9.p0.c201",
+        "n9.p0.c202",
+        "n9.p0.c203",
+        "n9.p0.c204",
+        "n9.p0.c214",
+        "n9.p0.c264",
+        "n9.p0.c268",
+        "n9.p0.c275"
+      ],
+      "offsetMeters": [
+        1.029,
+        0.162,
+        -1.08
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c28",
+      "label": "interior light 29",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c28",
+        "n9.p0.c32",
+        "n9.p0.c35",
+        "n9.p0.c41",
+        "n9.p0.c46"
+      ],
+      "offsetMeters": [
+        1.021,
+        0.348,
+        1.278
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c69",
+      "label": "interior light 70",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c69",
+        "n9.p0.c0",
+        "n9.p0.c149",
+        "n9.p0.c150",
+        "n9.p0.c151",
+        "n9.p0.c152",
+        "n9.p0.c153",
+        "n9.p0.c154",
+        "n9.p0.c155",
+        "n9.p0.c171",
+        "n9.p0.c172",
+        "n9.p0.c173",
+        "n9.p0.c174",
+        "n9.p0.c175",
+        "n9.p0.c176",
+        "n9.p0.c177",
+        "n9.p0.c253",
+        "n9.p0.c257"
+      ],
+      "offsetMeters": [
+        0,
+        1.61,
+        -0.884
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c87",
+      "label": "interior light 88",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c87",
+        "n9.p0.c89",
+        "n9.p0.c98",
+        "n9.p0.c99",
+        "n9.p0.c100",
+        "n9.p0.c104",
+        "n9.p0.c106",
+        "n9.p0.c107",
+        "n9.p0.c110",
+        "n9.p0.c111",
+        "n9.p0.c116"
+      ],
+      "offsetMeters": [
+        0,
+        0.187,
+        -1.609
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c118",
+      "label": "interior light 119",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c118",
+        "n9.p0.c33"
+      ],
+      "offsetMeters": [
+        0,
+        -0.065,
+        -1.486
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c123",
+      "label": "interior light 124",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c123",
+        "n9.p0.c24",
+        "n9.p0.c52",
+        "n9.p0.c53",
+        "n9.p0.c54",
+        "n9.p0.c124",
+        "n9.p0.c125",
+        "n9.p0.c126",
+        "n9.p0.c127",
+        "n9.p0.c128",
+        "n9.p0.c129"
+      ],
+      "offsetMeters": [
+        0,
+        0.283,
+        1.516
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c130",
+      "label": "interior light 131",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c130",
+        "n9.p0.c57",
+        "n9.p0.c58",
+        "n9.p0.c88",
+        "n9.p0.c90",
+        "n9.p0.c91",
+        "n9.p0.c92",
+        "n9.p0.c93",
+        "n9.p0.c94",
+        "n9.p0.c95",
+        "n9.p0.c96",
+        "n9.p0.c97",
+        "n9.p0.c117"
+      ],
+      "offsetMeters": [
+        -1.124,
+        0.187,
+        -1.457
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c131",
+      "label": "interior light 132",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c131",
+        "n9.p0.c55",
+        "n9.p0.c56",
+        "n9.p0.c101",
+        "n9.p0.c102",
+        "n9.p0.c103",
+        "n9.p0.c105",
+        "n9.p0.c108",
+        "n9.p0.c109",
+        "n9.p0.c112",
+        "n9.p0.c113",
+        "n9.p0.c114",
+        "n9.p0.c115"
+      ],
+      "offsetMeters": [
+        1.122,
+        0.187,
+        -1.457
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c132",
+      "label": "interior light 133",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c132",
+        "n9.p0.c120"
+      ],
+      "offsetMeters": [
+        -1.132,
+        1.066,
+        0.736
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c133",
+      "label": "interior light 134",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c133",
+        "n9.p0.c23",
+        "n9.p0.c122"
+      ],
+      "offsetMeters": [
+        1.132,
+        1.066,
+        0.736
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c179",
+      "label": "interior light 180",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c179"
+      ],
+      "offsetMeters": [
+        0,
+        1.955,
+        -0.645
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c180",
+      "label": "interior light 181",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c180",
+        "n9.p0.c2",
+        "n9.p0.c4",
+        "n9.p0.c5",
+        "n9.p0.c12",
+        "n9.p0.c17",
+        "n9.p0.c64",
+        "n9.p0.c68",
+        "n9.p0.c72",
+        "n9.p0.c73",
+        "n9.p0.c74",
+        "n9.p0.c76",
+        "n9.p0.c77",
+        "n9.p0.c119",
+        "n9.p0.c184",
+        "n9.p0.c185",
+        "n9.p0.c198",
+        "n9.p0.c215",
+        "n9.p0.c221",
+        "n9.p0.c222",
+        "n9.p0.c223",
+        "n9.p0.c224",
+        "n9.p0.c227",
+        "n9.p0.c228",
+        "n9.p0.c229",
+        "n9.p0.c230",
+        "n9.p0.c231",
+        "n9.p0.c232",
+        "n9.p0.c233",
+        "n9.p0.c234",
+        "n9.p0.c235",
+        "n9.p0.c238",
+        "n9.p0.c244",
+        "n9.p0.c246",
+        "n9.p0.c249",
+        "n9.p0.c250",
+        "n9.p0.c251",
+        "n9.p0.c254",
+        "n9.p0.c259",
+        "n9.p0.c260",
+        "n9.p0.c261",
+        "n9.p0.c269",
+        "n9.p0.c270",
+        "n9.p0.c272",
+        "n9.p0.c278",
+        "n9.p0.c279",
+        "n9.p0.c280",
+        "n9.p0.c286",
+        "n9.p0.c287"
+      ],
+      "offsetMeters": [
+        0,
+        0.729,
+        -0.8
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c237",
+      "label": "interior light 238",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c237",
+        "n9.p0.c8",
+        "n9.p0.c9",
+        "n9.p0.c10",
+        "n9.p0.c70",
+        "n9.p0.c205",
+        "n9.p0.c206",
+        "n9.p0.c207",
+        "n9.p0.c208",
+        "n9.p0.c216",
+        "n9.p0.c281",
+        "n9.p0.c282",
+        "n9.p0.c283",
+        "n9.p0.c284",
+        "n9.p0.c285"
+      ],
+      "offsetMeters": [
+        0,
+        1.837,
+        -0.615
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c252",
+      "label": "interior light 253",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c252",
+        "n9.p0.c3",
+        "n9.p0.c6",
+        "n9.p0.c13",
+        "n9.p0.c14",
+        "n9.p0.c18",
+        "n9.p0.c21",
+        "n9.p0.c22",
+        "n9.p0.c51",
+        "n9.p0.c63",
+        "n9.p0.c66",
+        "n9.p0.c75",
+        "n9.p0.c85",
+        "n9.p0.c182",
+        "n9.p0.c183",
+        "n9.p0.c186",
+        "n9.p0.c188",
+        "n9.p0.c189",
+        "n9.p0.c193",
+        "n9.p0.c196",
+        "n9.p0.c197",
+        "n9.p0.c209",
+        "n9.p0.c210",
+        "n9.p0.c213",
+        "n9.p0.c217",
+        "n9.p0.c218",
+        "n9.p0.c219",
+        "n9.p0.c220",
+        "n9.p0.c225",
+        "n9.p0.c226",
+        "n9.p0.c236",
+        "n9.p0.c245",
+        "n9.p0.c247",
+        "n9.p0.c256",
+        "n9.p0.c258",
+        "n9.p0.c262",
+        "n9.p0.c263",
+        "n9.p0.c267",
+        "n9.p0.c273",
+        "n9.p0.c274",
+        "n9.p0.c276",
+        "n9.p0.c277"
+      ],
+      "offsetMeters": [
+        -1.036,
+        0.305,
+        -0.755
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c290",
+      "label": "interior light 291",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c290"
+      ],
+      "offsetMeters": [
+        1.018,
+        1.295,
+        0.747
+      ]
+    },
+    {
+      "id": "surface-n9-p0-c291",
+      "label": "interior light 292",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n9.p0.c291"
+      ],
+      "offsetMeters": [
+        -1.023,
+        1.295,
+        0.747
+      ]
+    },
+    {
+      "id": "surface-n10-p0-c15",
+      "label": "grills 16",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n10.p0.c15",
+        "n10.p0.c0",
+        "n10.p0.c1",
+        "n10.p0.c2",
+        "n10.p0.c3",
+        "n10.p0.c4",
+        "n10.p0.c5",
+        "n10.p0.c6",
+        "n10.p0.c7",
+        "n10.p0.c8",
+        "n10.p0.c9",
+        "n10.p0.c10",
+        "n10.p0.c11",
+        "n10.p0.c12",
+        "n10.p0.c13",
+        "n10.p0.c14"
+      ],
+      "offsetMeters": [
+        1.06,
+        0.654,
+        1.593
+      ]
+    },
+    {
+      "id": "surface-n11-p0-c2",
+      "label": "glass 3",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n11.p0.c2",
+        "n11.p0.c0",
+        "n11.p0.c1",
+        "n11.p0.c11"
+      ],
+      "offsetMeters": [
+        0,
+        1.694,
+        -0.837
+      ]
+    },
+    {
+      "id": "surface-n11-p0-c3",
+      "label": "glass 4",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n11.p0.c3"
+      ],
+      "offsetMeters": [
+        -1.153,
+        0.311,
+        -1.406
+      ]
+    },
+    {
+      "id": "surface-n11-p0-c4",
+      "label": "glass 5",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n11.p0.c4"
+      ],
+      "offsetMeters": [
+        1.151,
+        0.311,
+        -1.406
+      ]
+    },
+    {
+      "id": "surface-n11-p0-c6",
+      "label": "glass 7",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n11.p0.c6",
+        "n11.p0.c5",
+        "n11.p0.c7"
+      ],
+      "offsetMeters": [
+        -1.193,
+        0.746,
+        1.576
+      ]
+    },
+    {
+      "id": "surface-n11-p0-c9",
+      "label": "glass 10",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n11.p0.c9",
+        "n11.p0.c8",
+        "n11.p0.c10"
+      ],
+      "offsetMeters": [
+        1.188,
+        0.746,
+        1.576
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c1",
+      "label": "chrome 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c1"
+      ],
+      "offsetMeters": [
+        0,
+        0.423,
+        1.679
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c2",
+      "label": "chrome 3",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c2"
+      ],
+      "offsetMeters": [
+        0,
+        0.423,
+        1.677
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c3",
+      "label": "chrome 4",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c3"
+      ],
+      "offsetMeters": [
+        0,
+        0.423,
+        1.677
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c4",
+      "label": "chrome 5",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c4",
+        "n12.p0.c21",
+        "n12.p0.c22",
+        "n12.p0.c42",
+        "n12.p0.c44",
+        "n12.p0.c45",
+        "n12.p0.c53"
+      ],
+      "offsetMeters": [
+        0,
+        0.164,
+        -1.659
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c7",
+      "label": "chrome 8",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c7",
+        "n12.p0.c8",
+        "n12.p0.c9",
+        "n12.p0.c10",
+        "n12.p0.c11",
+        "n12.p0.c12",
+        "n12.p0.c13",
+        "n12.p0.c14",
+        "n12.p0.c15",
+        "n12.p0.c16",
+        "n12.p0.c17",
+        "n12.p0.c18",
+        "n12.p0.c19",
+        "n12.p0.c20",
+        "n12.p0.c43"
+      ],
+      "offsetMeters": [
+        0,
+        1.322,
+        1.654
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c23",
+      "label": "chrome 24",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c23"
+      ],
+      "offsetMeters": [
+        -1.193,
+        0.746,
+        1.571
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c24",
+      "label": "chrome 25",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c24"
+      ],
+      "offsetMeters": [
+        1.188,
+        0.746,
+        1.571
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c33",
+      "label": "chrome 34",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c33",
+        "n12.p0.c0",
+        "n12.p0.c5",
+        "n12.p0.c26",
+        "n12.p0.c34",
+        "n12.p0.c35",
+        "n12.p0.c36",
+        "n12.p0.c48",
+        "n12.p0.c49",
+        "n12.p0.c50",
+        "n12.p0.c51",
+        "n12.p0.c54",
+        "n12.p0.c55",
+        "n12.p0.c56",
+        "n12.p0.c61"
+      ],
+      "offsetMeters": [
+        -1.299,
+        -0.314,
+        0.956
+      ]
+    },
+    {
+      "id": "surface-n12-p0-c37",
+      "label": "chrome 38",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n12.p0.c37",
+        "n12.p0.c6",
+        "n12.p0.c25",
+        "n12.p0.c27",
+        "n12.p0.c28",
+        "n12.p0.c29",
+        "n12.p0.c30",
+        "n12.p0.c31",
+        "n12.p0.c32",
+        "n12.p0.c38",
+        "n12.p0.c39",
+        "n12.p0.c40",
+        "n12.p0.c41",
+        "n12.p0.c46",
+        "n12.p0.c47",
+        "n12.p0.c52",
+        "n12.p0.c57",
+        "n12.p0.c58",
+        "n12.p0.c59",
+        "n12.p0.c60"
+      ],
+      "offsetMeters": [
+        1.296,
+        -0.311,
+        0.956
+      ]
+    },
+    {
+      "id": "surface-n13-p0-c0",
+      "label": "carpet 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n13.p0.c0",
+        "n13.p0.c1"
+      ],
+      "offsetMeters": [
+        0,
+        0.485,
+        -0.604
+      ]
+    },
+    {
+      "id": "surface-n14-p0-c0",
+      "label": "carbon fibre trim 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n14.p0.c0"
+      ],
+      "offsetMeters": [
+        0,
+        0.431,
+        -0.608
+      ]
+    },
+    {
+      "id": "surface-n14-p0-c1",
+      "label": "carbon fibre trim 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n14.p0.c1"
+      ],
+      "offsetMeters": [
+        -1.071,
+        0.543,
+        -0.776
+      ]
+    },
+    {
+      "id": "surface-n14-p0-c2",
+      "label": "carbon fibre trim 3",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n14.p0.c2",
+        "n14.p0.c6"
+      ],
+      "offsetMeters": [
+        0.807,
+        1.184,
+        -0.77
+      ]
+    },
+    {
+      "id": "surface-n14-p0-c3",
+      "label": "carbon fibre trim 4",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n14.p0.c3"
+      ],
+      "offsetMeters": [
+        -0.891,
+        1.332,
+        -0.762
+      ]
+    },
+    {
+      "id": "surface-n14-p0-c4",
+      "label": "carbon fibre trim 5",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n14.p0.c4"
+      ],
+      "offsetMeters": [
+        -1.169,
+        0.119,
+        0
+      ]
+    },
+    {
+      "id": "surface-n14-p0-c5",
+      "label": "carbon fibre trim 6",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n14.p0.c5"
+      ],
+      "offsetMeters": [
+        0,
+        0.65,
+        0
+      ]
+    },
+    {
+      "id": "surface-n15-p0-c0",
+      "label": "carbon fibre 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n15.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.226,
+        -0.691
+      ]
+    },
+    {
+      "id": "surface-n16-p0-c0",
+      "label": "brakes 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n16.p0.c0"
+      ],
+      "offsetMeters": [
+        0,
+        1.556,
+        1.622
+      ]
+    },
+    {
+      "id": "surface-n16-p0-c1",
+      "label": "brakes 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n16.p0.c1"
+      ],
+      "offsetMeters": [
+        -1.193,
+        0.745,
+        1.575
+      ]
+    },
+    {
+      "id": "surface-n16-p0-c2",
+      "label": "brakes 3",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n16.p0.c2"
+      ],
+      "offsetMeters": [
+        -1.192,
+        0.747,
+        1.517
+      ]
+    },
+    {
+      "id": "surface-n16-p0-c3",
+      "label": "brakes 4",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n16.p0.c3"
+      ],
+      "offsetMeters": [
+        1.188,
+        0.745,
+        1.574
+      ]
+    },
+    {
+      "id": "surface-n16-p0-c4",
+      "label": "brakes 5",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n16.p0.c4"
+      ],
+      "offsetMeters": [
+        1.187,
+        0.747,
+        1.516
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c0",
+      "label": "interior dark 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c0",
+        "n17.p0.c58",
+        "n17.p0.c59"
+      ],
+      "offsetMeters": [
+        0,
+        1.532,
+        1.352
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c1",
+      "label": "interior dark 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c1",
+        "n17.p0.c2",
+        "n17.p0.c4",
+        "n17.p0.c5",
+        "n17.p0.c18",
+        "n17.p0.c19",
+        "n17.p0.c30",
+        "n17.p0.c36",
+        "n17.p0.c39",
+        "n17.p0.c61",
+        "n17.p0.c62",
+        "n17.p0.c69",
+        "n17.p0.c70",
+        "n17.p0.c71",
+        "n17.p0.c72",
+        "n17.p0.c73",
+        "n17.p0.c74",
+        "n17.p0.c75",
+        "n17.p0.c76"
+      ],
+      "offsetMeters": [
+        0,
+        0.719,
+        0
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c7",
+      "label": "interior dark 8",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c7",
+        "n17.p0.c31",
+        "n17.p0.c63"
+      ],
+      "offsetMeters": [
+        0,
+        1.745,
+        0.97
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c35",
+      "label": "interior dark 36",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c35",
+        "n17.p0.c9",
+        "n17.p0.c34",
+        "n17.p0.c40",
+        "n17.p0.c42",
+        "n17.p0.c45",
+        "n17.p0.c46",
+        "n17.p0.c47",
+        "n17.p0.c48",
+        "n17.p0.c60",
+        "n17.p0.c64",
+        "n17.p0.c68",
+        "n17.p0.c83"
+      ],
+      "offsetMeters": [
+        -0.897,
+        0.263,
+        0.561
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c38",
+      "label": "interior dark 39",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c38",
+        "n17.p0.c3",
+        "n17.p0.c10",
+        "n17.p0.c37",
+        "n17.p0.c41",
+        "n17.p0.c43",
+        "n17.p0.c49",
+        "n17.p0.c50",
+        "n17.p0.c51",
+        "n17.p0.c65",
+        "n17.p0.c67",
+        "n17.p0.c84"
+      ],
+      "offsetMeters": [
+        0.889,
+        0.913,
+        0.561
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c44",
+      "label": "interior dark 45",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c44",
+        "n17.p0.c20",
+        "n17.p0.c21",
+        "n17.p0.c22",
+        "n17.p0.c23",
+        "n17.p0.c24",
+        "n17.p0.c25",
+        "n17.p0.c26",
+        "n17.p0.c27",
+        "n17.p0.c28",
+        "n17.p0.c29"
+      ],
+      "offsetMeters": [
+        0,
+        0.424,
+        1.671
+      ]
+    },
+    {
+      "id": "surface-n17-p0-c66",
+      "label": "interior dark 67",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n17.p0.c66",
+        "n17.p0.c6",
+        "n17.p0.c8",
+        "n17.p0.c11",
+        "n17.p0.c12",
+        "n17.p0.c13",
+        "n17.p0.c14",
+        "n17.p0.c15",
+        "n17.p0.c16",
+        "n17.p0.c17",
+        "n17.p0.c32",
+        "n17.p0.c33",
+        "n17.p0.c52",
+        "n17.p0.c53",
+        "n17.p0.c54",
+        "n17.p0.c55",
+        "n17.p0.c56",
+        "n17.p0.c57",
+        "n17.p0.c77",
+        "n17.p0.c78",
+        "n17.p0.c79",
+        "n17.p0.c80",
+        "n17.p0.c81",
+        "n17.p0.c82"
+      ],
+      "offsetMeters": [
+        0,
+        2.044,
+        0
+      ]
+    },
+    {
+      "id": "right-front-fender",
+      "label": "Right front fender",
+      "family": "front_fender",
+      "side": "right",
+      "pieces": [
+        "n18.p0.c1"
+      ],
+      "offsetMeters": [
+        -1.26,
+        0.038,
+        -1.051
+      ]
+    },
+    {
+      "id": "windscreen-frame",
+      "label": "Windscreen frame",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c2"
+      ],
+      "offsetMeters": [
+        0,
+        1.693,
+        -0.716
+      ]
+    },
+    {
+      "id": "left-front-fender",
+      "label": "Left front fender",
+      "family": "front_fender",
+      "side": "left",
+      "pieces": [
+        "n18.p0.c3"
+      ],
+      "offsetMeters": [
+        1.255,
+        0.038,
+        -1.051
+      ]
+    },
+    {
+      "id": "right-door",
+      "label": "Right door",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c4"
+      ],
+      "offsetMeters": [
+        -1.259,
+        0.125,
+        0
+      ]
+    },
+    {
+      "id": "left-door",
+      "label": "Left door",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c6"
+      ],
+      "offsetMeters": [
+        1.249,
+        0.125,
+        0
+      ]
+    },
+    {
+      "id": "rear-deck",
+      "label": "Rear deck",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c8"
+      ],
+      "offsetMeters": [
+        0,
+        1.529,
+        1.389
+      ]
+    },
+    {
+      "id": "right-rear-quarter",
+      "label": "Right rear quarter",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c9"
+      ],
+      "offsetMeters": [
+        -1.17,
+        0.41,
+        1.127
+      ]
+    },
+    {
+      "id": "left-rear-quarter",
+      "label": "Left rear quarter",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c10"
+      ],
+      "offsetMeters": [
+        1.165,
+        0.41,
+        1.127
+      ]
+    },
+    {
+      "id": "rear-cabin-cover",
+      "label": "Rear cabin cover",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c11",
+        "n18.p0.c0"
+      ],
+      "offsetMeters": [
+        0,
+        1.787,
+        1
+      ]
+    },
+    {
+      "id": "front-bumper",
+      "label": "Front bumper cover",
+      "family": "front_bumper_cover",
+      "side": "center",
+      "pieces": [
+        "n18.p0.c12"
+      ],
+      "offsetMeters": [
+        0,
+        0.556,
+        -1.421
+      ]
+    },
+    {
+      "id": "hood",
+      "label": "Hood",
+      "family": "hood",
+      "side": "center",
+      "pieces": [
+        "n18.p0.c13"
+      ],
+      "offsetMeters": [
+        0,
+        1.5,
+        -0.65
+      ]
+    },
+    {
+      "id": "right-sill",
+      "label": "Right sill",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c14",
+        "n18.p0.c5",
+        "n18.p0.c19"
+      ],
+      "offsetMeters": [
+        -1.275,
+        -0.417,
+        0
+      ]
+    },
+    {
+      "id": "left-sill",
+      "label": "Left sill",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c15",
+        "n18.p0.c7",
+        "n18.p0.c16",
+        "n18.p0.c20"
+      ],
+      "offsetMeters": [
+        1.275,
+        -0.417,
+        0
+      ]
+    },
+    {
+      "id": "right-mirror",
+      "label": "Right mirror housing",
+      "family": "side_mirror_housing",
+      "side": "right",
+      "pieces": [
+        "n18.p0.c17"
+      ],
+      "offsetMeters": [
+        -1.352,
+        0.661,
+        -0.72
+      ]
+    },
+    {
+      "id": "left-mirror",
+      "label": "Left mirror housing",
+      "family": "side_mirror_housing",
+      "side": "left",
+      "pieces": [
+        "n18.p0.c18"
+      ],
+      "offsetMeters": [
+        1.352,
+        0.661,
+        -0.72
+      ]
+    },
+    {
+      "id": "rear-bumper",
+      "label": "Rear bumper cover",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n18.p0.c21"
+      ],
+      "offsetMeters": [
+        0,
+        0.739,
+        1.545
+      ]
+    },
+    {
+      "id": "surface-n19-p0-c0",
+      "label": "blue 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n19.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.955,
+        0.47,
+        -0.642
+      ]
+    },
+    {
+      "id": "surface-n20-p0-c3",
+      "label": "wipers 4",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n20.p0.c3",
+        "n20.p0.c0",
+        "n20.p0.c1",
+        "n20.p0.c2",
+        "n20.p0.c4",
+        "n20.p0.c5",
+        "n20.p0.c6",
+        "n20.p0.c7",
+        "n20.p0.c8",
+        "n20.p0.c9",
+        "n20.p0.c10",
+        "n20.p0.c11",
+        "n20.p0.c12",
+        "n20.p0.c13",
+        "n20.p0.c14"
+      ],
+      "offsetMeters": [
+        -0.759,
+        1.261,
+        -1.069
+      ]
+    },
+    {
+      "id": "surface-n21-p0-c3",
+      "label": "yellow trim 4",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n21.p0.c3",
+        "n21.p0.c0",
+        "n21.p0.c1",
+        "n21.p0.c2"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.282,
+        -0.825
+      ]
+    },
+    {
+      "id": "surface-n23-p0-c0",
+      "label": "wheel 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n23.p0.c0",
+        "n23.p0.c1",
+        "n23.p0.c2",
+        "n23.p0.c3",
+        "n23.p0.c4",
+        "n23.p0.c5",
+        "n23.p0.c6",
+        "n23.p0.c7",
+        "n23.p0.c8",
+        "n23.p0.c9",
+        "n23.p0.c10",
+        "n23.p0.c11",
+        "n23.p0.c12",
+        "n23.p0.c13",
+        "n23.p0.c14",
+        "n23.p0.c15",
+        "n23.p0.c16",
+        "n23.p0.c17",
+        "n23.p0.c18",
+        "n23.p0.c19",
+        "n23.p0.c20",
+        "n23.p0.c21",
+        "n23.p0.c22",
+        "n23.p0.c23",
+        "n23.p0.c24",
+        "n23.p0.c25",
+        "n23.p0.c26",
+        "n23.p0.c27",
+        "n23.p0.c28",
+        "n23.p0.c29",
+        "n23.p0.c30",
+        "n23.p0.c31",
+        "n23.p0.c32",
+        "n23.p0.c33",
+        "n23.p0.c34",
+        "n23.p0.c35",
+        "n23.p0.c36"
+      ],
+      "offsetMeters": [
+        1.227,
+        -0.341,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n24-p0-c0",
+      "label": "tire 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n24.p0.c0"
+      ],
+      "offsetMeters": [
+        1.223,
+        -0.34,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n25-p0-c0",
+      "label": "rim rr 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n25.p0.c0"
+      ],
+      "offsetMeters": [
+        1.315,
+        -0.341,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n26-p0-c0",
+      "label": "centre 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n26.p0.c0"
+      ],
+      "offsetMeters": [
+        1.306,
+        -0.341,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n27-p0-c36",
+      "label": "brake 37",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n27.p0.c36",
+        "n27.p0.c0",
+        "n27.p0.c1",
+        "n27.p0.c2",
+        "n27.p0.c3",
+        "n27.p0.c4",
+        "n27.p0.c5",
+        "n27.p0.c6",
+        "n27.p0.c7",
+        "n27.p0.c8",
+        "n27.p0.c9",
+        "n27.p0.c10",
+        "n27.p0.c11",
+        "n27.p0.c12",
+        "n27.p0.c13",
+        "n27.p0.c14",
+        "n27.p0.c15",
+        "n27.p0.c16",
+        "n27.p0.c17",
+        "n27.p0.c18",
+        "n27.p0.c19",
+        "n27.p0.c20",
+        "n27.p0.c21",
+        "n27.p0.c22",
+        "n27.p0.c23",
+        "n27.p0.c24",
+        "n27.p0.c25",
+        "n27.p0.c26",
+        "n27.p0.c27",
+        "n27.p0.c28",
+        "n27.p0.c29",
+        "n27.p0.c30",
+        "n27.p0.c31",
+        "n27.p0.c32",
+        "n27.p0.c33",
+        "n27.p0.c34",
+        "n27.p0.c35"
+      ],
+      "offsetMeters": [
+        1.226,
+        -0.341,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n27-p0-c37",
+      "label": "brake 38",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n27.p0.c37"
+      ],
+      "offsetMeters": [
+        1.241,
+        -0.341,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n28-p0-c0",
+      "label": "nuts 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n28.p0.c0",
+        "n28.p0.c1",
+        "n28.p0.c2",
+        "n28.p0.c3",
+        "n28.p0.c4",
+        "n28.p0.c5"
+      ],
+      "offsetMeters": [
+        1.306,
+        -0.341,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n30-p0-c0",
+      "label": "tire 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n30.p0.c0"
+      ],
+      "offsetMeters": [
+        -1.221,
+        -0.34,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n31-p0-c36",
+      "label": "brake 37",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n31.p0.c36",
+        "n31.p0.c0",
+        "n31.p0.c1",
+        "n31.p0.c2",
+        "n31.p0.c3",
+        "n31.p0.c4",
+        "n31.p0.c5",
+        "n31.p0.c6",
+        "n31.p0.c7",
+        "n31.p0.c8",
+        "n31.p0.c9",
+        "n31.p0.c10",
+        "n31.p0.c11",
+        "n31.p0.c12",
+        "n31.p0.c13",
+        "n31.p0.c14",
+        "n31.p0.c15",
+        "n31.p0.c16",
+        "n31.p0.c17",
+        "n31.p0.c18",
+        "n31.p0.c19",
+        "n31.p0.c20",
+        "n31.p0.c21",
+        "n31.p0.c22",
+        "n31.p0.c23",
+        "n31.p0.c24",
+        "n31.p0.c25",
+        "n31.p0.c26",
+        "n31.p0.c27",
+        "n31.p0.c28",
+        "n31.p0.c29",
+        "n31.p0.c30",
+        "n31.p0.c31",
+        "n31.p0.c32",
+        "n31.p0.c33",
+        "n31.p0.c34",
+        "n31.p0.c35"
+      ],
+      "offsetMeters": [
+        -1.23,
+        -0.341,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n31-p0-c37",
+      "label": "brake 38",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n31.p0.c37"
+      ],
+      "offsetMeters": [
+        -1.244,
+        -0.341,
+        1.273
+      ]
+    },
+    {
+      "id": "surface-n32-p0-c0",
+      "label": "centre 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n32.p0.c0"
+      ],
+      "offsetMeters": [
+        -1.304,
+        -0.341,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n33-p0-c0",
+      "label": "wheel 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n33.p0.c0",
+        "n33.p0.c1",
+        "n33.p0.c2",
+        "n33.p0.c3",
+        "n33.p0.c4",
+        "n33.p0.c5",
+        "n33.p0.c6",
+        "n33.p0.c7",
+        "n33.p0.c8",
+        "n33.p0.c9",
+        "n33.p0.c10",
+        "n33.p0.c11",
+        "n33.p0.c12",
+        "n33.p0.c13",
+        "n33.p0.c14",
+        "n33.p0.c15",
+        "n33.p0.c16",
+        "n33.p0.c17",
+        "n33.p0.c18",
+        "n33.p0.c19",
+        "n33.p0.c20",
+        "n33.p0.c21",
+        "n33.p0.c22",
+        "n33.p0.c23",
+        "n33.p0.c24",
+        "n33.p0.c25",
+        "n33.p0.c26",
+        "n33.p0.c27",
+        "n33.p0.c28",
+        "n33.p0.c29",
+        "n33.p0.c30",
+        "n33.p0.c31",
+        "n33.p0.c32",
+        "n33.p0.c33",
+        "n33.p0.c34",
+        "n33.p0.c35",
+        "n33.p0.c36"
+      ],
+      "offsetMeters": [
+        -1.225,
+        -0.341,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n34-p0-c0",
+      "label": "rim rl 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n34.p0.c0"
+      ],
+      "offsetMeters": [
+        -1.313,
+        -0.341,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n35-p0-c0",
+      "label": "nuts 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n35.p0.c0",
+        "n35.p0.c1",
+        "n35.p0.c2",
+        "n35.p0.c3",
+        "n35.p0.c4",
+        "n35.p0.c5"
+      ],
+      "offsetMeters": [
+        -1.304,
+        -0.341,
+        1.272
+      ]
+    },
+    {
+      "id": "surface-n37-p0-c0",
+      "label": "rim fl 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n37.p0.c0"
+      ],
+      "offsetMeters": [
+        -1.319,
+        -0.341,
+        -1.086
+      ]
+    },
+    {
+      "id": "surface-n38-p0-c36",
+      "label": "brake 37",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n38.p0.c36",
+        "n38.p0.c0",
+        "n38.p0.c1",
+        "n38.p0.c2",
+        "n38.p0.c3",
+        "n38.p0.c4",
+        "n38.p0.c5",
+        "n38.p0.c6",
+        "n38.p0.c7",
+        "n38.p0.c8",
+        "n38.p0.c9",
+        "n38.p0.c10",
+        "n38.p0.c11",
+        "n38.p0.c12",
+        "n38.p0.c13",
+        "n38.p0.c14",
+        "n38.p0.c15",
+        "n38.p0.c16",
+        "n38.p0.c17",
+        "n38.p0.c18",
+        "n38.p0.c19",
+        "n38.p0.c20",
+        "n38.p0.c21",
+        "n38.p0.c22",
+        "n38.p0.c23",
+        "n38.p0.c24",
+        "n38.p0.c25",
+        "n38.p0.c26",
+        "n38.p0.c27",
+        "n38.p0.c28",
+        "n38.p0.c29",
+        "n38.p0.c30",
+        "n38.p0.c31",
+        "n38.p0.c32",
+        "n38.p0.c33",
+        "n38.p0.c34",
+        "n38.p0.c35"
+      ],
+      "offsetMeters": [
+        -1.234,
+        -0.341,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n38-p0-c37",
+      "label": "brake 38",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n38.p0.c37"
+      ],
+      "offsetMeters": [
+        -1.249,
+        -0.341,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n39-p0-c0",
+      "label": "centre 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n39.p0.c0"
+      ],
+      "offsetMeters": [
+        -1.312,
+        -0.341,
+        -1.086
+      ]
+    },
+    {
+      "id": "surface-n40-p0-c0",
+      "label": "nuts 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n40.p0.c0",
+        "n40.p0.c1",
+        "n40.p0.c2",
+        "n40.p0.c3",
+        "n40.p0.c4",
+        "n40.p0.c5"
+      ],
+      "offsetMeters": [
+        -1.312,
+        -0.341,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n41-p0-c0",
+      "label": "wheel 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n41.p0.c0",
+        "n41.p0.c1",
+        "n41.p0.c2",
+        "n41.p0.c3",
+        "n41.p0.c4",
+        "n41.p0.c5",
+        "n41.p0.c6",
+        "n41.p0.c7",
+        "n41.p0.c8",
+        "n41.p0.c9",
+        "n41.p0.c10",
+        "n41.p0.c11",
+        "n41.p0.c12",
+        "n41.p0.c13",
+        "n41.p0.c14",
+        "n41.p0.c15",
+        "n41.p0.c16",
+        "n41.p0.c17",
+        "n41.p0.c18",
+        "n41.p0.c19",
+        "n41.p0.c20",
+        "n41.p0.c21",
+        "n41.p0.c22",
+        "n41.p0.c23",
+        "n41.p0.c24",
+        "n41.p0.c25",
+        "n41.p0.c26",
+        "n41.p0.c27",
+        "n41.p0.c28",
+        "n41.p0.c29",
+        "n41.p0.c30",
+        "n41.p0.c31",
+        "n41.p0.c32",
+        "n41.p0.c33",
+        "n41.p0.c34",
+        "n41.p0.c35",
+        "n41.p0.c36"
+      ],
+      "offsetMeters": [
+        -1.24,
+        -0.341,
+        -1.086
+      ]
+    },
+    {
+      "id": "surface-n42-p0-c0",
+      "label": "tire 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n42.p0.c0"
+      ],
+      "offsetMeters": [
+        -1.236,
+        -0.34,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n44-p0-c36",
+      "label": "brake 37",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n44.p0.c36",
+        "n44.p0.c0",
+        "n44.p0.c1",
+        "n44.p0.c2",
+        "n44.p0.c3",
+        "n44.p0.c4",
+        "n44.p0.c5",
+        "n44.p0.c6",
+        "n44.p0.c7",
+        "n44.p0.c8",
+        "n44.p0.c9",
+        "n44.p0.c10",
+        "n44.p0.c11",
+        "n44.p0.c12",
+        "n44.p0.c13",
+        "n44.p0.c14",
+        "n44.p0.c15",
+        "n44.p0.c16",
+        "n44.p0.c17",
+        "n44.p0.c18",
+        "n44.p0.c19",
+        "n44.p0.c20",
+        "n44.p0.c21",
+        "n44.p0.c22",
+        "n44.p0.c23",
+        "n44.p0.c24",
+        "n44.p0.c25",
+        "n44.p0.c26",
+        "n44.p0.c27",
+        "n44.p0.c28",
+        "n44.p0.c29",
+        "n44.p0.c30",
+        "n44.p0.c31",
+        "n44.p0.c32",
+        "n44.p0.c33",
+        "n44.p0.c34",
+        "n44.p0.c35"
+      ],
+      "offsetMeters": [
+        1.223,
+        -0.336,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n44-p0-c37",
+      "label": "brake 38",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n44.p0.c37"
+      ],
+      "offsetMeters": [
+        1.239,
+        -0.336,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n45-p0-c0",
+      "label": "centre 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n45.p0.c0"
+      ],
+      "offsetMeters": [
+        1.302,
+        -0.336,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n46-p0-c0",
+      "label": "wheel 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n46.p0.c0",
+        "n46.p0.c1",
+        "n46.p0.c2",
+        "n46.p0.c3",
+        "n46.p0.c4",
+        "n46.p0.c5",
+        "n46.p0.c6",
+        "n46.p0.c7",
+        "n46.p0.c8",
+        "n46.p0.c9",
+        "n46.p0.c10",
+        "n46.p0.c11",
+        "n46.p0.c12",
+        "n46.p0.c13",
+        "n46.p0.c14",
+        "n46.p0.c15",
+        "n46.p0.c16",
+        "n46.p0.c17",
+        "n46.p0.c18",
+        "n46.p0.c19",
+        "n46.p0.c20",
+        "n46.p0.c21",
+        "n46.p0.c22",
+        "n46.p0.c23",
+        "n46.p0.c24",
+        "n46.p0.c25",
+        "n46.p0.c26",
+        "n46.p0.c27",
+        "n46.p0.c28",
+        "n46.p0.c29",
+        "n46.p0.c30",
+        "n46.p0.c31",
+        "n46.p0.c32",
+        "n46.p0.c33",
+        "n46.p0.c34",
+        "n46.p0.c35",
+        "n46.p0.c36"
+      ],
+      "offsetMeters": [
+        1.23,
+        -0.336,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n47-p0-c0",
+      "label": "rim fr 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n47.p0.c0"
+      ],
+      "offsetMeters": [
+        1.31,
+        -0.336,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n48-p0-c0",
+      "label": "tire 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n48.p0.c0"
+      ],
+      "offsetMeters": [
+        1.227,
+        -0.335,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n49-p0-c0",
+      "label": "nuts 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n49.p0.c0",
+        "n49.p0.c1",
+        "n49.p0.c2",
+        "n49.p0.c3",
+        "n49.p0.c4",
+        "n49.p0.c5"
+      ],
+      "offsetMeters": [
+        1.302,
+        -0.336,
+        -1.085
+      ]
+    },
+    {
+      "id": "surface-n51-p0-c0",
+      "label": "steering carbon 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n51.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.144,
+        -0.651
+      ]
+    },
+    {
+      "id": "surface-n51-p0-c1",
+      "label": "steering carbon 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n51.p0.c1"
+      ],
+      "offsetMeters": [
+        -0.893,
+        0.946,
+        -0.628
+      ]
+    },
+    {
+      "id": "surface-n51-p0-c2",
+      "label": "steering carbon 3",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n51.p0.c2"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.54,
+        -0.679
+      ]
+    },
+    {
+      "id": "surface-n52-p0-c0",
+      "label": "steering centre 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n52.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.236,
+        -0.64
+      ]
+    },
+    {
+      "id": "surface-n53-p0-c0",
+      "label": "steering column 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n53.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.154,
+        -0.674
+      ]
+    },
+    {
+      "id": "surface-n53-p0-c1",
+      "label": "steering column 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n53.p0.c1",
+        "n53.p0.c2",
+        "n53.p0.c3",
+        "n53.p0.c4",
+        "n53.p0.c5",
+        "n53.p0.c6",
+        "n53.p0.c7"
+      ],
+      "offsetMeters": [
+        -0.892,
+        1.201,
+        -0.654
+      ]
+    },
+    {
+      "id": "surface-n54-p0-c0",
+      "label": "steering leather 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n54.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.804,
+        1.237,
+        -0.649
+      ]
+    },
+    {
+      "id": "surface-n54-p0-c1",
+      "label": "steering leather 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n54.p0.c1"
+      ],
+      "offsetMeters": [
+        -0.98,
+        0.59,
+        -0.649
+      ]
+    },
+    {
+      "id": "surface-n55-p0-c0",
+      "label": "steering metal 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n55.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.832,
+        1.09,
+        -0.639
+      ]
+    },
+    {
+      "id": "surface-n56-p0-c0",
+      "label": "steering red lights 1",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n56.p0.c0",
+        "n56.p0.c1"
+      ],
+      "offsetMeters": [
+        -0.834,
+        1.094,
+        -0.637
+      ]
+    },
+    {
+      "id": "surface-n57-p0-c1",
+      "label": "steering trim 2",
+      "family": null,
+      "side": null,
+      "pieces": [
+        "n57.p0.c1",
+        "n57.p0.c0"
+      ],
+      "offsetMeters": [
+        -0.979,
+        0.427,
+        -0.634
+      ]
+    }
+  ]
+}
