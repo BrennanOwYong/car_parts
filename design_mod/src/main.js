@@ -237,3 +237,5 @@ async function boot(){
   document.querySelectorAll('.swatch').forEach(b=>b.onclick=()=>{state.color=b.dataset.color;syncPaint();});
 }
 boot();
+
+$('learning-mode').addEventListener('click',()=>{location.href='/learning.html';});

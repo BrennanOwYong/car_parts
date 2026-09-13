@@ -25,7 +25,7 @@ The same commands work on macOS, Linux, and Windows.
 ## Implemented boundary
 
 - This directory is independent of the existing Python repair relay and native iOS flow. Those files are unchanged.
-- The landing experience is separate from the studio. Fix part and Car accessory remain coming soon.
+- The landing experience is separate from the studio. Fix part remains disabled; the separate learning flow is documented below.
 - Vehicle selection loads three prepared, locally stored assets, not live web-scraped engineering models. Make/model fields and collection cards stay synchronized. In-memory build selections and paint are preserved separately per car.
 - Ferrari, Corolla and Porsche expose 34, 43 and 36 visual assembly groups. Connected source islands move intact; unmapped windows and other non-mod surfaces do not select modifications. Explosion is reversible, and selected mod parts follow their corresponding assembly offsets.
 - The car assets are visualization meshes, not OEM CAD. Scaling to an overall-length reference does not establish attachment accuracy. See each catalog record for identity and scale caveats.
@@ -59,3 +59,22 @@ The homepage includes a full-screen Corolla scene tied to native page scrolling.
 The homepage scene is isolated in `src/landing.js`, with its reversible phase timing in `src/landing-motion.mjs` and scoped presentation in `src/landing.css`. It reads the animation embedded in `public/assets/corolla-exploded.glb`. It releases the render loop when leaving the homepage or hiding the tab, and renders only when the scroll pose changes. Reduced-motion settings keep the car assembled and the mode cards accessible.
 
 Start the complete app with `npm run dev` (default port 8788); the plain Vite server does not provide the studio API.
+
+
+## Immersive learning
+
+Open `/learning.html` or choose **Immersive learning** on the landing page. All three cars are selectable: Porsche 911 Carrera 4S, Ferrari 458, and Toyota Corolla.
+
+- Each car has a live ten-second turn/explode/reassemble introduction, skip/replay controls, orbit/zoom, and hover/click part navigation.
+- Wheels, brakes, body, glazing, lighting, and cabin lessons clone the selected car’s original source triangles, normals, UVs, and available materials. No simplified mechanical models remain. One front corner is isolated for wheels and brakes; other systems preserve their actual source assemblies.
+- Component buttons are generated from available source groups. A single combined source assembly cannot be falsely split into unmodeled subcomponents. Separation is a visual study, not a workshop removal sequence.
+- Four chapters per system cover composition, physics, design, and history. Design uses an optional satin material to inspect unchanged geometry. Historical mechanisms are described in text; fabricated historical 3D replicas are not shown.
+- Physics exercises state their illustrative assumptions. The engine event-rate calculation uses six, eight, or four cylinders according to the selected course.
+- Course-scoped routes are `#car/porsche`, `#car/ferrari`, `#car/toyota`, and `#lesson/<course>/<system>/<chapter>`. Legacy Porsche deep links still work. Browser progress is isolated by course; existing Porsche progress migrates automatically.
+- Course references selected for future exact engine sourcing are the 2010 911 Carrera 4S (997.2), 2012 458 Spider, and 2020 US Corolla LE. Existing exterior meshes are creator visualizations with unverified trim fidelity, not certified OEM CAD.
+- **Exact engine 3D remains incomplete.** None of the existing car files includes a complete engine. Generic CAD was researched and excluded after the user required exact engines. The engine page shows a clear pending state and manufacturer-based text/calculations, with no substitute geometry. See `LEARNING_ASSETS.md`.
+- Credits and source terms are available at `/learning.html#credits`. Ferrari’s existing asset license remains unverified; Porsche adaptations retain CC BY-SA 4.0 and Corolla attribution retains CC BY 4.0.
+
+The UI keeps the Astra-inspired near-black surfaces, original star field, white editorial typography, pill controls, and soft route transitions. Motion respects reduced-motion preferences. Part rendering is bounded by actual source detail; these are render meshes, not native CAD solids or photoreal engine assets.
+
+Implementation is isolated in `src/learning*.{js,mjs,css}` and `learning.html`, using the shared vehicle preparation module. `npm run build` includes the learning entry. Tests verify route/progress isolation, cylinder-specific calculations, and preservation of actual shipped part geometry across all three courses.
