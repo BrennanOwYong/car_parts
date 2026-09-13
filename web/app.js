@@ -12,6 +12,16 @@ export function fittedFrameSize(width, height, maximum = 1800) {
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
 }
 
+export function imageFileFromClipboard(clipboardData) {
+  for (const item of Array.from(clipboardData?.items || [])) {
+    if (item.kind === "file" && item.type.startsWith("image/")) {
+      const file = item.getAsFile();
+      if (file) return file;
+    }
+  }
+  return Array.from(clipboardData?.files || []).find((file) => file.type.startsWith("image/")) || null;
+}
+
 
 function element(id) { return document.getElementById(id); }
 
@@ -60,6 +70,16 @@ async function imageAsJpegBase64(file) {
   return bytesToBase64(new Uint8Array(await blob.arrayBuffer()));
 }
 
+async function useImage(file) {
+  if (!file.type.startsWith("image/")) throw new Error("Select or paste an image file.");
+  clearError();
+  state.imageBase64 = await imageAsJpegBase64(file);
+  element("photo-preview").src = URL.createObjectURL(file);
+  element("photo-preview").hidden = false;
+  element("upload-prompt").hidden = true;
+  element("identify-button").disabled = false;
+}
+
 function bytesToBase64(bytes) {
   let binary = "";
   const chunk = 0x8000;
@@ -102,14 +122,16 @@ function init() {
   element("part-photo").addEventListener("change", async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-    try {
-      clearError();
-      state.imageBase64 = await imageAsJpegBase64(file);
-      element("photo-preview").src = URL.createObjectURL(file);
-      element("photo-preview").hidden = false;
-      element("upload-prompt").hidden = true;
-      element("identify-button").disabled = false;
-    } catch (error) { showError(error); }
+    try { await useImage(file); }
+    catch (error) { showError(error); }
+  });
+
+  document.addEventListener("paste", async (event) => {
+    const file = imageFileFromClipboard(event.clipboardData);
+    if (!file) return;
+    event.preventDefault();
+    try { await useImage(file); }
+    catch (error) { showError(error); }
   });
 
   element("identify-button").addEventListener("click", async () => {

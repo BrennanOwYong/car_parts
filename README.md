@@ -42,7 +42,7 @@ Copy-Item .env.example .env
 python astra_relay.py
 ```
 
-Open `http://localhost:8787` in a desktop browser. Select **Upload car photo**. Choose an existing JPEG, PNG, HEIC, or other browser-supported image. Add an optional description. Then select **Identify vehicle and part**.
+Open `http://localhost:8787` in a desktop browser. Select **Upload or paste a car photo**. Choose an existing JPEG, PNG, HEIC, or other browser-supported image. You can also copy an image, focus the website, and press `Ctrl+V`. Add an optional description. Then select **Identify vehicle and part**.
 
 Keep the terminal open while you use the website. Press `Ctrl+C` to stop the server. The `.env` file is ignored by Git. Do not put the API key in `.env.example`, `web/app.js`, or another tracked file.
 

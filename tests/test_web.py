@@ -36,8 +36,8 @@ class WebApplicationChecks(unittest.TestCase):
         self.assertEqual(response.headers.get_content_type(), "text/html")
         for value in ("part-photo", "part-notes", "vehicle-panel", "measure-panel", "cad-panel", "download-button", "exploded-download-button"):
             self.assertIn(f'id="{value}"', html)
-        self.assertIn("Upload car photo", html)
-        self.assertIn("Choose an existing image from this computer", html)
+        self.assertIn("Upload or paste a car photo", html)
+        self.assertIn("press Ctrl+V to paste one", html)
         self.assertIn("Dimension-bearing official documents pre-indexed", html)
         self.assertIn("<textarea", html)
         self.assertEqual(html.count('type="file"'), 1)
@@ -55,6 +55,7 @@ class WebApplicationChecks(unittest.TestCase):
         self.assertIn('fetch("/analyze"', script)
         self.assertIn('user_text: element("part-notes").value.trim()', script)
         self.assertIn('result.outcome === "needs_dimensions"', script)
+        self.assertIn('document.addEventListener("paste"', script)
 
     def test_vehicle_confirmation_and_cad_downloads_exist(self):
         _, html = self.get("/")

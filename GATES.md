@@ -2,7 +2,7 @@
 
 Scope: deliver a desktop website that accepts one uploaded car photo, identifies the vehicle and part, checks exact official dimensions, and releases CAD only when the evidence is complete.
 
-- [x] G1: the desktop website accepts one uploaded image and optional text
+- [x] G1: the desktop website accepts one selected or Ctrl+V-pasted image and optional text
   CHECK: python3 tests/test_web.py
   EXPECT: web application checks passed
 

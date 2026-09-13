@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class DesktopDocumentationChecks(unittest.TestCase):
     def test_desktop_run_steps_are_documented(self):
         readme = (ROOT / "README.md").read_text()
-        for value in ("Run on a desktop computer", "macOS or Linux", "Windows PowerShell", "OPENAI_API_KEY", ".env.example", "python3 astra_relay.py", "http://localhost:8787", "Upload car photo"):
+        for value in ("Run on a desktop computer", "macOS or Linux", "Windows PowerShell", "OPENAI_API_KEY", ".env.example", "python3 astra_relay.py", "http://localhost:8787", "Upload or paste a car photo"):
             self.assertIn(value, readme)
 
     def test_private_env_file_is_ignored(self):
