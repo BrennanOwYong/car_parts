@@ -72,7 +72,7 @@ class AstraFlowChecks(unittest.TestCase):
         self.assertNotIn("tools", request)
         self.assertEqual(request["input"][0]["content"][1]["type"], "input_image")
         prompt = request["input"][0]["content"][0]["text"]
-        self.assertIn("wheel_arch_trim", prompt)
+        self.assertIn("wheel arch trim", prompt)
         self.assertIn("The trim around the front wheel", prompt)
 
     def test_user_text_length_is_limited(self):
@@ -127,12 +127,10 @@ class AstraFlowChecks(unittest.TestCase):
         })
         self.assertEqual(request["tools"], [{"type": "web_search"}])
         prompt = request["input"][0]["content"][0]["text"]
-        for value in ("official", "diagram", "public 3D scan", "needs_lidar", "rough_cad_ready", "front_fender", "ROUGH VISUAL CONCEPT - NOT FOR FABRICATION"):
+        for value in ("official", "diagram", "public scan", "LiDAR", "front_fender", "ROUGH VISUAL CONCEPT - NOT FOR FABRICATION"):
             self.assertIn(value, prompt)
-        self.assertLess(prompt.index("1. Search"), prompt.index("2. If those official"))
-        self.assertLess(prompt.index("2. If those official"), prompt.index("3. If neither"))
-        self.assertEqual(request["text"]["format"]["type"], "json_schema")
-        self.assertTrue(request["text"]["format"]["strict"])
+        self.assertNotIn("json_schema", prompt)
+        self.assertNotIn("text", request)
         self.assertFalse(request["store"])
 
     def test_rough_result_accepts_estimates_without_official_dimensions(self):
@@ -220,15 +218,17 @@ class AstraFlowChecks(unittest.TestCase):
         with self.assertRaises(ValueError):
             extract_result({"output_text": json.dumps(result)}, "identify")
 
-    def test_research_requires_vehicle_and_supported_part_confirmation(self):
-        with self.assertRaises(ValueError):
-            build_openai_request({"phase": "research_and_generate", "image_base64": self.image})
-        with self.assertRaises(ValueError):
-            build_openai_request({
-                "phase": "research_and_generate", "image_base64": self.image,
-                "candidate_vehicle": {"make": "Mazda", "model": "3", "year": "2021"},
-                "candidate_part": "door",
-            })
+    def test_research_accepts_uncertain_candidate_as_a_conversation_turn(self):
+        request = build_openai_request({
+            "phase": "research_and_generate",
+            "image_base64": self.image,
+            "candidate_vehicle": {"make": "Tesla", "model": "Model 3", "year": "2017–2023"},
+            "candidate_part": "",
+            "confirmation_text": "yes",
+        })
+        prompt = request["input"][0]["content"][0]["text"]
+        self.assertIn("2017–2023 Tesla Model 3", prompt)
+        self.assertIn("Do not require a full make, model, year, or part", prompt)
 
     def test_lidar_fallback_requires_instruction_and_null_cad(self):
         lidar = astra_result(

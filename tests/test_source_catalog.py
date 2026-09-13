@@ -68,12 +68,12 @@ class SourceCatalogChecks(unittest.TestCase):
         prompt = request["input"][0]["content"][0]["text"]
         self.assertIn("2015-18-CHEVROLET-CITY-EXPRESS-CARGO-VAN_BBM_V1.pdf", prompt)
         self.assertNotIn("parts.gmparts.com", prompt)
-        indexed = prompt.index("1. Search the supplied pre-indexed documents")
-        public_scan = prompt.index("2. If those official sources")
-        lidar = prompt.index("3. If neither official sources nor a public scan")
+        indexed = prompt.index("First look for official")
+        public_scan = prompt.index("If that is not enough, look for a public scan")
+        lidar = prompt.index("If the available information is not enough")
         self.assertLess(indexed, public_scan)
         self.assertLess(public_scan, lidar)
-        self.assertIn("public_scan", prompt)
+        self.assertIn("public scan", prompt)
         self.assertIn("Broken bracket beside the left headlamp.", prompt)
 
 

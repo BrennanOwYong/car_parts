@@ -227,12 +227,10 @@ async function identifyPhoto() {
   try {
     const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, user_text: state.initialMessage });
     state.candidate = result;
-    const vehicle = `${result.vehicle.year} ${result.vehicle.make} ${result.vehicle.model}`.trim();
-    const part = PART_LABELS[result.partType] || result.partName;
-    appendMessage("assistant", `I identified a ${vehicle}. The target part appears to be the ${part}. ${result.userMessage} Type yes to use this estimate, or type a correction.`);
+    appendMessage("assistant", result.userMessage);
     state.phase = "confirm";
-    input.placeholder = "Type yes to continue, or describe a correction.";
-    element("send-button").textContent = "Confirm and generate CAD";
+    input.placeholder = "Reply naturally. Example: yes, but it is a 2021 model.";
+    element("send-button").textContent = "Continue with Astra";
     setProgress(2);
   } catch (error) {
     showError(error);
@@ -253,7 +251,7 @@ async function sendMessage() {
   }
 
   if (state.phase === "confirm") {
-    if (!reply) return showError("Type yes to accept Astra's estimate, or type a correction.");
+    if (!reply) return showError("Send a short reply so Astra knows how to continue.");
     appendMessage("user", reply);
     input.value = "";
     setProgress(3);

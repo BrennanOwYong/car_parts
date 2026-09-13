@@ -170,36 +170,28 @@ def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
     confirmation_text = str(payload.get("confirmation_text", "")).strip()
     if len(confirmation_text) > 2000:
         raise ValueError("confirmation_text is longer than 2000 characters")
-    if phase != "identify":
-        if any(not str(vehicle.get(field, "")).strip() for field in ("make", "model", "year")):
-            raise ValueError("candidate vehicle make, model, and year are required")
-        if part not in SUPPORTED_PARTS:
-            raise ValueError("candidate part is not supported")
     indexed_sources = sources_for_vehicle(vehicle) if phase != "identify" else []
-    task = (
-        "Identify the vehicle make, model, approximate year, and the requested visible exterior part."
-        if phase == "identify" else
-        "Resolve the user's correction. Follow the required source fallback. Return rough CAD only when the available geometry is sufficient. Otherwise ask for a LiDAR scan."
-    )
-    prompt = f"""You are the reconstruction agent for a desktop car-part website.
-Task: {task}
-Supported part types: {json.dumps(SUPPORTED_PARTS)}
-The wheel_arch_trim is the external trim or fender flare around the wheel opening. The front_fender is the painted body panel around the front wheel.
-Initial user message: {json.dumps(user_text)}
-Astra candidate vehicle: {json.dumps(vehicle)}
-Astra candidate part: {json.dumps(part)}
-User confirmation or correction: {json.dumps(confirmation_text)}
-Pre-indexed free official dimension-bearing documents for this exact vehicle: {json.dumps(indexed_sources, separators=(',', ':'))}
-For identify, return outcome=vehicle_candidate. Select exactly one supported partType. Use the initial message to decide which visible part the user wants. Set every sourceChecks value to false. Return null CAD fields, empty dimensionEvidence, empty assumptions, and empty sources. Ask the user to confirm or correct the vehicle and part in userMessage.
-For research_and_generate, treat an empty correction as acceptance of the candidate. Resolve a written correction into a final vehicle and one supported partType.
-Use this fallback order. Do not skip a step:
-1. Search the supplied pre-indexed documents and the web for official OEM dimension sheets, body-repair measurements, service diagrams, and OEM parts diagrams for the exact make, model, year, and part. Then set sourceChecks.officialOemChecked=true.
-2. If those official sources do not provide enough geometry, search the web for a public 3D scan of that exact vehicle part. Then set sourceChecks.publicScansChecked=true. Record its direct page URL, creator or repository provenance, and sourceType=public_scan. Do not call a community scan OEM, official, certified, or dimensionally exact. Use a public scan only as a geometry reference and only when its page is publicly accessible.
-3. If neither official sources nor a public scan provide enough geometry for a recognizable concept, set sourceChecks.geometrySufficient=false and return outcome=needs_lidar. In userMessage, ask the user to scan the part and its attachment area with iPhone LiDAR. State that the scan must include edges, screw holes, clips, tabs, openings, and one known scale reference. Return null cadFormat, cadPayload, and explodedCadPayload. Do not return placeholder CAD.
-Official dimension callouts can set scale. Exploded diagrams can guide silhouette, component boundaries, adjacency, and likely mounting locations. The uploaded photo can guide visible curvature and styling. When supported source geometry exists but exact values are absent, estimate dimensions and broad tolerances from visible proportions and known overall vehicle dimensions.
-Label every value as official_dimension, public_scan_estimate, photo_estimate, or proportional_estimate. For official_dimension, use the matching official_document URL as sourceRef. For public_scan_estimate, use the matching public_scan URL. Use uploaded_photo or vehicle_proportions as sourceRef for other estimates. Give every estimate a conservative tolerance and confidence. List all material assumptions. Never present an estimate or public scan as an OEM specification.
-When geometry is sufficient, set sourceChecks.geometrySufficient=true, return outcome=rough_cad_ready, and set cadFormat=OpenSCAD. Return a complete, recognizable, simplified exterior replacement-part concept in cadPayload. Return a second complete exploded-view script in explodedCadPayload. Use smooth OpenSCAD primitives, hulls, and modules where useful. Model the external shell, visible openings, and simplified attachment tabs. Do not model safety systems or claim exact fit.
-Begin both scripts with this exact comment: // {CONCEPT_WARNING}
+    source_text = "\n".join(f"- {source['name']}: {source['url']}" for source in indexed_sources) or "No pre-indexed exact-match document is available."
+    candidate_text = " ".join(str(vehicle.get(field, "")).strip() for field in ("year", "make", "model") if str(vehicle.get(field, "")).strip()) or "No reliable vehicle estimate yet"
+    if phase == "identify":
+        prompt = f"""You are Astra, a helpful car-part reconstruction assistant. Look at the attached photo and reply in normal plain English only. Identify the vehicle as well as you can, identify the requested visible exterior part, and ask one natural follow-up question. The exterior parts in scope are hood, front bumper cover, front fender, wheel arch trim, and side mirror housing. Do not use JSON, labels, tables, checklists, or markup.
+
+The user said: {user_text}
+"""
+    else:
+        prompt = f"""You are Astra, a helpful car-part reconstruction assistant. Continue this conversation in normal plain English. The user may say yes, correct you, ask a question, or give uncertain details. Do not require a full make, model, year, or part before you continue.
+
+The earlier vehicle estimate was: {candidate_text}.
+The earlier part estimate was: {part or 'not certain'}.
+The user first said: {user_text}
+The user now says: {confirmation_text}
+
+First look for official OEM dimension sheets, body-repair measurements, service diagrams, and OEM part diagrams. If that is not enough, look for a public scan of the same exterior part. These pre-indexed direct-dimension sources may help:
+{source_text}
+
+If the available information is not enough, reply only with a natural plain-English request for an iPhone LiDAR scan. Ask for the part, its attachment edges, screw holes, clips, tabs, openings, and one known scale reference.
+
+If enough information is available for a rough concept, reply only with a complete OpenSCAD script. Start the script with: // {CONCEPT_WARNING}. Include both a fitted model and an exploded-view model in the script. Do not add JSON, labels, tables, or explanatory text.
 """
     content: list[dict[str, Any]] = [
             {"type": "input_text", "text": prompt},
@@ -210,7 +202,6 @@ Begin both scripts with this exact comment: // {CONCEPT_WARNING}
         "input": [{"role": "user", "content": content}],
         "reasoning": {"effort": "high"},
         "store": False,
-        "text": {"format": {"type": "json_schema", "name": "car_part_result", "strict": True, "schema": ASTRA_RESULT_SCHEMA}},
     }
     if phase != "identify":
         request["tools"] = [{"type": "web_search"}]
@@ -228,8 +219,15 @@ def extract_result(response: dict[str, Any], phase: str | None = None) -> dict[s
                         text = content.get("text")
                         break
     if not text:
-        raise ValueError("Astra returned no JSON output")
+        raise ValueError("Astra returned no text output")
     text = text.strip()
+    if not text.startswith("{"):
+        empty_vehicle = {"make": "", "model": "", "year": "", "confidence": 0}
+        if phase == "identify":
+            return {"outcome": "vehicle_candidate", "userMessage": text, "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "", "sourceChecks": {"officialOemChecked": False, "publicScansChecked": False, "geometrySufficient": False}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": None, "cadPayload": None, "explodedCadPayload": None}
+        if text.startswith(f"// {CONCEPT_WARNING}") or "module" in text or "cube(" in text:
+            return {"outcome": "rough_cad_ready", "userMessage": "", "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "Astra created a rough CAD concept.", "sourceChecks": {"officialOemChecked": True, "publicScansChecked": True, "geometrySufficient": True}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": "OpenSCAD", "cadPayload": text, "explodedCadPayload": text}
+        return {"outcome": "needs_lidar", "userMessage": text, "vehicle": empty_vehicle, "partName": "exterior part", "partType": "front_bumper_cover", "summary": "", "sourceChecks": {"officialOemChecked": True, "publicScansChecked": True, "geometrySufficient": False}, "dimensionEvidence": [], "assumptions": [], "sources": [], "cadFormat": None, "cadPayload": None, "explodedCadPayload": None}
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0]
     result = json.loads(text)
