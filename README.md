@@ -2,6 +2,8 @@
 
 This repository contains a small, evidence-first decision engine. It answers one safety-critical question: does the job contain enough verified geometry to release a CAD candidate for human review?
 
+It includes a mobile-first website and the native iOS proof of concept. The website is the quickest way to test the complete Astra flow.
+
 ## Source-of-truth hierarchy
 
 Use this order for each feature:
@@ -38,6 +40,45 @@ Run it:
 python3 pipeline.py sample/job.json
 python3 tests/test_pipeline.py
 ```
+
+## Run the mobile website
+
+The Python relay serves the website and keeps the OpenAI API key out of the browser.
+
+On macOS or Linux:
+
+```sh
+git clone https://github.com/BrennanOwYong/car_parts.git
+cd car_parts
+export OPENAI_API_KEY="your-key"
+python3 astra_relay.py
+```
+
+On Windows PowerShell:
+
+```powershell
+git clone https://github.com/BrennanOwYong/car_parts.git
+cd car_parts
+$env:OPENAI_API_KEY="your-key"
+python astra_relay.py
+```
+
+Open `http://localhost:8787` on the computer. To run it on an iPhone, connect the computer and iPhone to the same Wi-Fi network. Find the computer's local IP address. Open `http://COMPUTER-IP:8787` in iPhone Safari. Allow port 8787 through the computer firewall if the page does not load.
+
+Website flow:
+
+1. Select **Take or choose a photo**. On iPhone, this opens the camera or photo library.
+2. Select **Identify vehicle and part**.
+3. Correct the detected make, model, or year when required. Select **Confirm and find constraints**.
+4. Astra searches official sources. If the evidence is sufficient, download the `.scad` model.
+5. If Astra requests measurements, import an OBJ mesh from a LiDAR scanner.
+6. Select the OBJ coordinate unit. The page converts the mesh to millimetres and shows its X, Y, and Z bounds.
+7. For scale calibration, enter a known physical reference length and the same reference length in the mesh. The website applies the correction ratio before submission.
+8. Select **Use measured mesh for CAD**. Astra returns CAD or asks for a focused rescan.
+
+Use `sample/demo-bracket.obj` to test the upload and scale display without a scanner. Select **metres** as its coordinate unit. Its expected bounds are 120 × 50 × 10 mm. These are axis-aligned bounds. They are hard part dimensions only when the scan axes align with the part datums.
+
+The website performs a feature check for WebXR depth access. Current iPhone Safari versions do not expose the raw ARKit LiDAR mesh to a normal webpage and do not reliably expose the exact iPhone model. The page reports this limit instead of claiming a false LiDAR result. Use the native iOS app in this repository, or another scanner that can export OBJ, for the LiDAR capture. The website then handles scale normalization, dimension display, Astra submission, and CAD download.
 
 ## Build plan
 

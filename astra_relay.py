@@ -10,7 +10,9 @@ import sys
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 
 OFFICIAL_STARTING_POINTS = [
@@ -20,6 +22,13 @@ OFFICIAL_STARTING_POINTS = [
     "service.hyundai-motor.com", "b2bconnect.mercedes-benz.com",
     "vw.servicenet.vwgroup.com",
 ]
+
+WEB_ROOT = Path(__file__).with_name("web").resolve()
+WEB_FILES = {
+    "/": ("index.html", "text/html; charset=utf-8"),
+    "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+    "/styles.css": ("styles.css", "text/css; charset=utf-8"),
+}
 
 ASTRA_RESULT_SCHEMA = {
     "type": "object",
@@ -193,6 +202,23 @@ def call_openai(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 class Handler(BaseHTTPRequestHandler):
+    def do_GET(self) -> None:
+        path = urlsplit(self.path).path
+        if path == "/health":
+            self.send_bytes(b'{"status":"ok"}', "application/json; charset=utf-8")
+            return
+        asset = WEB_FILES.get(path)
+        if not asset:
+            self.send_error(404)
+            return
+        filename, content_type = asset
+        try:
+            data = (WEB_ROOT / filename).read_bytes()
+        except OSError:
+            self.send_error(404)
+            return
+        self.send_bytes(data, content_type)
+
     def do_POST(self) -> None:
         if self.path != "/analyze":
             self.send_error(404)
@@ -208,6 +234,16 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def send_bytes(self, data: bytes, content_type: str) -> None:
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Security-Policy", "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         self.wfile.write(data)
 
@@ -229,5 +265,5 @@ if __name__ == "__main__":
         self_test()
     else:
         port = int(os.environ.get("ASTRA_RELAY_PORT", "8787"))
-        print(f"Astra relay listening on 0.0.0.0:{port}")
+        print(f"CarPart CAD web app and Astra relay listening on http://0.0.0.0:{port}")
         ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
