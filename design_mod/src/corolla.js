@@ -1,4 +1,5 @@
 import './corolla.css';
+import {corollaVehicle} from '../asset-library.mjs';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -37,7 +38,7 @@ function offsetFor(name,center){const side=name.startsWith('Right')?1:-1;
  if(name.includes('headlamp'))return new THREE.Vector3(side*.5,.9,1.8);
  return new THREE.Vector3(...(map[name]||[center.x*.6,.4,center.z*.5]));}
 async function load(){try{
- const gltf=await new GLTFLoader().loadAsync('/assets/corolla-exploded.glb',e=>{if(e.total)$('progress').textContent=`${Math.round(e.loaded/e.total*100)}% · Loading geometry & materials`;});
+ const gltf=await new GLTFLoader().loadAsync(corollaVehicle.animatedAsset,e=>{if(e.total)$('progress').textContent=`${Math.round(e.loaded/e.total*100)}% · Loading geometry & materials`;});
  const car=gltf.scene;car.updateMatrixWorld(true);
  const box=new THREE.Box3().setFromObject(car),center=box.getCenter(new THREE.Vector3());
  const objects=[];car.traverse(o=>{if(o.isMesh)objects.push(o);});

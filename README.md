@@ -14,7 +14,11 @@ This section is written so a judge, teammate, or large language model (LLM) can 
 
 ### Description - what does it do?
 
-FORMA turns a car photo into a part-level 3D repair workflow. Astra maps damage to exploded vehicle assemblies, grounds the match in OEM specs and model geometry, then guides targeted repair/customization with CAD/STL concepts so users fix only the damaged part.
+FORMA turns cars into interactive 3D repair and customization experiences. A user can select a vehicle, open it into an exploded assembly view, inspect individual parts, upload or paste damage photos, and see which section of the car is affected. The long-term goal is photo-to-CAD for vehicle repair: take a picture of damage, identify the affected component, ground the result in OEM specifications and known vehicle geometry, then generate or retrieve a printable stereolithography (STL) replacement or prototype part.
+
+The key idea is that the agent does not understand the car only as a whole object. It learns the car by taking it apart. The exploded view visually separates assemblies so Astra can reason about part boundaries, adjacency, mounting context, and repair scope. That same decomposition gives the user more control: they can customize one body section, replace only the damaged part, and avoid paying for broad body work when a smaller targeted repair is enough.
+
+This matters economically as well as technically. Better visual understanding translates into saved money, saved materials, less physical effort, and less mental effort. FORMA aims to direct resources only toward the part that is damaged, rather than replacing or repairing larger sections of the car by default.
 
 ### How did you use Astra?
 

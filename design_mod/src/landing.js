@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {landingMotion, clamp01} from './landing-motion.mjs';
+import {corollaVehicle} from '../asset-library.mjs';
 
 export function createLanding() {
   const home=document.getElementById('home');
@@ -135,7 +136,7 @@ export function createLanding() {
       const fill=new THREE.DirectionalLight(0xffffff,.8);fill.position.set(2,2,-5);scene.add(fill);
       floor=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.ShadowMaterial({opacity:.2}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
       measure();startLoop();
-      const gltf=await new GLTFLoader().loadAsync('/assets/corolla-exploded.glb');
+      const gltf=await new GLTFLoader().loadAsync(corollaVehicle.animatedAsset);
       car=gltf.scene;
       car.traverse(mesh=>{
         if(!mesh.isMesh)return;

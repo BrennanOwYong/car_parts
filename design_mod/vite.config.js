@@ -1,3 +1,3 @@
 import {defineConfig} from 'vite';
 import {resolve} from 'node:path';
-export default defineConfig({build:{rollupOptions:{input:{main:resolve(import.meta.dirname,'index.html'),corolla:resolve(import.meta.dirname,'corolla.html')}}}});
+export default defineConfig({build:{rollupOptions:{input:{main:resolve(import.meta.dirname,'index.html'),corolla:resolve(import.meta.dirname,'corolla.html'),fix:resolve(import.meta.dirname,'fix.html')}}}});

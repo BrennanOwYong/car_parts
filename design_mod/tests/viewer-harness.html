@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Repair viewer integration test</title><style>body{margin:0;background:#bac7b7}#viewport{width:100vw;height:100vh}</style></head>
+<body><div id="viewport"></div><script type="module">
+import {RepairViewer} from '/src/fix-viewer.js';
+const catalog = await (await fetch('/api/repair/catalog')).json();
+const manifest = catalog.vehicles.find(vehicle => vehicle.id === 'corolla-prepared-demo').prepared;
+const viewer = new RepairViewer(document.getElementById('viewport'), part => {window.lastSelectedPart = part.id;});
+await viewer.open(manifest);
+window.viewerHarness = {
+  viewer,
+  manifest,
+  snapshot() {
+    return [...viewer.groups].map(([id, group]) => ({
+      id, visible: group.visible, position: group.position.toArray(),
+      materials: group.userData.highlightMaterials.map(material => ({
+        color: material.color?.toArray(), emissive: material.emissive?.toArray(), intensity: material.emissiveIntensity,
+        originalColor: material.userData.original.color?.toArray(), originalEmissive: material.userData.original.emissive?.toArray(), originalIntensity: material.userData.original.emissiveIntensity
+      }))
+    }));
+  }
+};
+</script></body></html>

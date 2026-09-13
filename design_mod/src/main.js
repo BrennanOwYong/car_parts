@@ -116,7 +116,7 @@ async function loadCar(){
         if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>{if(m.map)m.map.colorSpace=THREE.SRGBColorSpace;});}
       });
       scene.add(car);
-      const ao=await new THREE.TextureLoader().loadAsync('/assets/ferrari_ao.png');
+      const ao=await new THREE.TextureLoader().loadAsync(catalog.vehicles[0].occlusionTexture);
       const shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.6,5.2),new THREE.MeshBasicMaterial({map:ao,blending:THREE.MultiplyBlending,toneMapped:false,transparent:true,premultipliedAlpha:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.003;scene.add(shadow);
       surfaceOverlays();state.loaded=true;$('loader').hidden=true;resize();buildThumbnails();renderOptions();rebuildParts();flyTo(homeCamera,homeTarget,1600);
       for(const el of Object.values(hotspots))el.hidden=false;

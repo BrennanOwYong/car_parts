@@ -2,14 +2,14 @@ import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-import {randomUUID} from 'node:crypto';
 import {zipSync,strToU8} from 'fflate';
 import {STLExporter} from 'three/addons/exporters/STLExporter.js';
 import {vehicle,regions,styles,validateConfiguration} from './catalog.mjs';
 import {individualParts} from './geometry.mjs';
+import {repairCatalog} from './repair-catalog.mjs';
+import {repairRequest} from './repair-service.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
-const exportsCache=new Map();
 const exporter=new STLExporter();
 export function buildExport(input) {
   const selections=validateConfiguration(input);
@@ -32,26 +32,60 @@ export function buildExport(input) {
   return {files,manifest,zip:zipSync(files)};
 }
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(value));}
+async function requestBody(req, limit) {
+  if (req.body !== undefined && req.body !== null) {
+    const body = typeof req.body === 'string' ? req.body : Buffer.isBuffer(req.body) ? req.body.toString('utf8') : JSON.stringify(req.body);
+    if (Buffer.byteLength(body) > limit) throw new RangeError('Request too large.');
+    return body;
+  }
+  const chunks = []; let size = 0;
+  for await (const chunk of req) {
+    size += Buffer.byteLength(chunk);
+    if (size > limit) throw new RangeError('Request too large.');
+    chunks.push(Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
+function exportIdentity(input) {
+  return 'v1_' + Buffer.from(JSON.stringify({vehicleId: vehicle.id, selections: validateConfiguration(input)})).toString('base64url');
+}
+function exportFromIdentity(id) {
+  if (!id.startsWith('v1_') || id.length > 1024) throw new Error('Unknown export.');
+  return buildExport(JSON.parse(Buffer.from(id.slice(3), 'base64url').toString('utf8')));
+}
 export async function api(req,res) {
   const url=new URL(req.url,'http://localhost');
   if(!url.pathname.startsWith('/api/')) return false;
   res.setHeader('X-Content-Type-Options','nosniff');
+  if(req.method==='GET' && url.pathname==='/api/repair/catalog') {json(res,200,await repairCatalog());return true;}
+  if(req.method==='GET' && url.pathname==='/api/repair/status') {
+    try {const result=await repairRequest(null,true);json(res,result.status,result.result);}
+    catch(error){json(res,503,{configured:false,error:error.message});}return true;
+  }
+  if(req.method==='POST' && url.pathname==='/api/repair/chat') {
+    if(req.headers.origin && req.headers.origin!==`http://${req.headers.host}`) {json(res,403,{error:'Use the local FORMA workspace to send photos.'});return true;}
+    try {
+      const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>20_000_000){json(res,413,{error:'Photos exceed the request limit. Remove a photo and retry.'});return true;}chunks.push(chunk);}
+      const payload=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      if(!payload || !['repair_chat','repair_chat_generate'].includes(payload.phase)) {json(res,400,{error:'Invalid repair phase.'});return true;}
+      const result=await repairRequest(payload);json(res,result.status,result.result);
+    }catch(error){json(res,error instanceof SyntaxError?400:503,{error:error instanceof SyntaxError?'Invalid JSON.':error.message});}return true;
+  }
   if(req.method==='GET' && url.pathname==='/api/catalog') {json(res,200,{vehicles:[vehicle],regions,styles});return true;}
   if(req.method==='POST' && url.pathname==='/api/exports') {
     try {
-      let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>8192) {json(res,413,{error:'Request too large.'});return true;}}
-      const result=buildExport(JSON.parse(body));
-      for(const [key,value] of exportsCache) if(Date.now()-value.created>3600000) exportsCache.delete(key);
-      while(exportsCache.size>=30) exportsCache.delete(exportsCache.keys().next().value);
-      const id=randomUUID();exportsCache.set(id,{...result,created:Date.now()});
+      const input=JSON.parse(await requestBody(req,8192));
+      const result=buildExport(input);
+      const id=exportIdentity(input);
       json(res,201,{id,...result.manifest,downloadUrl:`/api/exports/${id}/kit.zip`,parts:result.manifest.parts.map(p=>({...p,url:`/api/exports/${id}/${p.name}`}))});
-    }catch(error){json(res,400,{error:error instanceof SyntaxError?'Invalid JSON.':error.message});}
+    }catch(error){json(res,error instanceof RangeError?413:400,{error:error instanceof SyntaxError?'Invalid JSON.':error.message});}
     return true;
   }
   const match=url.pathname.match(/^\/api\/exports\/([\w-]+)\/([\w.-]+)$/);
   if(req.method==='GET' && match) {
-    const result=exportsCache.get(match[1]);
-    if(!result || Date.now()-result.created>3600000) {json(res,404,{error:'Export expired. Return to the studio and export again.'});return true;}
+    let result;
+    try {result=exportFromIdentity(match[1]);}
+    catch {json(res,404,{error:'Export unavailable. Return to the studio and export again.'});return true;}
     const name=match[2],data=name==='kit.zip'?result.zip:result.files[name];
     if(!data){json(res,404,{error:'File not found.'});return true;}
     res.writeHead(200,{'Content-Type':name.endsWith('.zip')?'application/zip':'application/octet-stream','Content-Disposition':`attachment; filename="${name}"`,'Content-Length':data.byteLength});res.end(data);return true;

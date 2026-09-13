@@ -14,6 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
+from repair_chat import build_chat_request, chat_result
 
 
 WEB_ROOT = Path(__file__).with_name("web").resolve()
@@ -241,6 +242,8 @@ def repair_result(text: str, phase: str) -> dict[str, Any]:
 
 def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
     phase = payload.get("phase")
+    if phase in {"repair_chat", "repair_chat_generate"}:
+        return build_chat_request(payload)
     if phase not in {"identify", "research_and_generate", "damage_assessment", "repair_generate"}:
         raise ValueError("invalid phase")
     image = payload.get("image_base64", "")
@@ -275,7 +278,8 @@ Exact external reference models available for this candidate vehicle:
 Return JSON only. Use exactly this shape:
 {{"outcome":"damage_review","userMessage":"Damage detected on these parts." or "No supported exterior damage is visible.","vehicle":{{"make":"","model":"","year":"","confidence":0}},"referenceAssetId":"matching catalog id or empty string","damageParts":[{{"id":"short-stable-id","partType":"one available family","partName":"human readable vehicle part name","damageDescription":"visible evidence only","confidence":0.0,"imageAnchor":{{"x":0.0,"y":0.0}}}}]}}
 
-Use normalized image coordinates: x is left to right and y is top to bottom. Include only visible damage. Do not diagnose hidden damage. Do not list a part when confidence is below 0.5. The user said: {user_text}"""
+Use normalized image coordinates: x is left to right and y is top to bottom. Include only visible damage. Do not diagnose hidden damage. Do not list a part when confidence is below 0.5. The user said: {user_text}
+Your previous reply was: {previous_reply}. The user's latest correction or confirmation is: {confirmation_text}. Honor the correction and return the corrected vehicle. Only select a reference that matches the corrected vehicle."""
     elif phase == "repair_generate":
         selected = payload.get("selected_damage_parts")
         if not isinstance(selected, list) or not selected:
@@ -432,16 +436,24 @@ def extract_result(response: dict[str, Any], phase: str | None = None) -> dict[s
 
 
 def call_openai(payload: dict[str, Any]) -> dict[str, Any]:
+    if payload.get('phase') == 'repair_chat_generate':
+        from repair_library import saved_repair_parts
+        return saved_repair_parts(payload)
+    request_body = build_openai_request(payload)
     key = os.environ.get("OPENAI_API_KEY")
     if not key:
         raise RuntimeError(
             "OPENAI_API_KEY is not set. Add it to .env next to astra_relay.py, "
             "or set ASTRA_ENV_FILE to the full path of your .env file."
         )
-    body = json.dumps(build_openai_request(payload)).encode()
+    body = json.dumps(request_body).encode()
     request = urllib.request.Request("https://api.openai.com/v1/responses", data=body, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
     with urllib.request.urlopen(request, timeout=180) as response:
-        return extract_result(json.load(response), payload["phase"])
+        output = json.load(response)
+        if payload["phase"] in {"repair_chat", "repair_chat_generate"}:
+            text = output.get("output_text") or "\n".join(content.get("text", "") for item in output.get("output", []) if item.get("type") == "message" for content in item.get("content", []) if content.get("type") == "output_text")
+            return chat_result(text, payload)
+        return extract_result(output, payload["phase"])
 
 
 class Handler(BaseHTTPRequestHandler):

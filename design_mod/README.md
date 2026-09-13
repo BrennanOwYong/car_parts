@@ -1,57 +1,110 @@
-# FORMA — body kit design studio
+# FORMA showroom and repair demo
 
-A local hackathon demo: choose the Ferrari 458, orbit the real GLB model, hover editable body regions, preview three styles of front lip / side skirts / rear spoiler, compare with stock, and export individual binary STL parts plus a ZIP manifest. The source calls its asset “458 Italia,” but it depicts an open-top vehicle; the UI identifies the series rather than claiming an exact year or trim.
+This directory contains the active FORMA web demo. It combines the original dark exploded-view landing page, the Design Mod Ferrari body-kit studio, and the Fix Part showroom where vehicle damage photos can be mapped to repair families through the Astra conversation flow.
+
+The local server runs at `http://localhost:8788`.
 
 ## Run
 
-Requires Node.js 20.19+ (tested with the installed Node runtime).
+Requires Node.js 20.19 or later.
 
 ```sh
-cd design_mod
 npm ci
 npm run dev
 ```
 
-Open http://localhost:8788. The server binds to loopback. No API key is needed. Assets and Draco decoding are local; the optional Google Fonts stylesheet can fall back to Arial offline.
+Useful routes:
+
+- `/` - FORMA landing page.
+- `/fix.html` - horizontal vehicle showroom.
+- `/fix.html?vehicle=ferrari-458-demo` - Ferrari repair workspace.
+- `/fix.html?vehicle=corolla-prepared-demo` - Corolla repair workspace with saved demo reference parts.
+- `/studio.html` or the existing Design Mod entry path - body-kit configuration and export flow when routed from the landing page.
+
+Build and test commands:
 
 ```sh
-npm test
 npm run build
-npm start
+npm test
 ```
 
-The same commands work on macOS, Linux, and Windows.
+The server binds to loopback for local demos. The OpenAI API key belongs in the repository root `.env` file and is used only by the server-side repair relay path.
 
-## Implemented boundary
+## What is implemented
 
-- This directory is independent of the existing Python repair relay and native iOS flow. Those files are unchanged.
-- The landing mode cards show Fix part and Car accessory as coming soon. The exploded intro stays a placeholder.
-- Vehicle selection loads a prepared catalog entry, not a live web-scraped engineering model. Ferrari replaced the tentative Corolla because a direct-download GLB was available in the Three.js example repository.
-- The car asset is a visual mesh, not OEM CAD. Overall length is normalized to 4,527 mm; that does not establish attachment accuracy.
-- The nine kit designs are original procedural concept profiles. They have thickness and closed geometry, but no measured mounting features. Do not describe them as fitted or plug-and-play vehicle parts.
-- “Print” creates prototype STL files; it does not submit a print order. Skirts export separately for left and right. The manifest includes dimensions, mm units, Z-up orientation, and fit status.
-- Pure, Sport, and Aero are original demo styles, not verified popularity rankings or replicas of branded aftermarket kits.
-- Configurations live in browser memory. Generated downloads remain in server memory for one hour (up to 30 exports); a restart clears downloads. Re-export from the studio if a link expires.
+- A full-screen charcoal showroom experience driven by Three.js [browser 3D rendering library].
+- Shared vehicle metadata from `../vehicle_model_catalog.json` through `asset-library.mjs`.
+- Prepared Toyota Corolla and Ferrari 458 repair assets.
+- Partial exploded-view repair mode with clickable assemblies.
+- Astra chat support for pasted or uploaded damage images.
+- Five repair families for the damage workflow: hood, front bumper cover, front fender, wheel arch trim or fender flare, and side mirror housing.
+- Red pulsing highlights for damaged or selected repair assemblies.
+- A saved Corolla reference-part library with downloadable fitted and exploded OpenSCAD files.
+- A simulated scan-to-custom-part flow that creates a lightweight web preview and matching demo CAD output for an edited assembly.
+- iPhone/iPad detection, camera fallback, and an optional native LiDAR handoff. Native host source and setup are in [native/ios](native/ios/README.md); the app itself is not packaged yet.
+- A 43-part Corolla collection with CAD attachments mapped by filename, persistent modification records, blue pulsing part highlights, and a downloadable CAD annotation.
 
-## Integration contract
+## CAD attachment demo
 
-- `GET /api/catalog`: `vehicles`, `regions`, `styles`. Vehicle records carry identity, asset URL, dimensions, attribution, and fit status.
-- `POST /api/exports`: `{ "vehicleId": "ferrari-458-demo", "selections": { "front": "sport", "sides": "subtle", "rear": "stock" } }`. At least one non-stock choice required. Returns export ID, selected parts, each STL URL, dimensions, and ZIP URL.
-- `GET /api/exports/:id/:filename`: generated file; unknown or expired export returns 404.
-- Invalid input returns 400; requests over 8 KB return 413. Only predefined vehicle, region, and style IDs are accepted.
+Open the Corolla repair workspace, expand **43 individual parts**, and select **Front bumper**. Choose **Create demo CAD** to save a named placeholder file, or **Attach CAD** to upload a file such as `front-bumper-custom.step`. The filename must contain one assembly's name or identifier; ambiguous names are rejected. The mapped assembly gets a **Modified** record below the view and a **View CAD** annotation. Damage still pulses red, taking precedence over the blue modification highlight.
 
-`geometry.mjs` is shared by preview and server export. Scene geometry is in metres; exports convert to millimetres and Z-up with each part placed on z=0. The geometry tests weld coordinates for edge checks and verify finite vertices, closed edges, positive volume, and binary STL size. These checks establish mesh validity, not fit or manufacturing suitability.
+`src/cad-evidence.js` saves the actual attachment and mapping in browser local storage, scoped by vehicle and stable part identifier. Attachments are limited to 2 MB for this demo. Reloading restores the records; clearing browser storage removes them. This is local persistence, not an account-backed document store.
 
-## Adding a vehicle
+The vehicle download is a container of independently selectable Three.js assemblies, not a fused surface. Each assembly is registered in `RepairViewer.groups` by `repairPartId`, so it can move, highlight, or be replaced independently. CAD attachment records mark a modification without parsing or changing its geometry. The existing scan replacement path swaps the selected assembly's preview meshes; a production CAD conversion worker will provide those meshes from the uploaded file.
 
-See `CAR_LIBRARY.md` for researched candidates. Before enabling a car: obtain the authorized GLB, record attribution and reuse terms, inspect variant and geometry, normalize scale, map editable surfaces, and prepare matching modification shapes. The present region coordinates are Ferrari-specific. Adding a catalog record alone does not make another car compatible.
+## Projected buildout
 
-For a future measured version, replace concept profiles with part templates built around verified attachment geometry; retain the same preview/export identity. Keep engineering validation separate from visual asset metadata.
+The current demo is a visual and interaction prototype for two larger product flows.
 
-## FORMA landing experience
+Damage-to-repair should become a document-grounded system where Astra reads damage photos, identifies the likely exterior assembly, checks mechanic or original equipment manufacturer (OEM) documents, and retrieves the correct replacement reference.
 
-The homepage includes a full-screen Corolla scene tied to native page scrolling. It starts in an assembled side profile, rotates to a raised three-quarter view while the 43 assemblies separate, holds the exploded formation, then blurs behind the original Fix part / Design mod / Car accessory cards. The sequence reverses on upward scroll. Design mod retains the existing setup, configuration, and export flow; the other two cards retain their original disabled state.
+Scan-to-custom-part should let a user select an assembly, scan a physical part with a phone, let Astra reconstruct or clean the part model, then compare it against fit constraints before applying it to the showroom vehicle.
 
-The homepage scene is isolated in `src/landing.js`, with its reversible phase timing in `src/landing-motion.mjs` and scoped presentation in `src/landing.css`. It reads the animation embedded in `public/assets/corolla-exploded.glb`. It releases the render loop when leaving the homepage or hiding the tab, and renders only when the scroll pose changes. Reduced-motion settings keep the car assembled and the mode cards accessible.
+The web app should continue loading lightweight binary glTF (GLB) previews instead of heavy CAD models. Source CAD, mechanic documents, and generated replacement parts should live behind the scenes. The browser receives prepared per-assembly previews and swaps only the changed assembly into the exploded vehicle.
 
-Start the complete app with `npm run dev` (default port 8788); the plain Vite server does not provide the studio API.
+## Local application programming interface (API)
+
+Design Mod exports:
+
+- `GET /api/catalog` returns vehicles, editable regions, and styles.
+- `POST /api/exports` accepts a validated vehicle and region/style selection, then returns export links for stereolithography (STL) files and a ZIP archive.
+- `GET /api/exports/:id/:filename` regenerates the selected export file.
+
+Repair flow:
+
+- `POST /api/repair-chat` sends the active vehicle, message text, selected images, and chat context to the repair relay.
+- `POST /api/repair-chat/generate` retrieves saved demo reference parts for confirmed Corolla repair selections.
+- Static repair assets are served from `public/repair-assets`.
+
+All browser-facing vehicle choices come from the shared catalog. Do not add a vehicle only in one page; add it to the catalog and prepare the matching repair asset folder.
+
+## Asset pipeline
+
+Prepared repair vehicles are stored under `public/repair-assets/<vehicle-id>/`.
+
+Each prepared vehicle needs:
+
+- `vehicle.glb` - lightweight web preview geometry.
+- `manifest.json` - stable assembly IDs, exploded offsets, material metadata, and repair-family mapping.
+- Optional repair libraries such as `repair-library.json` when saved CAD references are available.
+
+The current prepared vehicles are:
+
+- `corolla-prepared-demo`, with 43 assemblies and saved demo repair parts.
+- `ferrari-458-demo`, with 131 assemblies and repair-family mapping.
+
+More showroom vehicles are planned, but each one needs authorized source assets, preparation into stable exploded assemblies, and repair-family mapping before it is ready for the Fix Part demo.
+
+## Important files
+
+- `src/fix.js` - showroom page state, repair chat, part inspection, and scan modal integration.
+- `src/fix-viewer.js` - Three.js vehicle rendering, showroom navigation, and exploded repair view.
+- `src/scan-replacement.js` - simulated scan-to-custom-part flow.
+- `src/part-variants.js` - replacement preview storage and demo CAD export.
+- `scripts/prepare-vehicle.mjs` - general asset preparation.
+- `scripts/prepare-ferrari-explosion.mjs` - Ferrari-specific exploded assembly preparation.
+- `scripts/prepare-repair-library.mjs` - saved Corolla demo part generation.
+- `FIX_PART.md` - repair workflow notes.
+- `SCAN_REPLACEMENT.md` - scan-to-custom-part handoff.
+- `ASSET_PREPARATION.md` - source asset and preparation notes.
+- `OEM_MOUNTING.md` - projected document-grounded fit constraints.

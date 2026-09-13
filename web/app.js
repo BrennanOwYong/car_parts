@@ -381,6 +381,7 @@ async function sendMessage() {
         confirmation_text: reply,
       });
       if (repair) {
+        state.candidate = {...state.candidate, vehicle: result.vehicle};
         renderDamageReview(result);
         state.phase = "repair_confirm";
         setProgress(3);
