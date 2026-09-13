@@ -133,6 +133,39 @@ class AstraFlowChecks(unittest.TestCase):
         self.assertNotIn("text", request)
         self.assertFalse(request["store"])
 
+    def test_damage_assessment_maps_visible_damage_to_supported_cad_parts(self):
+        request = build_openai_request({
+            "phase": "damage_assessment", "image_base64": self.image,
+            "candidate_vehicle": {"make": "Tesla", "model": "Model 3", "year": "2021"},
+            "user_text": "Find crash damage and prepare repairs.",
+        })
+        self.assertNotIn("tools", request)
+        prompt = request["input"][0]["content"][0]["text"]
+        self.assertIn("normalized image coordinates", prompt)
+        self.assertIn("front_fender", prompt)
+        result = {
+            "outcome": "damage_review", "userMessage": "Damage detected on these parts.",
+            "vehicle": {"make": "Tesla", "model": "Model 3", "year": "2021", "confidence": .9},
+            "referenceAssetId": "tesla-model-y-2021-sketchfab",
+            "damageParts": [{"id": "left-fender", "partType": "front_fender", "partName": "left front fender", "damageDescription": "dent above wheel", "confidence": .82, "imageAnchor": {"x": .22, "y": .61}}],
+        }
+        parsed = extract_result({"output_text": json.dumps(result)}, "damage_assessment")
+        self.assertEqual(parsed["damageParts"][0]["partType"], "front_fender")
+        self.assertEqual(parsed["referenceAsset"]["license"], "CC BY 4.0")
+        result["damageParts"][0]["imageAnchor"]["x"] = 2
+        with self.assertRaises(ValueError):
+            extract_result({"output_text": json.dumps(result)}, "damage_assessment")
+
+    def test_repair_generation_requires_one_confirmed_mapping_and_safe_cad(self):
+        with self.assertRaises(ValueError):
+            build_openai_request({"phase": "repair_generate", "image_base64": self.image})
+        result = {"outcome": "repair_cad_ready", "userMessage": "", "vehicle": {}, "repairCad": [{
+            "id": "left-fender", "partName": "left front fender", "partType": "front_fender",
+            "cadPayload": "// ROUGH VISUAL CONCEPT - NOT FOR FABRICATION\ncube(1);",
+            "explodedCadPayload": "// ROUGH VISUAL CONCEPT - NOT FOR FABRICATION\ntranslate([0,0,1]) cube(1);",
+        }]}
+        self.assertEqual(extract_result({"output_text": json.dumps(result)}, "repair_generate")["outcome"], "repair_cad_ready")
+
     def test_rough_result_accepts_estimates_without_official_dimensions(self):
         parsed = extract_result({"output_text": json.dumps(astra_result())}, "research_and_generate")
         self.assertEqual(parsed["outcome"], "rough_cad_ready")
@@ -257,9 +290,9 @@ class AstraFlowChecks(unittest.TestCase):
                 "sourceChecks": {"officialOemChecked": True, "publicScansChecked": False, "geometrySufficient": False},
             })}, "research_and_generate")
 
-    def test_post_confirmation_has_two_result_outcomes(self):
+    def test_schema_lists_concept_and_repair_result_outcomes(self):
         outcomes = ASTRA_RESULT_SCHEMA["properties"]["outcome"]["enum"]
-        self.assertEqual(set(outcomes) - {"vehicle_candidate"}, {"rough_cad_ready", "needs_lidar"})
+        self.assertEqual(set(outcomes) - {"vehicle_candidate"}, {"rough_cad_ready", "needs_lidar", "damage_review", "repair_cad_ready"})
 
     def test_schema_declares_evidence_and_source_types(self):
         evidence_methods = ASTRA_RESULT_SCHEMA["properties"]["dimensionEvidence"]["items"]["properties"]["method"]["enum"]

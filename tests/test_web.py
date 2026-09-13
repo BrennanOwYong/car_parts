@@ -110,6 +110,14 @@ class WebApplicationChecks(unittest.TestCase):
         self.assertIn('${suffix}.scad`', script)
         self.assertIn('downloadCad(state.explodedCad, "-exploded")', script)
 
+    def test_repair_review_has_confirmation_carousel_and_damage_to_cad_map(self):
+        _, html = self.get("/")
+        for value in ("damage-map", "repair-review", "damage-carousel", "generate-repair-button", "repair-downloads", "reference-model"):
+            self.assertIn(f'id="{value}"', html)
+        _, script = self.get("/app.js")
+        for value in ('phase: "damage_assessment"', 'phase: "repair_generate"', "renderDamageMap", "imageAnchor", "isRepairRequest"):
+            self.assertIn(value, script)
+
     def test_static_routes_are_restricted(self):
         with self.assertRaises(urllib.error.HTTPError) as caught:
             self.get("/../astra_relay.py")

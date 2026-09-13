@@ -7,6 +7,7 @@ const state = {
   cad: "",
   explodedCad: "",
   previewUrl: "",
+  damageParts: [],
 };
 
 const PART_LABELS = {
@@ -38,6 +39,10 @@ export function usableResultOutcome(result) {
   if (result.outcome === "needs_lidar" && !result.cadPayload && !result.explodedCadPayload && result.userMessage) return "lidar";
   if (result.outcome === "rough_cad_ready" && result.cadPayload && result.explodedCadPayload) return "cad";
   return "invalid";
+}
+
+export function isRepairRequest(...messages) {
+  return messages.some((message) => /\b(damag(?:e|ed)|repair|fix|replace|collision|dent|crack|scratch)\b/i.test(message || ""));
 }
 
 function element(id) { return document.getElementById(id); }
@@ -114,11 +119,16 @@ async function useImage(file) {
   element("photo-preview").hidden = false;
   element("upload-prompt").hidden = true;
   element("cad-panel").hidden = true;
+  element("repair-review").hidden = true;
+  element("repair-output").hidden = true;
+  element("damage-map").hidden = true;
+  element("damage-map").replaceChildren();
   element("composer").hidden = false;
   state.phase = "identify";
   state.candidate = null;
   state.cad = "";
   state.explodedCad = "";
+  state.damageParts = [];
   setProgress(1);
   element("message-input").placeholder = "Tell Astra what to identify or model. Example: Make a rough CAD model of the damaged left front fender.";
   element("send-button").textContent = "Send to Astra";
@@ -218,6 +228,108 @@ function renderResult(result) {
   element("cad-panel").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function renderDamageMap(parts) {
+  const map = element("damage-map");
+  map.replaceChildren();
+  parts.forEach((part, index) => {
+    const x = part.imageAnchor.x * 100;
+    const y = part.imageAnchor.y * 100;
+    const labelX = Math.min(76, x + 12);
+    const labelY = Math.min(84, Math.max(3, y - 8 + index * 5));
+    const pin = document.createElement("span");
+    pin.className = "damage-pin";
+    pin.style.left = `${x}%`;
+    pin.style.top = `${y}%`;
+    const arrow = document.createElement("span");
+    arrow.className = "damage-arrow";
+    const dx = labelX - x;
+    const dy = labelY - y;
+    arrow.style.left = `${x}%`;
+    arrow.style.top = `${y}%`;
+    arrow.style.width = `${Math.hypot(dx, dy)}%`;
+    arrow.style.transform = `rotate(${Math.atan2(dy, dx) * 180 / Math.PI}deg)`;
+    const label = document.createElement("span");
+    label.className = "damage-label";
+    label.style.left = `${labelX}%`;
+    label.style.top = `${labelY}%`;
+    label.textContent = `CAD: ${part.partName}`;
+    map.append(pin, arrow, label);
+  });
+  map.hidden = parts.length === 0;
+}
+
+function renderDamageReview(result) {
+  state.damageParts = result.damageParts || [];
+  const carousel = element("damage-carousel");
+  carousel.replaceChildren();
+  renderDamageMap(state.damageParts);
+  element("repair-summary").textContent = result.userMessage || "Confirm each damaged CAD part before generation.";
+  const reference = element("reference-model");
+  reference.replaceChildren();
+  if (result.referenceAsset) {
+    const link = document.createElement("a");
+    link.href = result.referenceAsset.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = result.referenceAsset.title;
+    reference.append("Reference 3D model: ", link, ` · ${result.referenceAsset.license} · ${result.referenceAsset.creator}`);
+    reference.hidden = false;
+  } else {
+    reference.hidden = true;
+  }
+  for (const part of state.damageParts) {
+    const card = document.createElement("article");
+    card.className = "damage-card";
+    const label = document.createElement("label");
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = true;
+    check.dataset.damageId = part.id;
+    const text = document.createElement("span");
+    const name = document.createElement("b");
+    name.textContent = part.partName;
+    const description = document.createElement("span");
+    description.textContent = `${part.damageDescription} (${Math.round(part.confidence * 100)}% confidence)`;
+    text.append(name, description);
+    label.append(check, text);
+    card.append(label);
+    carousel.append(card);
+  }
+  const hasParts = state.damageParts.length > 0;
+  element("generate-repair-button").hidden = !hasParts;
+  element("repair-review").hidden = false;
+  element("composer").hidden = true;
+  appendMessage("assistant", hasParts ? "Damage detected on these parts. Confirm the parts you want to repair." : "No supported exterior damage is visible in this image.");
+  element("repair-review").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderRepairCad(result) {
+  const downloads = element("repair-downloads");
+  downloads.replaceChildren();
+  for (const part of result.repairCad) {
+    const card = document.createElement("section");
+    card.className = "repair-download";
+    const heading = document.createElement("h3");
+    heading.textContent = part.partName;
+    const actions = document.createElement("div");
+    actions.className = "download-actions";
+    for (const [label, content, suffix] of [["Download fitted OpenSCAD", part.cadPayload, ""], ["Download exploded OpenSCAD", part.explodedCadPayload, "-exploded"]]) {
+      const button = document.createElement("button");
+      button.className = label.startsWith("Download fitted") ? "primary" : "secondary";
+      button.type = "button";
+      button.textContent = label;
+      button.addEventListener("click", () => downloadCad(content, suffix, part.partName));
+      actions.append(button);
+    }
+    card.append(heading, actions);
+    downloads.append(card);
+  }
+  element("repair-review").hidden = true;
+  element("repair-output").hidden = false;
+  state.phase = "done";
+  setProgress(4);
+}
+
 async function identifyPhoto() {
   const input = element("message-input");
   state.initialMessage = input.value.trim();
@@ -255,10 +367,12 @@ async function sendMessage() {
     appendMessage("user", reply);
     input.value = "";
     setProgress(3);
-    setWorking("Astra is checking OEM sources, public scans, and CAD options");
+    const repair = isRepairRequest(state.initialMessage, reply);
+    setWorking(repair ? "Astra is mapping visible damage to CAD parts" : "Astra is checking OEM sources, public scans, and CAD options");
     try {
+      const analysisPhase = repair ? { phase: "damage_assessment" } : { phase: "research_and_generate" };
       const result = await postAstra({
-        phase: "research_and_generate",
+        ...analysisPhase,
         image_base64: state.imageBase64,
         user_text: state.initialMessage,
         candidate_vehicle: state.candidate.vehicle,
@@ -266,6 +380,12 @@ async function sendMessage() {
         previous_reply: state.candidate.userMessage,
         confirmation_text: reply,
       });
+      if (repair) {
+        renderDamageReview(result);
+        state.phase = "repair_confirm";
+        setProgress(3);
+        return;
+      }
       if (result.outcome === "vehicle_candidate") {
         state.candidate = result;
         appendMessage("assistant", result.userMessage);
@@ -280,11 +400,11 @@ async function sendMessage() {
   }
 }
 
-function downloadCad(content, suffix = "") {
+function downloadCad(content, suffix = "", partName = state.partName) {
   const blob = new Blob([content], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${state.partName.replace(/[^A-Za-z0-9_-]/g, "-") || "car-part-concept"}${suffix}.scad`;
+  link.download = `${partName.replace(/[^A-Za-z0-9_-]/g, "-") || "car-part-concept"}${suffix}.scad`;
   link.click();
   URL.revokeObjectURL(link.href);
 }
@@ -317,6 +437,16 @@ function init() {
   element("download-button").addEventListener("click", () => downloadCad(state.cad));
   element("exploded-download-button").addEventListener("click", () => downloadCad(state.explodedCad, "-exploded"));
   element("restart-button").addEventListener("click", () => location.reload());
+  element("generate-repair-button").addEventListener("click", async () => {
+    const selected = state.damageParts.filter((part) => document.querySelector(`[data-damage-id="${CSS.escape(part.id)}"]`)?.checked);
+    if (!selected.length) return showError("Confirm at least one damaged part before CAD generation.");
+    setWorking("Astra is creating repair CAD concepts");
+    try {
+      const result = await postAstra({ phase: "repair_generate", image_base64: state.imageBase64, candidate_vehicle: state.candidate.vehicle, selected_damage_parts: selected });
+      renderRepairCad(result);
+    } catch (error) { showError(error); }
+    finally { setWorking(); }
+  });
 }
 
 if (typeof document !== "undefined") init();

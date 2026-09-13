@@ -18,6 +18,7 @@ from urllib.parse import urlsplit
 
 WEB_ROOT = Path(__file__).with_name("web").resolve()
 SOURCE_CATALOG_PATH = Path(__file__).with_name("skills") / "vehicle-schematic-sourcing" / "references" / "official_sources.json"
+VEHICLE_MODEL_CATALOG_PATH = Path(__file__).with_name("vehicle_model_catalog.json")
 SERVER_HOST = "localhost"
 WEB_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
@@ -56,6 +57,19 @@ def load_source_catalog(path: Path = SOURCE_CATALOG_PATH) -> dict[str, Any]:
 
 OFFICIAL_SOURCE_CATALOG = load_source_catalog()
 
+
+def load_vehicle_model_catalog(path: Path = VEHICLE_MODEL_CATALOG_PATH) -> dict[str, Any]:
+    catalog = json.loads(path.read_text(encoding="utf-8"))
+    required = {"id", "make", "model", "model_years", "title", "url", "license", "creator", "format_note"}
+    if not isinstance(catalog.get("models"), list) or not catalog["models"]:
+        raise ValueError("vehicle model catalog is empty")
+    if any(not isinstance(item, dict) or set(item) != required or not item["url"].startswith("https://") for item in catalog["models"]):
+        raise ValueError("vehicle model catalog has invalid entries")
+    return catalog
+
+
+VEHICLE_MODEL_CATALOG = load_vehicle_model_catalog()
+
 SUPPORTED_PARTS = (
     "hood",
     "front_bumper_cover",
@@ -91,11 +105,23 @@ def sources_for_vehicle(vehicle: dict[str, Any]) -> list[dict[str, Any]]:
         and matches_year(source["model_years"])
     ]
 
+
+def model_assets_for_vehicle(vehicle: dict[str, Any]) -> list[dict[str, Any]]:
+    make = str(vehicle.get("make", "")).strip().casefold()
+    model = re.sub(r"[^a-z0-9]", "", str(vehicle.get("model", "")).casefold())
+    year = str(vehicle.get("year", "")).strip()
+    return [
+        item for item in VEHICLE_MODEL_CATALOG["models"]
+        if item["make"].casefold() == make
+        and re.sub(r"[^a-z0-9]", "", item["model"].casefold()) == model
+        and (item["model_years"] == "unknown" or not year or item["model_years"] == year)
+    ]
+
 ASTRA_RESULT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
     "properties": {
-        "outcome": {"type": "string", "enum": ["vehicle_candidate", "rough_cad_ready", "needs_lidar"]},
+        "outcome": {"type": "string", "enum": ["vehicle_candidate", "rough_cad_ready", "needs_lidar", "damage_review", "repair_cad_ready"]},
         "userMessage": {"type": "string"},
         "vehicle": {
             "type": "object", "additionalProperties": False,
@@ -154,9 +180,68 @@ ASTRA_RESULT_SCHEMA = {
 }
 
 
+def damage_part(raw: Any) -> dict[str, Any]:
+    """Validate one image-damage to CAD-part mapping."""
+    if not isinstance(raw, dict):
+        raise ValueError("damage part must be an object")
+    required = {"id", "partType", "partName", "damageDescription", "confidence", "imageAnchor"}
+    if set(raw) != required or raw["partType"] not in SUPPORTED_PARTS:
+        raise ValueError("damage part has invalid fields")
+    if not all(str(raw[name]).strip() for name in ("id", "partName", "damageDescription")):
+        raise ValueError("damage part has empty text")
+    confidence = raw["confidence"]
+    anchor = raw["imageAnchor"]
+    if not isinstance(confidence, (int, float)) or not 0 <= confidence <= 1:
+        raise ValueError("damage part has invalid confidence")
+    if not isinstance(anchor, dict) or set(anchor) != {"x", "y"}:
+        raise ValueError("damage part has invalid image anchor")
+    if not all(isinstance(anchor[axis], (int, float)) and 0 <= anchor[axis] <= 1 for axis in ("x", "y")):
+        raise ValueError("damage part image anchor must be normalized")
+    return raw
+
+
+def repair_result(text: str, phase: str) -> dict[str, Any]:
+    """Read the two structured repair responses. The model has no browser trust boundary."""
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError("Astra repair response was not valid JSON") from exc
+    if not isinstance(result, dict):
+        raise ValueError("Astra repair response must be an object")
+    if phase == "damage_assessment":
+        if set(result) != {"outcome", "userMessage", "vehicle", "referenceAssetId", "damageParts"} or result["outcome"] != "damage_review":
+            raise ValueError("damage assessment has invalid fields")
+        if not isinstance(result["vehicle"], dict) or not isinstance(result["damageParts"], list):
+            raise ValueError("damage assessment has invalid values")
+        if len(result["damageParts"]) > len(SUPPORTED_PARTS):
+            raise ValueError("damage assessment has too many parts")
+        result["damageParts"] = [damage_part(item) for item in result["damageParts"]]
+        asset_id = result["referenceAssetId"]
+        if not isinstance(asset_id, str):
+            raise ValueError("damage assessment has invalid reference asset")
+        asset = next((item for item in VEHICLE_MODEL_CATALOG["models"] if item["id"] == asset_id), None)
+        if asset_id and not asset:
+            raise ValueError("damage assessment selected an unknown reference asset")
+        result["referenceAsset"] = asset
+        return result
+    if set(result) != {"outcome", "userMessage", "vehicle", "repairCad"} or result["outcome"] != "repair_cad_ready":
+        raise ValueError("repair CAD response has invalid fields")
+    if not isinstance(result["vehicle"], dict) or not isinstance(result["repairCad"], list) or not result["repairCad"]:
+        raise ValueError("repair CAD response has invalid values")
+    for item in result["repairCad"]:
+        required = {"id", "partName", "partType", "cadPayload", "explodedCadPayload"}
+        if not isinstance(item, dict) or set(item) != required or item["partType"] not in SUPPORTED_PARTS:
+            raise ValueError("repair CAD item has invalid fields")
+        if not all(str(item[field]).strip() for field in ("id", "partName", "cadPayload", "explodedCadPayload")):
+            raise ValueError("repair CAD item has empty fields")
+        if not item["cadPayload"].startswith(f"// {CONCEPT_WARNING}") or not item["explodedCadPayload"].startswith(f"// {CONCEPT_WARNING}"):
+            raise ValueError("repair CAD payloads require the concept warning")
+    return result
+
+
 def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
     phase = payload.get("phase")
-    if phase not in {"identify", "research_and_generate"}:
+    if phase not in {"identify", "research_and_generate", "damage_assessment", "repair_generate"}:
         raise ValueError("invalid phase")
     image = payload.get("image_base64", "")
     if not image:
@@ -171,7 +256,8 @@ def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
     confirmation_text = str(payload.get("confirmation_text", "")).strip()
     if len(confirmation_text) > 2000:
         raise ValueError("confirmation_text is longer than 2000 characters")
-    indexed_sources = sources_for_vehicle(vehicle) if phase != "identify" else []
+    indexed_sources = sources_for_vehicle(vehicle) if phase not in {"identify", "damage_assessment"} else []
+    model_assets = model_assets_for_vehicle(vehicle)
     source_text = "\n".join(f"- {source['name']}: {source['url']}" for source in indexed_sources) or "No pre-indexed exact-match document is available."
     candidate_text = " ".join(str(vehicle.get(field, "")).strip() for field in ("year", "make", "model") if str(vehicle.get(field, "")).strip()) or "No reliable vehicle estimate yet"
     if phase == "identify":
@@ -179,6 +265,28 @@ def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
 
 The user said: {user_text}
 """
+    elif phase == "damage_assessment":
+        asset_text = "\n".join(f"- {item['id']}: {item['title']} ({item['make']} {item['model']} {item['model_years']}; {item['license']})" for item in model_assets) or "No exact external reference model is cataloged."
+        prompt = f"""You are Astra, a car damage review assistant. Inspect the attached current-car photograph. Map each visible collision or cosmetic damage to the matching available CAD part family. The candidate vehicle is {candidate_text}. The available CAD part families are: {', '.join(SUPPORTED_PARTS)}.
+
+Exact external reference models available for this candidate vehicle:
+{asset_text}
+
+Return JSON only. Use exactly this shape:
+{{"outcome":"damage_review","userMessage":"Damage detected on these parts." or "No supported exterior damage is visible.","vehicle":{{"make":"","model":"","year":"","confidence":0}},"referenceAssetId":"matching catalog id or empty string","damageParts":[{{"id":"short-stable-id","partType":"one available family","partName":"human readable vehicle part name","damageDescription":"visible evidence only","confidence":0.0,"imageAnchor":{{"x":0.0,"y":0.0}}}}]}}
+
+Use normalized image coordinates: x is left to right and y is top to bottom. Include only visible damage. Do not diagnose hidden damage. Do not list a part when confidence is below 0.5. The user said: {user_text}"""
+    elif phase == "repair_generate":
+        selected = payload.get("selected_damage_parts")
+        if not isinstance(selected, list) or not selected:
+            raise ValueError("selected_damage_parts is required")
+        selected_text = json.dumps(selected, separators=(",", ":"))
+        prompt = f"""You are Astra, a car repair concept assistant. Create one rough OpenSCAD visual replacement concept for each user-confirmed damaged part. Vehicle: {candidate_text}. Confirmed mappings: {selected_text}.
+
+Return JSON only with exactly this shape:
+{{"outcome":"repair_cad_ready","userMessage":"","vehicle":{{"make":"","model":"","year":"","confidence":0}},"repairCad":[{{"id":"id from confirmed mapping","partName":"name from confirmed mapping","partType":"supported type","cadPayload":"OpenSCAD","explodedCadPayload":"OpenSCAD"}}]}}
+
+Each CAD script must start exactly with // {CONCEPT_WARNING}. Make visual proportions plausible from the photo. Do not claim fabrication accuracy. Return only the confirmed mappings, one file pair per mapping."""
     else:
         prompt = f"""You are Astra, a helpful car-part reconstruction assistant. Continue this conversation in normal plain English. The user may say yes, correct you, ask a question, or give uncertain details. Do not require a full make, model, year, or part before you continue.
 
@@ -205,7 +313,7 @@ If enough information is available for a rough concept, reply only with a comple
         "reasoning": {"effort": "high"},
         "store": False,
     }
-    if phase != "identify":
+    if phase == "research_and_generate":
         request["tools"] = [{"type": "web_search"}]
         request["include"] = ["web_search_call.action.sources"]
     return request
@@ -223,6 +331,8 @@ def extract_result(response: dict[str, Any], phase: str | None = None) -> dict[s
     if not text:
         raise ValueError("Astra returned no text output")
     text = text.strip()
+    if phase in {"damage_assessment", "repair_generate"}:
+        return repair_result(text.removeprefix("```json\n").removesuffix("\n```"), phase)
     if not text.startswith("{"):
         empty_vehicle = {"make": "", "model": "", "year": "", "confidence": 0}
         if phase == "identify":

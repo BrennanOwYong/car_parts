@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "scope": "Downloadable external vehicle meshes that can be used as visual reference for rough exploded concepts. Each source requires attribution. Verify the download terms before adding a binary asset to this repository.",
+  "models": [
+    {
+      "id": "tesla-model-y-2021-sketchfab",
+      "make": "Tesla",
+      "model": "Model Y",
+      "model_years": "2021",
+      "title": "Tesla Model Y 2021",
+      "url": "https://sketchfab.com/3d-models/tesla-model-y-2021-c0a86cac582d4b33aba0fb1b1912d970",
+      "license": "CC BY 4.0",
+      "creator": "763468712",
+      "format_note": "Downloadable Sketchfab mesh; inspect object names before splitting exterior parts."
+    },
+    {
+      "id": "tesla-model-s-2013-sketchfab",
+      "make": "Tesla",
+      "model": "Model S",
+      "model_years": "2013",
+      "title": "Tesla Model-S",
+      "url": "https://sketchfab.com/3d-models/tesla-model-s-79cc7a8accfb421fa5981d4186fbfd75",
+      "license": "CC BY 4.0",
+      "creator": "oriolfrancin99",
+      "format_note": "High-polygon visual reference; inspect object names before splitting exterior parts."
+    },
+    {
+      "id": "mazda-3-sketchfab",
+      "make": "Mazda",
+      "model": "3",
+      "model_years": "unknown",
+      "title": "Mazda-3",
+      "url": "https://sketchfab.com/3d-models/mazda-3-0811f0d3785243a5ad05bd1b84457273",
+      "license": "CC BY 4.0",
+      "creator": "David_Holiday",
+      "format_note": "Visual reference only. The source does not state a model year."
+    },
+    {
+      "id": "honda-civic-2022-sketchfab",
+      "make": "Honda",
+      "model": "Civic",
+      "model_years": "2022",
+      "title": "Honda Civic 2022",
+      "url": "https://sketchfab.com/3d-models/honda-civic-2022-free-download-d5ca29a5d2f341b691118ffb5560b19b",
+      "license": "CC BY 4.0",
+      "creator": "Ricy",
+      "format_note": "Visual reference only. The creator notes limited source material."
+    }
+  ]
+}

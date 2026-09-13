@@ -36,6 +36,7 @@
         </div>
         <label class="upload-box" for="part-photo">
           <img id="photo-preview" alt="Selected car" hidden>
+          <div class="damage-map" id="damage-map" aria-label="Detected damage mapped to CAD parts" hidden></div>
           <span id="upload-prompt">
             <span class="upload-icon" aria-hidden="true">＋</span>
             <b>Upload or paste a car photo</b>
@@ -43,7 +44,7 @@
           </span>
           <input id="part-photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif">
         </label>
-        <p class="supported-parts">Hood · front bumper · front fender · wheel-arch trim · mirror housing</p>
+        <p class="supported-parts">Repair scope: hood · front bumper · front fender · wheel-arch trim · mirror housing</p>
       </section>
 
       <section class="conversation-pane" aria-labelledby="conversation-title">
@@ -96,6 +97,21 @@
             <button class="secondary" id="exploded-download-button" type="button">Download exploded OpenSCAD</button>
           </div>
           <button class="text-button" id="restart-button" type="button">Start another conversation</button>
+        </article>
+
+        <article class="repair-review" id="repair-review" hidden aria-labelledby="repair-title">
+          <p class="pane-kicker">Astra repair review</p>
+          <h2 id="repair-title">Damage detected on these parts</h2>
+          <p id="repair-summary">Confirm each damaged CAD part before generation.</p>
+          <p class="reference-model" id="reference-model" hidden></p>
+          <div class="damage-carousel" id="damage-carousel" aria-label="Detected damaged parts"></div>
+          <button class="primary" id="generate-repair-button" type="button">Generate CAD for confirmed parts</button>
+        </article>
+
+        <article class="repair-output" id="repair-output" hidden aria-labelledby="repair-output-title">
+          <p class="pane-kicker">Repair CAD output</p>
+          <h2 id="repair-output-title">Confirmed repair concepts</h2>
+          <div id="repair-downloads"></div>
         </article>
 
         <div class="status-bar" id="status-bar" role="status" hidden>

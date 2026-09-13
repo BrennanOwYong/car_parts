@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const source = await readFile(new URL("../web/app.js", import.meta.url), "utf8");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;
-const { fittedFrameSize, imageFileFromClipboard, usableResultOutcome } = await import(moduleUrl);
+const { fittedFrameSize, imageFileFromClipboard, usableResultOutcome, isRepairRequest } = await import(moduleUrl);
 
 assert.deepEqual(fittedFrameSize(4032, 3024), { width: 1800, height: 1350 });
 assert.deepEqual(fittedFrameSize(1200, 800), { width: 1200, height: 800 });
@@ -17,6 +17,8 @@ assert.equal(usableResultOutcome({ outcome: "needs_lidar", vehicle, userMessage:
 assert.equal(usableResultOutcome({ outcome: "rough_cad_ready", vehicle, cadPayload: "cube(1);", explodedCadPayload: "cube(2);" }), "cad");
 assert.equal(usableResultOutcome({ outcome: "needs_lidar", vehicle, userMessage: "Scan it.", cadPayload: "unsafe", explodedCadPayload: null }), "invalid");
 assert.equal(usableResultOutcome(null), "invalid");
+assert.equal(isRepairRequest("Please repair the crash damage"), true);
+assert.equal(isRepairRequest("Make a rough model of this hood"), false);
 assert.match(source, /createImageBitmap\(file\)/);
 assert.match(source, /canvas\.toBlob\(resolve, "image\/jpeg"/);
 assert.match(source, /state\.imageBase64 = await imageAsJpegBase64\(file\)/);

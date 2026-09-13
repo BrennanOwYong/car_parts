@@ -1,10 +1,10 @@
 # CarPart CAD hackathon demo
 
-This repository contains a conversational desktop website. Upload or paste a car photo. Tell Astra which visible exterior part you want. Astra identifies the vehicle and part. You confirm or correct the result in the conversation. Astra then searches for usable geometry and returns fitted and exploded-view OpenSCAD files when the evidence is sufficient.
+This repository contains a conversational desktop website. Upload or paste a current-car photo. Ask Astra to repair visible damage. Astra identifies the vehicle, maps visible damage to the available CAD part families, and draws an image-to-CAD map. You confirm the proposed parts in a carousel. Astra then returns fitted and exploded-view OpenSCAD files for each confirmed part.
 
 ## Hackathon scope
 
-The demo supports five exterior parts:
+The repair demo supports five exterior part families:
 
 - hood;
 - front bumper cover;
@@ -12,15 +12,15 @@ The demo supports five exterior parts:
 - wheel-arch trim or fender flare;
 - side-mirror housing.
 
-The app creates a rough visual concept. It is not suitable for fabrication or vehicle installation. It does not guarantee fit. Every result distinguishes sourced dimensions from estimated dimensions and lists the assumptions used.
+The app creates a rough visual concept. It is not suitable for fabrication or vehicle installation. It does not guarantee fit. Every result distinguishes sourced dimensions from estimated dimensions. It cannot diagnose hidden, structural, safety-system, glass, lighting, door, roof, rear-body, wheel, tire, or underbody damage.
 
 ## Conversational flow
 
-`upload or paste photo -> describe target part -> Astra identifies vehicle and part -> confirm or correct in plain text -> OEM documents -> public 3D scans -> LiDAR request only if needed -> rough fitted and exploded CAD`
+`upload or paste damage photo -> describe repair need -> Astra identifies vehicle -> confirm or correct -> detects visible damage -> maps each item to an available CAD part -> user confirms parts in carousel -> rough fitted and exploded CAD for each confirmed part`
 
 There are no vehicle or part forms. Astra states its estimate in the conversation. Reply with a correction such as `This is a 2020 Mazda 3 and I want the front bumper cover.` Send a blank message to accept Astra's estimate.
 
-After confirmation, Astra uses this source order:
+For a normal single-part concept, Astra uses this source order:
 
 1. It checks the pre-indexed official dimension documents. It then searches official OEM body-repair pages, service diagrams, parts diagrams, and stated dimensions for the exact vehicle and part.
 2. If the OEM material cannot supply enough geometry, it searches the web for a public 3D scan of the exact vehicle and part.
@@ -71,6 +71,12 @@ $env:ASTRA_ENV_FILE = "$PWD\.env"
 py astra_relay.py
 ```
 
+## Repair result
+
+The repair review shows a red pin on each visible damage area, an arrow to its proposed CAD part name, and a horizontal confirmation carousel. Clear any part that is not damaged. Select **Generate CAD for confirmed parts** to create separate fitted and exploded OpenSCAD downloads.
+
+Damage mapping is visual only. The model only maps parts visible in the uploaded photo. It does not infer damage behind the bumper cover or inside the body structure.
+
 ## Generated result
 
 When the geometry is sufficient, the result screen shows:
@@ -92,6 +98,20 @@ If the source checks fail, Astra returns a LiDAR request instead of a CAD file. 
 The runtime catalog is `skills/vehicle-schematic-sourcing/references/official_sources.json`. It currently contains nine free official dimensional documents for selected Tesla, Chevrolet City Express, and Ram 1500 SSV configurations.
 
 The catalog is a starting point. For a Mazda or another vehicle without an indexed entry, Astra first uses live web search for official OEM material. If the OEM material is insufficient, it searches for a public scan of the exact vehicle and part. It requests a LiDAR scan only after those searches fail. Dimensions inferred from a diagram, scan image, vehicle proportion, or uploaded photo remain estimates.
+
+### Vehicles to collect damage images for
+
+Start with the exact vehicles that have pre-indexed official dimensional references and use one photo set per supported part family. Collect front-left and front-right views, plus close-ups of the damaged area. The current target set is:
+
+- Tesla Model 3: 2017-2023 and 2024;
+- Tesla Model X: 2021 and later;
+- Tesla Model Y: 2020-2024;
+- Tesla Model S: 2012-2020 and 2021 and later;
+- Tesla Model Y L: 2025 and later;
+- Chevrolet City Express: 2015-2018;
+- Ram 1500 SSV: 2017.
+
+The official references give vehicle-level dimensions. They do not supply a complete exploded CAD library. For full exterior coverage, add verified exploded views or 3D references for doors, rear bumper cover, rear quarter panels, trunk or tailgate, roof, grille, lamps, glass, rocker panels, wheels, and underbody panels.
 
 The repository also includes the `skills/vehicle-schematic-sourcing` skill. The skill applies the same distinction between stated dimensions and visual estimates.
 
