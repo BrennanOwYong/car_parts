@@ -97,6 +97,27 @@ class AstraFlowChecks(unittest.TestCase):
             else:
                 os.environ["TEST_CARPART_KEY"] = previous
 
+    def test_env_file_can_be_set_with_astra_env_file(self):
+        previous_path = os.environ.get("ASTRA_ENV_FILE")
+        previous_value = os.environ.get("TEST_CARPART_ENV_FILE_KEY")
+        try:
+            os.environ.pop("TEST_CARPART_ENV_FILE_KEY", None)
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "custom.env"
+                path.write_text("TEST_CARPART_ENV_FILE_KEY=from-custom-file\n")
+                os.environ["ASTRA_ENV_FILE"] = str(path)
+                load_env_file()
+                self.assertEqual(os.environ["TEST_CARPART_ENV_FILE_KEY"], "from-custom-file")
+        finally:
+            if previous_path is None:
+                os.environ.pop("ASTRA_ENV_FILE", None)
+            else:
+                os.environ["ASTRA_ENV_FILE"] = previous_path
+            if previous_value is None:
+                os.environ.pop("TEST_CARPART_ENV_FILE_KEY", None)
+            else:
+                os.environ["TEST_CARPART_ENV_FILE_KEY"] = previous_value
+
     def test_research_searches_references_and_requests_rough_cad(self):
         request = build_openai_request({
             "phase": "research_and_generate",

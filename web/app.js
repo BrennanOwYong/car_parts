@@ -51,7 +51,12 @@ function setWorking(message = "") {
   element("status-text").textContent = message;
   for (const button of document.querySelectorAll("button")) button.disabled = Boolean(message);
   element("part-photo").disabled = Boolean(message);
-  if (!message && state.phase !== "done") element("send-button").disabled = state.phase === "identify" && !state.imageBase64;
+  if (!message) updateSendButton();
+}
+
+function updateSendButton() {
+  const hasRequest = Boolean(element("message-input").value.trim());
+  element("send-button").disabled = state.phase === "done" || !state.imageBase64 || !hasRequest;
 }
 
 function showError(error) {
@@ -115,7 +120,9 @@ async function useImage(file) {
   state.cad = "";
   state.explodedCad = "";
   setProgress(1);
-  await identifyPhoto();
+  element("message-input").placeholder = "Tell Astra what to identify or model. Example: Make a rough CAD model of the damaged left front fender.";
+  element("send-button").textContent = "Send to Astra";
+  updateSendButton();
 }
 
 function bytesToBase64(bytes) {
@@ -222,9 +229,9 @@ async function identifyPhoto() {
     state.candidate = result;
     const vehicle = `${result.vehicle.year} ${result.vehicle.make} ${result.vehicle.model}`.trim();
     const part = PART_LABELS[result.partType] || result.partName;
-    appendMessage("assistant", `I identified a ${vehicle}. The target part appears to be the ${part}. ${result.userMessage} Reply with a correction, or send a blank message to use this estimate.`);
+    appendMessage("assistant", `I identified a ${vehicle}. The target part appears to be the ${part}. ${result.userMessage} Type yes to use this estimate, or type a correction.`);
     state.phase = "confirm";
-    input.placeholder = "Optional correction: This is a 2020 Mazda 3 and I want the front bumper cover.";
+    input.placeholder = "Type yes to continue, or describe a correction.";
     element("send-button").textContent = "Confirm and generate CAD";
     setProgress(2);
   } catch (error) {
@@ -240,12 +247,14 @@ async function sendMessage() {
   const reply = input.value.trim();
   if (state.phase === "identify") {
     if (!state.imageBase64) return showError("Upload or paste a car photo first.");
+    if (!reply) return showError("Type what you want Astra to do before sending.");
     await identifyPhoto();
     return;
   }
 
   if (state.phase === "confirm") {
-    appendMessage("user", reply || "Use Astra's vehicle and part estimate.");
+    if (!reply) return showError("Type yes to accept Astra's estimate, or type a correction.");
+    appendMessage("user", reply);
     input.value = "";
     setProgress(3);
     setWorking("Astra is checking OEM sources, public scans, and CAD options");
@@ -291,6 +300,7 @@ function init() {
   });
 
   element("send-button").addEventListener("click", sendMessage);
+  element("message-input").addEventListener("input", updateSendButton);
   element("message-input").addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.key === "Enter") {
       event.preventDefault();

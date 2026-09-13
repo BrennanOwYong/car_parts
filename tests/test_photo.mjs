@@ -22,7 +22,9 @@ assert.match(source, /canvas\.toBlob\(resolve, "image\/jpeg"/);
 assert.match(source, /state\.imageBase64 = await imageAsJpegBase64\(file\)/);
 assert.match(source, /document\.addEventListener\("paste"/);
 assert.match(source, /await useImage\(file\)/);
-assert.match(source, /async function useImage\(file\)[\s\S]*await identifyPhoto\(\)/);
+const useImageSource = source.slice(source.indexOf("async function useImage"), source.indexOf("function bytesToBase64"));
+assert.doesNotMatch(useImageSource, /identifyPhoto|postAstra|fetch\(/);
+assert.match(source, /message-input"\)\.addEventListener\("input", updateSendButton\)/);
 assert.match(source, /new Set\(\["image\/jpeg", "image\/png", "image\/webp", "image\/heic", "image\/heif"\]\)/);
 assert.doesNotMatch(source, /getUserMedia|cameraStream|<video/);
 

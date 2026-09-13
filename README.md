@@ -54,9 +54,22 @@ Copy-Item .env.example .env
 py astra_relay.py
 ```
 
-Open `http://localhost:8787` in a desktop browser. Choose an image or copy an image, focus the website, and press `Ctrl+V`. Add a normal text message that identifies the desired part. Select **Identify vehicle and part**.
+Open `http://localhost:8787` in a desktop browser. Choose an image or copy an image, focus the website, and press `Ctrl+V`. This only shows a local preview. Type what you want Astra to identify or model, then select **Send to Astra**. The image and text are sent together only at that point.
 
 Keep the terminal open. Press `Ctrl+C` to stop the server. The `.env` file is ignored by Git. Do not put the API key in `.env.example` or browser code.
+
+If the relay cannot find the key, run it with an explicit `.env` path:
+
+```sh
+ASTRA_ENV_FILE="$(pwd)/.env" ./astra_relay.py
+```
+
+In Windows PowerShell:
+
+```powershell
+$env:ASTRA_ENV_FILE = "$PWD\.env"
+py astra_relay.py
+```
 
 ## Generated result
 

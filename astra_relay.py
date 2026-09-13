@@ -27,7 +27,9 @@ WEB_FILES = {
 
 
 def load_env_file(path: Path | None = None) -> None:
-    path = path or Path(__file__).with_name(".env")
+    if path is None:
+        configured_path = os.environ.get("ASTRA_ENV_FILE", "").strip()
+        path = Path(configured_path).expanduser() if configured_path else Path(__file__).with_name(".env")
     if not path.is_file():
         return
     for raw_line in path.read_text(encoding="utf-8").splitlines():
@@ -320,7 +322,10 @@ def extract_result(response: dict[str, Any], phase: str | None = None) -> dict[s
 def call_openai(payload: dict[str, Any]) -> dict[str, Any]:
     key = os.environ.get("OPENAI_API_KEY")
     if not key:
-        raise RuntimeError("OPENAI_API_KEY is not set")
+        raise RuntimeError(
+            "OPENAI_API_KEY is not set. Add it to .env next to astra_relay.py, "
+            "or set ASTRA_ENV_FILE to the full path of your .env file."
+        )
     body = json.dumps(build_openai_request(payload)).encode()
     request = urllib.request.Request("https://api.openai.com/v1/responses", data=body, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
     with urllib.request.urlopen(request, timeout=180) as response:

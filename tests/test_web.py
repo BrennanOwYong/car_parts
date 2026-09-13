@@ -97,7 +97,11 @@ class WebApplicationChecks(unittest.TestCase):
         self.assertIn('document.addEventListener("paste"', script)
         self.assertNotIn("getUserMedia", script)
         self.assertNotIn("<video", script)
-        self.assertIn("await identifyPhoto()", script)
+        use_image = script[script.index("async function useImage"):script.index("function bytesToBase64")]
+        self.assertNotIn("identifyPhoto", use_image)
+        self.assertNotIn("postAstra", use_image)
+        self.assertIn('addEventListener("input", updateSendButton)', script)
+        self.assertIn("Type what you want Astra to do before sending.", script)
         self.assertIn('new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"])', script)
 
     def test_cad_downloads_include_exploded_file(self):
