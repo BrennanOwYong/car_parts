@@ -20,11 +20,12 @@
     <section class="hero">
       <p class="eyebrow">Photo to fitted geometry</p>
       <h1>Rebuild the part.<br><em>Keep the hard limits.</em></h1>
-      <p class="hero-copy">Astra identifies the vehicle and part. Official data sets the first constraints. A measured mesh fills only the gaps.</p>
+      <p class="hero-copy">Astra identifies the vehicle and part. Direct official documents provide dimensional constraints. The MVP accepts a photo and text only.</p>
+      <p class="catalog-note">Dimension-bearing official documents pre-indexed.</p>
       <ol class="progress" aria-label="Reconstruction progress">
         <li class="active" data-progress="1"><span>1</span> Photograph</li>
         <li data-progress="2"><span>2</span> Confirm</li>
-        <li data-progress="3"><span>3</span> Measure</li>
+        <li data-progress="3"><span>3</span> Verify</li>
         <li data-progress="4"><span>4</span> CAD</li>
       </ol>
     </section>
@@ -42,6 +43,9 @@
           <input id="part-photo" type="file" accept="image/*" capture="environment">
         </label>
         <p class="fine-print">The website uses one captured photo. It does not record video.</p>
+        <label class="text-input" for="part-notes">Describe the part or damage (optional)
+          <textarea id="part-notes" maxlength="2000" rows="4" placeholder="Example: Broken left-front bumper bracket. Two screw holes remain on the vehicle."></textarea>
+        </label>
         <button class="primary" id="identify-button" type="button" disabled>Identify vehicle and part</button>
       </article>
 
@@ -57,40 +61,24 @@
           <label>Year<input id="vehicle-year" inputmode="numeric"></label>
         </div>
         <p class="fine-print" id="confidence"></p>
-        <button class="primary" id="confirm-button" type="button">Confirm and find constraints</button>
+        <button class="primary" id="confirm-button" type="button">Confirm and check dimensional documents</button>
       </article>
 
       <article class="panel" id="measure-panel" hidden>
         <div class="panel-heading">
           <span class="step-number">03</span>
-          <div><p class="eyebrow">Measured fallback</p><h2>Capture the missing dimensions</h2></div>
+          <div><p class="eyebrow">Measurement required</p><h2>LiDAR is the next step</h2></div>
         </div>
         <p id="scan-instruction"></p>
         <div class="device-check" id="device-check">
           <span class="status-dot" aria-hidden="true"></span>
-          <div><b id="device-title">Checking this device</b><small id="device-detail">Testing browser depth access.</small></div>
+          <div><b id="device-title">Checking this device</b><small id="device-detail">Checking browser depth access.</small></div>
         </div>
         <div class="notice">
-          <b>Why an OBJ file?</b>
-          <p>Safari does not give normal websites the raw ARKit LiDAR mesh. Export an OBJ from a LiDAR scanner, then choose it here. The file stays on this server and goes to Astra as measurement evidence.</p>
+          <b>MVP limit</b>
+          <p>This website version accepts only a photo and text. It does not accept a mesh. Use the native iPhone scanner in the next development phase.</p>
         </div>
-        <label class="file-button" for="mesh-file">Choose LiDAR OBJ<input id="mesh-file" type="file" accept=".obj,text/plain"></label>
-        <div id="mesh-tools" hidden>
-          <div class="form-grid measurement-grid">
-            <label>OBJ coordinate unit<select id="mesh-unit"><option value="m">metres</option><option value="mm">millimetres</option><option value="cm">centimetres</option></select></label>
-            <label>Known reference (mm)<input id="known-length" type="number" min="0" step="0.01" placeholder="Optional"></label>
-            <label>Mesh reference (mm)<input id="mesh-length" type="number" min="0" step="0.01" placeholder="Optional"></label>
-          </div>
-          <p class="fine-print">Enter both reference values to correct the mesh scale. Use a caliper measurement from a visible feature.</p>
-          <div class="dimensions" aria-label="Measured mesh bounds">
-            <div><span>Width X</span><strong id="size-x">—</strong></div>
-            <div><span>Height Y</span><strong id="size-y">—</strong></div>
-            <div><span>Depth Z</span><strong id="size-z">—</strong></div>
-          </div>
-          <p class="fine-print" id="mesh-summary"></p>
-          <p class="fine-print">These values are axis-aligned mesh bounds. Treat them as hard part dimensions only when the scan axes align with the part datums.</p>
-          <button class="primary" id="mesh-button" type="button">Use measured mesh for CAD</button>
-        </div>
+        <button class="secondary" id="lidar-restart-button" type="button">Start another part</button>
       </article>
 
       <article class="panel result-panel" id="cad-panel" hidden>
@@ -98,7 +86,7 @@
           <span class="step-number">04</span>
           <div><p class="eyebrow">Validated output</p><h2>Your CAD model is ready</h2></div>
         </div>
-        <p>Astra matched every required dimension to an official source or the measured mesh.</p>
+        <p>Astra matched every required dimension to a direct official dimension document.</p>
         <div class="cad-object" aria-hidden="true"><div class="cad-hole"></div></div>
         <button class="primary" id="download-button" type="button">Download OpenSCAD model</button>
         <button class="secondary" id="restart-button" type="button">Start another part</button>

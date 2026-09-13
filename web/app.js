@@ -2,8 +2,6 @@ const state = {
   imageBase64: "",
   vehicle: null,
   partName: "car-part",
-  meshText: "",
-  normalizedMesh: "",
   cad: "",
 };
 
@@ -13,32 +11,6 @@ export function fittedFrameSize(width, height, maximum = 1800) {
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
 }
 
-
-export function normalizeObjToMillimeters(text, unit = "m", correction = 1) {
-  const unitScale = { m: 1000, cm: 10, mm: 1 }[unit];
-  if (!unitScale || !Number.isFinite(correction) || correction <= 0) throw new Error("Invalid mesh scale.");
-  const bounds = { min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] };
-  let vertices = 0;
-  const lines = text.split(/\r?\n/).map((line) => {
-    if (!/^v\s/.test(line)) return line;
-    const values = line.trim().split(/\s+/).slice(1, 4).map(Number);
-    if (values.length !== 3 || values.some((value) => !Number.isFinite(value))) throw new Error("The OBJ contains an invalid vertex.");
-    const scaled = values.map((value) => value * unitScale * correction);
-    scaled.forEach((value, index) => {
-      bounds.min[index] = Math.min(bounds.min[index], value);
-      bounds.max[index] = Math.max(bounds.max[index], value);
-    });
-    vertices += 1;
-    return `v ${scaled.map(formatNumber).join(" ")}`;
-  });
-  if (!vertices) throw new Error("The OBJ does not contain vertices.");
-  const size = bounds.max.map((value, index) => value - bounds.min[index]);
-  return { text: `# normalized by CarPart CAD; units are millimetres\n${lines.join("\n")}`, size, vertices, correction };
-}
-
-function formatNumber(value) {
-  return Number(value.toFixed(6)).toString();
-}
 
 export async function detectDepthCapability(nav = navigator, scope = globalThis) {
   const isIPhone = /iPhone/i.test(nav.userAgent || "");
@@ -65,7 +37,6 @@ function setWorking(message = "") {
   if (!message) {
     element("identify-button").disabled = !state.imageBase64;
     element("confirm-button").disabled = false;
-    element("mesh-button").disabled = !state.normalizedMesh;
   }
 }
 
@@ -121,13 +92,13 @@ async function renderCapability() {
   if (capability.directMeshAccess) {
     box.classList.add("supported");
     element("device-title").textContent = "Depth-capable browser detected";
-    element("device-detail").textContent = "This browser reports immersive AR and a depth interface. OBJ import remains the validated demo path.";
+    element("device-detail").textContent = "This browser reports immersive AR and a depth interface. Native capture is outside this photo-and-text MVP.";
   } else if (capability.isIPhone) {
     element("device-title").textContent = "iPhone detected; web LiDAR is not exposed";
-    element("device-detail").textContent = "Safari does not identify the iPhone model or provide its raw ARKit mesh. Import a LiDAR OBJ below.";
+    element("device-detail").textContent = "Safari does not identify the iPhone model or provide its raw ARKit mesh to this website.";
   } else {
     element("device-title").textContent = "No browser LiDAR interface detected";
-    element("device-detail").textContent = "Open this page on the iPhone for capture guidance, then import a measured OBJ.";
+    element("device-detail").textContent = "Use a LiDAR-capable iPhone with the native scanner in a later phase.";
   }
 }
 
@@ -153,30 +124,6 @@ function renderResult(result) {
   throw new Error("Astra returned an unsupported result.");
 }
 
-function calibrationCorrection() {
-  const known = Number(element("known-length").value);
-  const observed = Number(element("mesh-length").value);
-  if (!known && !observed) return 1;
-  if (!(known > 0 && observed > 0)) throw new Error("Enter both reference lengths, or leave both blank.");
-  return known / observed;
-}
-
-function updateMeshMeasurement() {
-  if (!state.meshText) return;
-  try {
-    clearError();
-    const result = normalizeObjToMillimeters(state.meshText, element("mesh-unit").value, calibrationCorrection());
-    state.normalizedMesh = result.text;
-    ["x", "y", "z"].forEach((axis, index) => { element(`size-${axis}`).textContent = `${result.size[index].toFixed(1)} mm`; });
-    element("mesh-summary").textContent = `${result.vertices.toLocaleString()} vertices. Scale correction: ${result.correction.toFixed(4)}×. Verify fit-critical features with a caliper.`;
-    element("mesh-button").disabled = false;
-  } catch (error) {
-    state.normalizedMesh = "";
-    element("mesh-button").disabled = true;
-    showError(error);
-  }
-}
-
 function init() {
   element("part-photo").addEventListener("change", async (event) => {
     const file = event.target.files[0];
@@ -194,7 +141,7 @@ function init() {
   element("identify-button").addEventListener("click", async () => {
     setWorking("Astra is identifying the vehicle and part");
     try {
-      const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, scan_captured: false });
+      const result = await postAstra({ phase: "identify", image_base64: state.imageBase64, user_text: element("part-notes").value.trim(), scan_captured: false });
       state.vehicle = result.vehicle;
       state.partName = result.partName;
       element("vehicle-make").value = result.vehicle.make;
@@ -212,30 +159,10 @@ function init() {
   element("confirm-button").addEventListener("click", async () => {
     const vehicle = confirmedVehicle();
     if (!vehicle.make || !vehicle.model || !vehicle.year) { showError("Make, model, and year are required."); return; }
-    setWorking("Astra is checking official dimensions");
+    setWorking("Astra is checking pre-indexed dimensional documents");
     try {
-      const result = await postAstra({ phase: "research_and_generate", image_base64: state.imageBase64, confirmed_vehicle: vehicle, scan_captured: false });
+      const result = await postAstra({ phase: "research_and_generate", image_base64: state.imageBase64, user_text: element("part-notes").value.trim(), confirmed_vehicle: vehicle, scan_captured: false });
       state.vehicle = vehicle;
-      renderResult(result);
-    } catch (error) { showError(error); }
-    finally { setWorking(); }
-  });
-
-  element("mesh-file").addEventListener("change", async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (file.size > 10_000_000) { showError("Use an OBJ file smaller than 10 MB."); return; }
-    state.meshText = await file.text();
-    element("mesh-tools").hidden = false;
-    updateMeshMeasurement();
-  });
-  for (const id of ["mesh-unit", "known-length", "mesh-length"]) element(id).addEventListener("input", updateMeshMeasurement);
-
-  element("mesh-button").addEventListener("click", async () => {
-    setWorking("Astra is applying measured constraints to the CAD model");
-    try {
-      const mesh = bytesToBase64(new TextEncoder().encode(state.normalizedMesh));
-      const result = await postAstra({ phase: "scan_and_generate", image_base64: state.imageBase64, confirmed_vehicle: state.vehicle, scan_captured: true, scan_obj_base64: mesh });
       renderResult(result);
     } catch (error) { showError(error); }
     finally { setWorking(); }
@@ -249,6 +176,7 @@ function init() {
     link.click();
     URL.revokeObjectURL(link.href);
   });
+  element("lidar-restart-button").addEventListener("click", () => location.reload());
   element("restart-button").addEventListener("click", () => location.reload());
 }
 

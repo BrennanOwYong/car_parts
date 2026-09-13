@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -15,20 +16,47 @@ from typing import Any
 from urllib.parse import urlsplit
 
 
-OFFICIAL_STARTING_POINTS = [
-    "nhtsa.gov", "vpic.nhtsa.dot.gov", "techinfo.toyota.com",
-    "techinfo.honda.com", "motorcraftservice.com", "acdelcotds.com",
-    "techauthority.com",
-    "service.hyundai-motor.com", "b2bconnect.mercedes-benz.com",
-    "vw.servicenet.vwgroup.com",
-]
-
 WEB_ROOT = Path(__file__).with_name("web").resolve()
+SOURCE_CATALOG_PATH = Path(__file__).with_name("skills") / "vehicle-schematic-sourcing" / "references" / "official_sources.json"
 WEB_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
     "/styles.css": ("styles.css", "text/css; charset=utf-8"),
 }
+
+
+def load_source_catalog(path: Path = SOURCE_CATALOG_PATH) -> dict[str, Any]:
+    catalog = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(catalog.get("sources"), list) or not catalog["sources"]:
+        raise ValueError("official source catalog is empty")
+    return catalog
+
+
+OFFICIAL_SOURCE_CATALOG = load_source_catalog()
+
+
+def sources_for_vehicle(vehicle: dict[str, Any]) -> list[dict[str, Any]]:
+    make = str(vehicle.get("make", "")).strip().casefold()
+    model = re.sub(r"[^a-z0-9]", "", str(vehicle.get("model", "")).casefold())
+    year_text = str(vehicle.get("year", "")).strip()
+    year = int(year_text) if year_text.isdigit() else None
+
+    def matches_year(span: str) -> bool:
+        if year is None:
+            return False
+        if span.endswith("+") and span[:-1].isdigit():
+            return year >= int(span[:-1])
+        if "-" in span:
+            start, end = span.split("-", 1)
+            return start.isdigit() and end.isdigit() and int(start) <= year <= int(end)
+        return span.isdigit() and year == int(span)
+
+    return [
+        source for source in OFFICIAL_SOURCE_CATALOG["sources"]
+        if make in {item.casefold() for item in source["makes"]}
+        and model in {re.sub(r"[^a-z0-9]", "", item.casefold()) for item in source["models"]}
+        and matches_year(source["model_years"])
+    ]
 
 ASTRA_RESULT_SCHEMA = {
     "type": "object",
@@ -83,22 +111,29 @@ def build_openai_request(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("invalid phase")
     image = payload.get("image_base64", "")
     base64.b64decode(image, validate=True)
+    user_text = str(payload.get("user_text", "")).strip()
+    if len(user_text) > 2000:
+        raise ValueError("user_text is longer than 2000 characters")
     vehicle = payload.get("confirmed_vehicle") or {}
     if phase != "identify" and any(not str(vehicle.get(field, "")).strip() for field in ("make", "model", "year")):
         raise ValueError("confirmed vehicle make, model, and year are required")
     scan_captured = bool(payload.get("scan_captured"))
+    indexed_sources = sources_for_vehicle(vehicle) if phase != "identify" else []
     task = (
         "Identify the vehicle make, model, approximate year, and visible damaged or selected part."
         if phase == "identify" else
-        "Use the confirmed vehicle and visible part. Search official OEM or government sources for the exact part, interfaces, dimensions, and mounting constraints. Generate OpenSCAD only when the cited evidence is sufficient."
+        "Use the confirmed vehicle and visible part. Search direct official documents for the exact part, interfaces, dimensions, and mounting constraints. Generate OpenSCAD only when the cited evidence is sufficient."
     )
     if phase == "scan_and_generate":
         task += " Use the supplied scan measurements to fill only dimensions that were missing from official evidence. This scan is an intermediate step toward the CAD result."
     prompt = f"""You are the reconstruction agent for an iPhone car-part app.
 Task: {task}
 Confirmed vehicle: {json.dumps(vehicle)}
+User description: {json.dumps(user_text)}
 LiDAR capture supplied: {scan_captured}
-Start official research with these domains: {', '.join(OFFICIAL_STARTING_POINTS)}.
+Pre-indexed free official dimension-bearing documents for this exact vehicle: {json.dumps(indexed_sources, separators=(',', ':'))}
+Search the pre-indexed dimensional documents before general web search. The catalog was researched before this job, but each document and vehicle applicability must still be verified.
+Use an official source as dimensional evidence only when the direct page or file states the value. Never infer dimensions, hole positions, tolerances, or scale from an exploded diagram, photograph, or prose description.
 Never invent an OEM drawing, source URL, dimension, screw-hole center, tolerance, or part number.
 For identify, use outcome=vehicle_candidate. After confirmation, use only outcome=needs_lidar or outcome=cad_ready.
 Use needs_lidar when any required fit-critical dimension lacks an exact OEM or LiDAR evidence record. Put one short scan instruction in userMessage and list the absent values in missingDimensions. During scan_and_generate, request a targeted rescan of only the missing region. Continue the scan loop until the evidence supports cad_ready. Do not return partial or unsupported CAD.

@@ -2,7 +2,7 @@
 
 This repository contains a small, evidence-first decision engine. It answers one safety-critical question: does the job contain enough verified geometry to release a CAD candidate for human review?
 
-It includes a mobile-first website and the native iOS proof of concept. The website is the quickest way to test the complete Astra flow.
+It includes a mobile-first website and the native iOS proof of concept. The website is the quickest way to test the photo-and-text MVP flow.
 
 ## Source-of-truth hierarchy
 
@@ -69,19 +69,31 @@ Website flow:
 
 1. Select **Take car-part photo**. This opens the iPhone camera through the native browser control.
 2. Take one photo with the rear camera. The website does not record video.
-3. Select **Identify vehicle and part**.
-4. Correct the detected make, model, or year when required. Select **Confirm and find constraints**.
-5. Astra searches official sources. If the evidence is sufficient, download the `.scad` model.
-6. If Astra requests measurements, import an OBJ mesh from a LiDAR scanner.
-7. Select the OBJ coordinate unit. The page converts the mesh to millimetres and shows its X, Y, and Z bounds.
-8. For scale calibration, enter a known physical reference length and the same reference length in the mesh. The website applies the correction ratio before submission.
-9. Select **Use measured mesh for CAD**. Astra returns CAD or asks for a focused rescan.
+3. Add an optional text description of the part, damage, or mounting area.
+4. Select **Identify vehicle and part**.
+5. Correct the detected make, model, or year when required. Select **Confirm and check dimensional documents**.
+6. Astra searches direct official documents that contain dimensions. If the evidence is sufficient, download the `.scad` model.
+7. If the evidence is insufficient, Astra returns a short LiDAR instruction. Mesh capture is outside this website MVP.
 
 The photo input uses `accept="image/*"` and `capture="environment"`. On iPhone, this requests the rear camera for one photo. It does not attach or stream video. It also works from the local HTTP development address.
 
-Use `sample/demo-bracket.obj` to test the upload and scale display without a scanner. Select **metres** as its coordinate unit. Its expected bounds are 120 × 50 × 10 mm. These are axis-aligned bounds. They are hard part dimensions only when the scan axes align with the part datums.
+The website performs a feature check for WebXR depth access. Current iPhone Safari versions do not expose the raw ARKit LiDAR mesh to a normal webpage and do not reliably expose the exact iPhone model. The page reports this limit instead of claiming a false LiDAR result. Native iPhone LiDAR capture is a later development phase.
 
-The website performs a feature check for WebXR depth access. Current iPhone Safari versions do not expose the raw ARKit LiDAR mesh to a normal webpage and do not reliably expose the exact iPhone model. The page reports this limit instead of claiming a false LiDAR result. Use the native iOS app in this repository, or another scanner that can export OBJ, for the LiDAR capture. The website then handles scale normalization, dimension display, Astra submission, and CAD download.
+## Pre-indexed official-source skill
+
+The repository includes the Codex skill `skills/vehicle-schematic-sourcing`. Its maintained catalog contains direct free official documents with explicit measurements. It excludes parts catalogs, VIN tools, general landing pages, and non-dimensional diagrams. The Astra relay loads the same JSON catalog before every confirmed-vehicle request.
+
+To install the skill for Codex on another computer, copy the folder into the Codex skill directory:
+
+```sh
+cp -R skills/vehicle-schematic-sourcing ~/.codex/skills/
+```
+
+The runtime catalog is `skills/vehicle-schematic-sourcing/references/official_sources.json`. Version 2 contains verified direct dimensional documents for selected Tesla, Chevrolet City Express, and Ram 1500 SSV configurations. The relay selects an indexed document only when make, model, and year match.
+
+For a concrete example, open the [GM 2015-2018 Chevrolet City Express Body Builder Manual](https://www.gmupfitter.com/wp-content/uploads/2021/05/2015-18-CHEVROLET-CITY-EXPRESS-CARGO-VAN_BBM_V1.pdf). Page 59 contains a seat mounting-hole drawing with dimensions A=380 mm, B=375 mm, C=560 mm, and D=550 mm. The [Tesla 2017-2023 Model 3 Dimensional Specifications](https://service.tesla.com/docs/BodyRepair/Body_Repair_Procedures/Model_3/HTML/en-us/GUID-C5797770-FD0F-4A21-90C1-FC4E47976C95.html) contain structural point-to-point measurements. Tesla specifies millimetres, centre-to-centre measurement for holes and fasteners, and a general +/- 3 mm tolerance.
+
+The catalog is a researched starting index. It is not a database of every vehicle drawing. If no direct document matches the vehicle and part, Astra performs a targeted web search for another official dimensional document. If that search fails, Astra requests LiDAR measurement. It does not use an exploded diagram as dimensional proof.
 
 ## Build plan
 

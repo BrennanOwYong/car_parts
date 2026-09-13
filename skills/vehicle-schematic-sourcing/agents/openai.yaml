@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vehicle Schematic Sourcing"
+  short_description: "Find direct official vehicle documents with dimensions"
+  default_prompt: "Find direct free official dimensional documents for this vehicle and part. Exclude documents that do not state measurements."

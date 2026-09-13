@@ -33,11 +33,16 @@ class WebApplicationChecks(unittest.TestCase):
     def test_relay_serves_mobile_website(self):
         response, html = self.get("/")
         self.assertEqual(response.headers.get_content_type(), "text/html")
-        for value in ("part-photo", "vehicle-panel", "measure-panel", "cad-panel", "download-button"):
+        for value in ("part-photo", "part-notes", "vehicle-panel", "measure-panel", "cad-panel", "download-button"):
             self.assertIn(f'id="{value}"', html)
         self.assertIn('capture="environment"', html)
         self.assertIn("Take car-part photo", html)
         self.assertIn("It does not record video", html)
+        self.assertIn("Dimension-bearing official documents pre-indexed", html)
+        self.assertIn("accepts only a photo and text", html)
+        self.assertIn("<textarea", html)
+        self.assertEqual(html.count('type="file"'), 1)
+        self.assertNotIn("mesh-file", html)
         self.assertNotIn("<video", html)
 
     def test_scripts_use_same_origin_api_and_honest_lidar_check(self):
@@ -46,7 +51,9 @@ class WebApplicationChecks(unittest.TestCase):
         self.assertIn('fetch("/analyze"', script)
         self.assertIn("detectDepthCapability", script)
         self.assertIn("Safari does not identify the iPhone model or provide its raw ARKit mesh", script)
-        self.assertIn("scan_obj_base64", script)
+        self.assertIn('user_text: element("part-notes").value.trim()', script)
+        self.assertNotIn("scan_obj_base64", script)
+        self.assertNotIn("normalizeObjToMillimeters", script)
 
     def test_camera_flow_is_photo_only(self):
         _, script = self.get("/app.js")

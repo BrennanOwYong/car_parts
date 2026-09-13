@@ -28,10 +28,15 @@ class AstraFlowChecks(unittest.TestCase):
         self.image = base64.b64encode(b"fixture").decode()
 
     def test_identification_uses_astra_image_without_search(self):
-        request = build_openai_request({"phase": "identify", "image_base64": self.image})
+        request = build_openai_request({"phase": "identify", "image_base64": self.image, "user_text": "Broken mirror mount"})
         self.assertEqual(request["model"], "gpt-6-astra")
         self.assertNotIn("tools", request)
         self.assertEqual(request["input"][0]["content"][1]["type"], "input_image")
+        self.assertIn("Broken mirror mount", request["input"][0]["content"][0]["text"])
+
+    def test_user_text_length_is_limited(self):
+        with self.assertRaises(ValueError):
+            build_openai_request({"phase": "identify", "image_base64": self.image, "user_text": "x" * 2001})
 
     def test_research_uses_web_search_and_requires_evidence(self):
         request = build_openai_request({"phase": "research_and_generate", "image_base64": self.image, "confirmed_vehicle": {"make": "A", "model": "B", "year": "2020"}})
